@@ -23,8 +23,7 @@
             ],
             "styles": [
               "src/styles.css"
-            ],
-            "outputHashing": "none"
+            ]
           },
           "configurations": {
             "production": {
@@ -40,7 +39,7 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "none"
+              "outputHashing": "all"
             },
             "development": {
               "optimization": false,
@@ -84,6 +83,6 @@
     }
   },
   "cli": {
-    "analytics": "f87bf3fb-99d3-46b0-9987-62ad748451c8"
+    "analytics": false
   }
 }
