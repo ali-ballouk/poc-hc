@@ -1,6 +1,22 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer;
+using PosHC.Application.Interfaces;
+using PosHC.Application.Services;
+using PosHC.Infrastructure.Persistence;
+using PosHC.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+
+// Register Query Handlers
+builder.Services.AddScoped<IDoctorService,DoctorService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
