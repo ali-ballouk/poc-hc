@@ -11,16 +11,17 @@ import { HttpClient } from '@angular/common/http';
 })
 export class App implements OnInit {
   apiMessage = '';
-  url = 'https://localhost:7076/api/doctor/lookup'
+  baseurl = 'http://localhost:5269/'
 
   constructor(private http: HttpClient) { }
 
   ngOnInit() { }
 
   callApi() {
-    this.http.get<any>(this.url)
+    let api : string = "api/doctor/lookup";
+    this.http.get<any>(this.baseurl+api)
       .subscribe({
-        next: (res) => this.apiMessage = res.message,
+        next: (res) => console.log(res),
         error: (err) => this.apiMessage = 'Error: ' + err.message
       });
   }
