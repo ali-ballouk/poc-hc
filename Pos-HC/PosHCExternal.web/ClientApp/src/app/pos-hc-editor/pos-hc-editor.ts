@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { DoctorSelectorComponent } from '../doctors/doctor-selector/doctor-selector';
+import { PatientSelectorComponent } from '../patients/patient-selector/patient-selector';
 import { ISelectorApi } from '../interfaces/iselector.api';
 
 
@@ -15,7 +16,7 @@ type PaymentType = 'Cash' | 'Card' | 'Transfer' | 'OnAccount';
 @Component({
   selector: 'pos-hc-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, DoctorSelectorComponent],
+  imports: [CommonModule, FormsModule, PatientSelectorComponent, DoctorSelectorComponent ],
   templateUrl: './pos-hc-editor.html',
   styleUrls: ['./pos-hc-editor.css']
 })
@@ -50,6 +51,11 @@ export class PosHcEditor {
   }
   onDoctorSelected(id: string) {
     this.doctorId = id; 
+    console.log('Doctor selected:', id);
+  }
+
+  onPatientSelected(id: string) {
+    this.patientId = id;
     console.log('Doctor selected:', id);
   }
   setVisitPrice() {

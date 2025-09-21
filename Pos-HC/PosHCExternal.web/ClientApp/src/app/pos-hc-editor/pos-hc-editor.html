@@ -4,11 +4,7 @@
   <form #visitForm="ngForm" class="space-y-6">
     <!-- Patient selector -->
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Patient</label>
-      <select [(ngModel)]="patientId" name="patient" required
-              class="block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
-        <option *ngFor="let p of patients" [value]="p.id">{{ p.fullName }}</option>
-      </select>
+      <pos-hs-patient-selector (selectedPatientChange)="onPatientSelected($event)"></pos-hs-patient-selector>
     </div>
 
     <!-- Doctor selector -->
