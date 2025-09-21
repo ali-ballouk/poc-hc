@@ -1,7 +1,7 @@
 // Controllers/DoctorsController.cs
 using Microsoft.AspNetCore.Mvc;
 using PosHC.Application.Interfaces;
-namespace PosHC.web.Controllers
+namespace PosHCExternal.web.Controllers
 {
     [ApiController]
     [Route("api/doctor")]

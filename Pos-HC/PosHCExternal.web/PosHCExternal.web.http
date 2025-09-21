@@ -1,0 +1,6 @@
+@PosHCExternal.web_HostAddress = http://localhost:5269
+
+GET {{PosHCExternal.web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,4 +1,4 @@
-namespace Pos_HC
+namespace PosHCExternal.web
 {
     public class WeatherForecast
     {

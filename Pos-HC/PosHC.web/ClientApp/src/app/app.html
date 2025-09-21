@@ -1,9 +1,0 @@
-
-<select [(ngModel)]="selected">
-  <option [ngValue]="null">-- choose user --</option>
-  @for(d of doctors(); track d.Id; )
-  {
-  <option [ngValue]="d.Id">{{ d.FullName }}</option>
-  }
-</select>
-<router-outlet />
