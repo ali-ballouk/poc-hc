@@ -9,10 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 
-// Register Query Handlers
-builder.Services.AddScoped<IDoctorService, DoctorService>();
+// Register POSHC Repository
+builder.AddRepository();
+
+// Register POSHC Repository
+
+builder.Services.AddApplicationServices();
+
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {

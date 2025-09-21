@@ -9,5 +9,7 @@ namespace PosHC.Infrastructure.Persistence
         public ApplicationDbContext(DbContextOptions options) : base(options) { }
 
         public DbSet<Doctor> Doctor { get; set; }
+
+        public DbSet<Patient> Patient { get; set; }
     }
 }
