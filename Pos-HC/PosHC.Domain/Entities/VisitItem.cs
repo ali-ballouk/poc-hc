@@ -1,33 +1,31 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace PosHC.Domain.Entities
 {
-    [Table("VisitItem", Schema = "poshc")]
     public abstract class VisitItem
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public decimal UnitPrice { get; set; }
 
-        public string SettingsJson { get; set; } = "{}";
+        public string Settings { get; set; } = "{}";
 
-        public abstract object Settings { get; set; }
+        public abstract object SettingsValue { get; set; }
 
         public void SaveSettings(object settings)
         {
-            SettingsJson = JsonSerializer.Serialize(settings);
+            SettingsValue = JsonSerializer.Serialize(settings);
         }
 
         protected T DeserializeSettings<T>()
         {
-            return JsonSerializer.Deserialize<T>(SettingsJson)!;
+            return JsonSerializer.Deserialize<T>(Settings)!;
         }
     }
 
     public class ProductItem : VisitItem
     {
-        public override object Settings
+        public override object SettingsValue
         {
             get => DeserializeSettings<ProductSettings>();
             set => SaveSettings(value);
@@ -36,7 +34,7 @@ namespace PosHC.Domain.Entities
 
     public class ServiceItem : VisitItem
     {
-        public override object Settings
+        public override object SettingsValue
         {
             get => DeserializeSettings<ServiceSettings>();
             set => SaveSettings(value);

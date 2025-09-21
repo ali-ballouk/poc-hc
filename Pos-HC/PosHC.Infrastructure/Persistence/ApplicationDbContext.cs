@@ -1,15 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PosHC.Domain.Entities;
 
-
 namespace PosHC.Infrastructure.Persistence
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options) { }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.HasDefaultSchema("poshc");
 
-        public DbSet<Doctor> Doctor { get; set; }
+            base.OnModelCreating(modelBuilder);
+        }
+        public DbSet<Doctor> Doctor => Set<Doctor>();
+        public DbSet<Patient> Patient => Set<Patient>();
 
-        public DbSet<Patient> Patient { get; set; }
+        
     }
 }
