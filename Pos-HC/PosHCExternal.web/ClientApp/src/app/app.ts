@@ -1,28 +1,27 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { PosHcEditor } from './pos-hc-editor/pos-hc-editor';
+import { RouterOutlet } from '@angular/router';
+
 
 @Component({
   selector: 'app-root',
-  template: `
-    <h1>CORS Demo</h1>
-    <button (click)="callApi()">Call API</button>
-    <p>{{ apiMessage }}</p>
-  `
+  imports: [RouterOutlet, PosHcEditor],
+  templateUrl: './app.html',
+  styleUrl: './app.css'
 })
 export class App implements OnInit {
   apiMessage = '';
   baseurl = 'http://localhost:5269/'
 
-  constructor(private http: HttpClient) { }
 
   ngOnInit() { }
 
-  callApi() {
-    let api : string = "api/doctor/lookup";
-    this.http.get<any>(this.baseurl+api)
-      .subscribe({
-        next: (res) => console.log(res),
-        error: (err) => this.apiMessage = 'Error: ' + err.message
-      });
-  }
+  //callApi() {
+  //  let api : string = "api/doctor/lookup";
+  //  this.http.get<any>(this.baseurl+api)
+  //    .subscribe({
+  //      next: (res) => console.log(res),
+  //      error: (err) => this.apiMessage = 'Error: ' + err.message
+  //    });
+  //}
 }
