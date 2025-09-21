@@ -2,6 +2,10 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+import { DoctorSelectorComponent } from '../doctors/doctor-selector/doctor-selector';
+import { ISelectorApi } from '../interfaces/iselector.api';
+
+
 interface Patient { id: string; fullName: string; }
 interface Doctor { id: string; fullName: string; visitPrice: number; }
 interface CatalogItem { id: string; name: string; unitPrice: number; }
@@ -11,7 +15,7 @@ type PaymentType = 'Cash' | 'Card' | 'Transfer' | 'OnAccount';
 @Component({
   selector: 'pos-hc-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DoctorSelectorComponent],
   templateUrl: './pos-hc-editor.html',
   styleUrls: ['./pos-hc-editor.css']
 })
@@ -32,13 +36,22 @@ export class PosHcEditor {
 
   discount = 0;
   paymentType: PaymentType = 'Cash';
+  private doctorApi?: ISelectorApi;
 
+  onDoctorReady = (api: ISelectorApi) => {
+    this.doctorApi = api;
+    const selectedId = this.doctorApi.getSelectedId();
+    console.log('Doctor selector ready!');
+  };
   ngOnInit() {
     //this.api.patients().subscribe(p => { this.patients = p; this.patientId = p[0]?.id ?? ''; });
     //this.api.doctors().subscribe(d => { this.doctors = d; this.doctorId = d[0]?.id ?? ''; this.setVisitPrice(); });
     //this.api.catalog().subscribe(c => { this.catalog = c; c.forEach(x => this.catalogMap.set(x.id, x)); });
   }
-
+  onDoctorSelected(id: string) {
+    this.doctorId = id; 
+    console.log('Doctor selected:', id);
+  }
   setVisitPrice() {
     const doc = this.doctors.find(d => d.id === this.doctorId);
     this.doctorFee = doc?.visitPrice ?? 0;
@@ -63,6 +76,7 @@ export class PosHcEditor {
   total() { return this.doctorFee + this.subtotal() - this.discount; }
 
   submit() {
+    
     const payload = {
       patientId: this.patientId,
       doctorId: this.doctorId,

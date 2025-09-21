@@ -1,0 +1,8 @@
+<label class="block text-sm font-medium text-gray-700 mb-1">Doctor</label>
+<select [(ngModel)]="selectedDoctorId" (change)="onChange()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+  <option [ngValue]="null">-- choose user --</option>
+  @for(d of doctors(); track d.Id; )
+  {
+  <option [ngValue]="d.Id">{{ d.FullName }}</option>
+  }
+</select>
