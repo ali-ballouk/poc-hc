@@ -4,19 +4,19 @@ using System.Text.Json;
 namespace PosHC.Domain.Entities
 {
 
-    public enum VisitItemType
+    public enum ItemType
     {
         Product = 1,
         Service = 2
     }
-    public class VisitItem
+    public class Item
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public decimal UnitPrice { get; set; }
 
         // discriminator
-        public VisitItemType Type { get; set; }
+        public ItemType Type { get; set; }
 
         // raw JSON stored in SQL
         public string Settings { get; set; } = "{}";
@@ -31,8 +31,8 @@ namespace PosHC.Domain.Entities
 
                 return Type switch
                 {
-                    VisitItemType.Product => JsonSerializer.Deserialize<ProductSettings>(Settings),
-                    VisitItemType.Service => JsonSerializer.Deserialize<ServiceSettings>(Settings),
+                    ItemType.Product => JsonSerializer.Deserialize<ProductSettings>(Settings),
+                    ItemType.Service => JsonSerializer.Deserialize<ServiceSettings>(Settings),
                     _ => null
                 };
             }
@@ -46,9 +46,9 @@ namespace PosHC.Domain.Entities
 
                 Settings = Type switch
                 {
-                    VisitItemType.Product when value is ProductSettings ps =>
+                    ItemType.Product when value is ProductSettings ps =>
                         JsonSerializer.Serialize(ps),
-                    VisitItemType.Service when value is ServiceSettings ss =>
+                    ItemType.Service when value is ServiceSettings ss =>
                         JsonSerializer.Serialize(ss),
                     _ => throw new InvalidOperationException($"Type {Type} and value mismatch")
                 };

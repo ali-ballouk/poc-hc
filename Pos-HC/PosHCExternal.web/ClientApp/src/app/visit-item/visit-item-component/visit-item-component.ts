@@ -27,13 +27,13 @@ import { MatTableDataSource } from '@angular/material/table';
 export class VisitItemsComponent implements OnInit {
   // sample items for the select
  
-  visitItems = signal<any[]>([]);
+  items = signal<any[]>([]);
 
 
   ngOnInit(): void {
-    this.api.get<any[]>('api/visititem').subscribe({
+    this.api.get<any[]>('api/item').subscribe({
       next: (res) => {
-        this.visitItems.set(res);
+        this.items.set(res);
       },
       error: (err) => console.error('Error loading items', err)
     });
@@ -51,14 +51,19 @@ export class VisitItemsComponent implements OnInit {
     return Object.values(settings).join(' / ');
   }
 
+
+  getVisitItems(): string[] {
+    return this.dataSource.data.map((x: any) => x.id)
+  }
   addItem() {
     if (!this.selectedItemId) return;
 
-    const selected = this.visitItems().find(d => d.Id === this.selectedItemId);
+    const selected = this.items().find(d => d.Id === this.selectedItemId);
     if (!selected) return;
 
     // clone the item with quantity
     const row = {
+      id: selected.Id,
       name: selected.Name,
       unitPrice: selected.UnitPrice,
       type: selected.Type == 1 ? 'Product' : 'Service',

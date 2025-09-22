@@ -24,9 +24,9 @@ namespace PosHC.Infrastructure.Repositories
             return await _context.Patient.AsNoTracking().ToListAsync(cancellationToken);
         }
 
-        public async Task<List<VisitItem>> GetAllVisitItemsAsync(CancellationToken cancellationToken = default)
+        public async Task<List<Item>> GetAllItemsAsync(CancellationToken cancellationToken = default)
         {
-            return await _context.VisitItem.AsNoTracking().ToListAsync(cancellationToken);
+            return await _context.Item.AsNoTracking().ToListAsync(cancellationToken);
         }
     }
 }

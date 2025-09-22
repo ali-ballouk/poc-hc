@@ -3,21 +3,21 @@ using PosHC.Application.Interfaces;
 
 namespace PosHC.Application.Services
 {
-    public class VisitItemService : IVisitItemService
+    public class ItemService : IItemService
     {
 
         private readonly IPOSHCRepository _poshsRepository;
 
-        public VisitItemService(IPOSHCRepository poshsRepository)
+        public ItemService(IPOSHCRepository poshsRepository)
         {
             _poshsRepository = poshsRepository;
         }
 
-        public async Task<List<VisitItemDto>> GetAllVisitItems(CancellationToken cancellationToken = default)
+        public async Task<List<ItemDto>> GetAllItems(CancellationToken cancellationToken = default)
         {
-            var visitItems = await _poshsRepository.GetAllVisitItemsAsync(cancellationToken);
+            var Items = await _poshsRepository.GetAllItemsAsync(cancellationToken);
 
-            return visitItems.Select(VisitItemMapper.ToDto).ToList();
+            return Items.Select(ItemMapper.ToDto).ToList();
         }
     }
 }

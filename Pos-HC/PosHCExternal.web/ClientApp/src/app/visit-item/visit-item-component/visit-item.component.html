@@ -1,17 +1,21 @@
-<div class="p-4">
-  <h2>Visit Items</h2>
-  <mat-form-field >
+
+<h6 class="text-2xl  mb-6 text-gray-800">Visit Items</h6>
+
+<div >
+
+  <mat-form-field class="p-4">
     <mat-label>Choose Item</mat-label>
     <mat-select [(value)]="selectedItemId">
       <mat-option [value]="null">-- choose item --</mat-option>
-      @for(v of visitItems(); track v; ) {
+      @for(v of items(); track v; ) {
       <mat-option [value]="v.Id">{{ v.Name }}</mat-option>
       }
     </mat-select>
   </mat-form-field>
+  <button class="p-4" mat-raised-button color="primary" (click)="addItem()">Add</button>
+</div>
 
-
-  <button mat-raised-button color="primary" (click)="addItem()">Add</button>
+<div class="p-4">
 
   <mat-table [dataSource]="dataSource" class="mat-elevation-z2 mt-3">
 

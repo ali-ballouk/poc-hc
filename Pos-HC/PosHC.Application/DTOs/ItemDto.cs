@@ -9,21 +9,21 @@ using System.Threading.Tasks;
 
 namespace PosHC.Application.DTOs
 {
-    public class VisitItemDto
+    public class ItemDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public decimal UnitPrice { get; set; }
-        public VisitItemType Type { get; set; }
+        public ItemType Type { get; set; }
         public object Settings { get; set; }
     }
 
 
-    public static class VisitItemMapper
+    public static class ItemMapper
     {
-        public static VisitItemDto ToDto(VisitItem entity)
+        public static ItemDto ToDto(Item entity)
         {
-            var dto = new VisitItemDto
+            var dto = new ItemDto
             {
                 Id = entity.Id,
                 Name = entity.Name,
@@ -33,10 +33,10 @@ namespace PosHC.Application.DTOs
 
             switch (entity.Type)
             {
-                case VisitItemType.Product:
+                case ItemType.Product:
                     dto.Settings = JsonSerializer.Deserialize<ProductSettings>(entity.Settings);
                     break;
-                case VisitItemType.Service:
+                case ItemType.Service:
                     dto.Settings = JsonSerializer.Deserialize<ServiceSettings>(entity.Settings);
                     break;
             }
@@ -44,9 +44,9 @@ namespace PosHC.Application.DTOs
             return dto;
         }
 
-        public static VisitItem ToEntity(VisitItemDto dto)
+        public static Item ToEntity(ItemDto dto)
         {
-            var entity = new VisitItem
+            var entity = new Item
             {
                 Id = dto.Id,
                 Name = dto.Name,

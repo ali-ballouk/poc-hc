@@ -34,6 +34,8 @@ export class PosHcEditor {
 
   @ViewChild(DoctorSelectorComponent) doctorSelector!: DoctorSelectorComponent;
 
+  @ViewChild(VisitItemsComponent) visitItemsComponent!: VisitItemsComponent;
+
   doctorFee : number  = 0;
 
   selectedItemId: string | null = null;
@@ -42,7 +44,6 @@ export class PosHcEditor {
 
   discount = 0;
   paymentType: PaymentType = 'Cash';
-  private doctorApi?: ISelectorApi;
 
   
   ngOnInit() {
@@ -80,6 +81,7 @@ export class PosHcEditor {
   total() { return this.doctorFee + this.subtotal() - this.discount; }
 
   submit() {
+    console.log(this.visitItemsComponent.getVisitItems())
     const payload = {
       patientId: this.selectedPatientId,
       doctorId: this.selectedDoctorId,
