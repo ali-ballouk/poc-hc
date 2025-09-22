@@ -1,0 +1,40 @@
+<div class="p-4">
+  <h2>Visit Items</h2>
+  <mat-form-field >
+    <mat-label>Choose Item</mat-label>
+    <mat-select [(value)]="selectedItemId">
+      <mat-option [value]="null">-- choose item --</mat-option>
+      <mat-option *ngFor="let item of items" [value]="item.id">
+        {{ item.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <input type="number" [(ngModel)]="quantity" min="1" style="width:60px; margin:0 8px;" />
+
+  <button mat-raised-button color="primary" (click)="addItem()">Add</button>
+
+  <mat-table [dataSource]="dataSource" class="mat-elevation-z2 mt-3">
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <mat-header-cell *matHeaderCellDef> Item </mat-header-cell>
+      <mat-cell *matCellDef="let element">{{element.name}}</mat-cell>
+    </ng-container>
+
+    <!-- UnitPrice Column -->
+    <ng-container matColumnDef="unitPrice">
+      <mat-header-cell *matHeaderCellDef> Unit Price </mat-header-cell>
+      <mat-cell *matCellDef="let element">{{element.unitPrice | currency}}</mat-cell>
+    </ng-container>
+
+    <!-- Quantity Column -->
+    <ng-container matColumnDef="quantity">
+      <mat-header-cell *matHeaderCellDef> Qty </mat-header-cell>
+      <mat-cell *matCellDef="let element">{{element.quantity}}</mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+</div>

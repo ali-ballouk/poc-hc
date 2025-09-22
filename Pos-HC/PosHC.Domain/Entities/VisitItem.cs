@@ -1,45 +1,61 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace PosHC.Domain.Entities
 {
-    public abstract class VisitItem
+
+    public enum VisitItemType
+    {
+        Product = 1,
+        Service = 2
+    }
+    public class VisitItem
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public decimal UnitPrice { get; set; }
 
+        // discriminator
+        public VisitItemType Type { get; set; }
+
+        // raw JSON stored in SQL
         public string Settings { get; set; } = "{}";
 
-        public abstract object SettingsValue { get; set; }
-
-        public void SaveSettings(object settings)
+        [NotMapped]
+        public object? SettingsValue
         {
-            SettingsValue = JsonSerializer.Serialize(settings);
-        }
+            get
+            {
+                if (string.IsNullOrWhiteSpace(Settings))
+                    return null;
 
-        protected T DeserializeSettings<T>()
-        {
-            return JsonSerializer.Deserialize<T>(Settings)!;
+                return Type switch
+                {
+                    VisitItemType.Product => JsonSerializer.Deserialize<ProductSettings>(Settings),
+                    VisitItemType.Service => JsonSerializer.Deserialize<ServiceSettings>(Settings),
+                    _ => null
+                };
+            }
+            set
+            {
+                if (value is null)
+                {
+                    Settings = "{}";
+                    return;
+                }
+
+                Settings = Type switch
+                {
+                    VisitItemType.Product when value is ProductSettings ps =>
+                        JsonSerializer.Serialize(ps),
+                    VisitItemType.Service when value is ServiceSettings ss =>
+                        JsonSerializer.Serialize(ss),
+                    _ => throw new InvalidOperationException($"Type {Type} and value mismatch")
+                };
+            }
         }
     }
 
-    public class ProductItem : VisitItem
-    {
-        public override object SettingsValue
-        {
-            get => DeserializeSettings<ProductSettings>();
-            set => SaveSettings(value);
-        }
-    }
-
-    public class ServiceItem : VisitItem
-    {
-        public override object SettingsValue
-        {
-            get => DeserializeSettings<ServiceSettings>();
-            set => SaveSettings(value);
-        }
-    }
 
     public class ProductSettings
     {

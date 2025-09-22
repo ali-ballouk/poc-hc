@@ -38,5 +38,6 @@ export class PatientSelectorComponent implements OnInit {
     let value = event.value;
     this.selectedPatientId = value;
     this.selectedPatientIdChange.emit(value);
+    this.selectionChange.emit(value);
   }
 }

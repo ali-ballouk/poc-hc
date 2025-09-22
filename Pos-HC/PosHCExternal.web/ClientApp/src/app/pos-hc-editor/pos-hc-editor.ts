@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { DoctorSelectorComponent } from '../doctors/doctor-selector/doctor-selector';
 import { PatientSelectorComponent } from '../patients/patient-selector/patient-selector';
+import { VisitItemsComponent } from '../visit-item/visit-item-component/visit-item-component';
 import { ISelectorApi } from '../interfaces/iselector.api';
 import { MatSelectChange } from '@angular/material/select';
 
@@ -18,7 +19,7 @@ type PaymentType = 'Cash' | 'Card' | 'Transfer' | 'OnAccount';
 @Component({
   selector: 'pos-hc-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, PatientSelectorComponent, DoctorSelectorComponent],
+  imports: [CommonModule, FormsModule, PatientSelectorComponent, DoctorSelectorComponent, VisitItemsComponent],
   templateUrl: './pos-hc-editor.html',
   styleUrls: ['./pos-hc-editor.css']
 })
@@ -30,7 +31,10 @@ export class PosHcEditor {
   catalogMap = new Map<string, CatalogItem>();
   selectedPatientId: string | null = null;
   selectedDoctorId: string | null = null;
-  doctorFee = 0;
+
+  @ViewChild(DoctorSelectorComponent) doctorSelector!: DoctorSelectorComponent;
+
+  doctorFee : number  = 0;
 
   selectedItemId: string | null = null;
   qty = 1;
@@ -47,16 +51,15 @@ export class PosHcEditor {
     //this.api.catalog().subscribe(c => { this.catalog = c; c.forEach(x => this.catalogMap.set(x.id, x)); });
   }
   onDoctorSelected(event: MatSelectChange) {
+    this.doctorFee = this.doctorSelector.getSelectedDoctorFee();
     this.selectedDoctorId = event.value;
   }
-
+  
   onPatientSelected(event: MatSelectChange) {
+    console.log('Selected Patient ID:', event.value);
     this.selectedPatientId = event.value;
   }
-  setVisitPrice() {
-    const doc = this.doctors.find(d => d.id === this.selectedDoctorId);
-    this.doctorFee = doc?.visitPrice ?? 0;
-  }
+
 
   addItem() {
     if (!this.selectedItemId || this.qty < 1) return;
@@ -77,7 +80,6 @@ export class PosHcEditor {
   total() { return this.doctorFee + this.subtotal() - this.discount; }
 
   submit() {
-
     const payload = {
       patientId: this.selectedPatientId,
       doctorId: this.selectedDoctorId,
@@ -96,6 +98,7 @@ export class PosHcEditor {
   clear() {
     this.selectedPatientId = '';
     this.selectedDoctorId = '';
+    this.doctorFee = 0;
   }
 
 }

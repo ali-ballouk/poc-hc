@@ -21,7 +21,8 @@ namespace PosHC.Application.Services
                 .Select(d => new DoctorLookupDto
                 {
                     Id = d.Id,
-                    FullName = string.Format("{0} {1}", d.FirstName, d.LastName)
+                    FullName = string.Format("{0} {1}", d.FirstName, d.LastName),
+                    Fee = d.Fee
                 })
                 .ToList();
         }

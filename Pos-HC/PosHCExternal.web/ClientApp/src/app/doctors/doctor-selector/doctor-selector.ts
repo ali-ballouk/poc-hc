@@ -34,9 +34,18 @@ export class DoctorSelectorComponent implements OnInit {
     });
   }
 
-  onMatSelectionChange(event: MatSelectChange) {
+  getSelectedDoctorFee(): number  {
+    if (!this.selectedDoctorId) return 0;
+    const doctor = this.doctors().find(d => d.Id === this.selectedDoctorId);
+    return doctor.Fee;
+  }
+
+
+
+  onSelectionChange(event: MatSelectChange) {
     let value = event.value;
     this.selectedDoctorId = value;
+    this.selectionChange.emit(value);
     this.selectedDoctorIdChange.emit(value);
   }
 }

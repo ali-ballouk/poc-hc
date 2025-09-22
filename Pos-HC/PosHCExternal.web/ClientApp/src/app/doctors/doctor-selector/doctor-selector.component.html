@@ -1,6 +1,6 @@
 <mat-form-field class="p-4">
   <mat-label>Doctor</mat-label>
-  <mat-select [value]="selectedDoctorId" (selectionChange)="onMatSelectionChange($event)">
+  <mat-select [value]="selectedDoctorId" (selectionChange)="onSelectionChange($event)">
     @for(d of doctors(); track d.Id; ){
     <mat-option [value]="d.Id">{{ d.FullName }}</mat-option>
     }

@@ -12,10 +12,20 @@ namespace PosHC.Infrastructure.Persistence
             modelBuilder.HasDefaultSchema("poshc");
 
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<VisitItem>()
+            .Property(v => v.Settings)
+            .HasColumnType("nvarchar(max)");
+
+            modelBuilder.Entity<VisitItem>()
+                .Property(v => v.Type)
+                .HasConversion<int>(); // store enum as int
         }
         public DbSet<Doctor> Doctor => Set<Doctor>();
         public DbSet<Patient> Patient => Set<Patient>();
 
-        
+        public DbSet<VisitItem> VisitItem => Set<VisitItem>();
+
+
     }
 }
