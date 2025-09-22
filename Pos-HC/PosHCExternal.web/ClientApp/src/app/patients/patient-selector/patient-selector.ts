@@ -4,10 +4,15 @@ import { CommonModule } from '@angular/common';
 import { BaseAPI } from '../../services/base.api';
 import { ISelectorApi } from '../../interfaces/iselector.api';
 
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule, MatSelectChange } from '@angular/material/select';
+
+import { MatFormFieldModule } from '@angular/material/form-field';
+
 @Component({
   selector: 'pos-hs-patient-selector',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatFormFieldModule, MatSelectModule, MatInputModule],
   templateUrl: './patient-selector.component.html'
 })
 export class PatientSelectorComponent implements OnInit, ISelectorApi {
@@ -16,8 +21,7 @@ export class PatientSelectorComponent implements OnInit, ISelectorApi {
 
   @Input() functionOnReady?: (api: ISelectorApi) => void;
 
-  @Output() selectedPatientChange = new EventEmitter<string>();
-
+  @Output() selectionChange = new EventEmitter<MatSelectChange>();
   constructor(private api: BaseAPI) { }
 
   ngOnInit(): void {
@@ -33,8 +37,8 @@ export class PatientSelectorComponent implements OnInit, ISelectorApi {
     });
   }
 
-  onChange() {
-    this.selectedPatientChange.emit(this.selectedPatientId);
+  onPatientSelected(event: MatSelectChange) {
+    this.selectionChange.emit(event);
   }
 
   getSelectedId(): string | null {

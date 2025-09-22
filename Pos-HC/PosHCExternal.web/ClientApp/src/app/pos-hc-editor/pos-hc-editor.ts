@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { DoctorSelectorComponent } from '../doctors/doctor-selector/doctor-selector';
 import { PatientSelectorComponent } from '../patients/patient-selector/patient-selector';
 import { ISelectorApi } from '../interfaces/iselector.api';
+import { MatSelectChange } from '@angular/material/select';
+
 
 
 interface Patient { id: string; fullName: string; }
@@ -16,7 +18,7 @@ type PaymentType = 'Cash' | 'Card' | 'Transfer' | 'OnAccount';
 @Component({
   selector: 'pos-hc-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, PatientSelectorComponent, DoctorSelectorComponent ],
+  imports: [CommonModule, FormsModule, PatientSelectorComponent, DoctorSelectorComponent],
   templateUrl: './pos-hc-editor.html',
   styleUrls: ['./pos-hc-editor.css']
 })
@@ -50,13 +52,12 @@ export class PosHcEditor {
     //this.api.catalog().subscribe(c => { this.catalog = c; c.forEach(x => this.catalogMap.set(x.id, x)); });
   }
   onDoctorSelected(id: string) {
-    this.doctorId = id; 
+    this.doctorId = id;
     console.log('Doctor selected:', id);
   }
 
-  onPatientSelected(id: string) {
-    this.patientId = id;
-    console.log('Doctor selected:', id);
+  onPatientSelected(event: MatSelectChange) { 
+    this.patientId = event.value;
   }
   setVisitPrice() {
     const doc = this.doctors.find(d => d.id === this.doctorId);
@@ -82,7 +83,7 @@ export class PosHcEditor {
   total() { return this.doctorFee + this.subtotal() - this.discount; }
 
   submit() {
-    
+
     const payload = {
       patientId: this.patientId,
       doctorId: this.doctorId,

@@ -4,7 +4,7 @@
   <form #visitForm="ngForm" class="space-y-6">
     <!-- Patient selector -->
     <div>
-      <pos-hs-patient-selector (selectedPatientChange)="onPatientSelected($event)"></pos-hs-patient-selector>
+      <pos-hs-patient-selector (selectionChange)="onPatientSelected($event)"></pos-hs-patient-selector>
     </div>
 
     <!-- Doctor selector -->
