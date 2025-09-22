@@ -4,7 +4,7 @@ using PosHC.Application.Interfaces;
 namespace PosHCExternal.web.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/visititem")]
     public class VisitItemController : ControllerBase
     {
         private readonly IVisitItemService _visitItemService;
@@ -14,7 +14,7 @@ namespace PosHCExternal.web.Controllers
             _visitItemService = service;
         }
 
-        [HttpGet("visititem")]
+        [HttpGet]
         public async Task<IActionResult> GetAllVisitItems(CancellationToken cancellationToken)
         {
             var result = await _visitItemService.GetAllVisitItems(cancellationToken);

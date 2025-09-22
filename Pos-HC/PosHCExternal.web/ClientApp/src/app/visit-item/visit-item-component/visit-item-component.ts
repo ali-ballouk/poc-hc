@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
+import { BaseAPI } from '../../services/base.api';
+
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -7,11 +9,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatTableDataSource } from '@angular/material/table';
 
-interface VisitItem {
-  id: number;
-  name: string;
-  unitPrice: number;
-}
 
 @Component({
   selector: 'pos-hs-visit-item',
@@ -27,38 +24,50 @@ interface VisitItem {
   ],
   templateUrl: './visit-item.component.html'
 })
-export class VisitItemsComponent {
+export class VisitItemsComponent implements OnInit {
   // sample items for the select
-  items: VisitItem[] = [
-    { id: 1, name: 'Blood Test', unitPrice: 50 },
-    { id: 2, name: 'Consultation', unitPrice: 100 },
-    { id: 3, name: 'X-Ray', unitPrice: 150 }
-  ];
+ 
+  visitItems = signal<any[]>([]);
 
-  selectedItemId: number | null = null;
 
-  displayedColumns: string[] = ['name', 'unitPrice', 'quantity'];
+  ngOnInit(): void {
+    this.api.get<any[]>('api/visititem').subscribe({
+      next: (res) => {
+        this.visitItems.set(res);
+      },
+      error: (err) => console.error('Error loading items', err)
+    });
+  }
+  constructor(private api: BaseAPI) { }
+
+  selectedItemId: string | null = null;
+
+  displayedColumns: string[] = ['name', 'unitPrice', 'type' , 'description'];
   dataSource = new MatTableDataSource<any>([]);
 
-  quantity: number = 1;
+
+  settingsToString(settings: Record<string, any>): string {
+    if (!settings) return '';
+    return Object.values(settings).join(' / ');
+  }
 
   addItem() {
     if (!this.selectedItemId) return;
 
-    const selected = this.items.find(i => i.id === this.selectedItemId);
+    const selected = this.visitItems().find(d => d.Id === this.selectedItemId);
     if (!selected) return;
 
     // clone the item with quantity
     const row = {
-      name: selected.name,
-      unitPrice: selected.unitPrice,
-      quantity: this.quantity
+      name: selected.Name,
+      unitPrice: selected.UnitPrice,
+      type: selected.Type == 1 ? 'Product' : 'Service',
+      description: this.settingsToString(selected.Settings)
     };
 
     this.dataSource.data = [...this.dataSource.data, row];
 
     // reset select
-    this.selectedItemId = null;
-    this.quantity = 1;
+    this.selectedItemId = null
   }
 }
