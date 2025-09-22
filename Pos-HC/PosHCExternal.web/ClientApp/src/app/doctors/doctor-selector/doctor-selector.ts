@@ -2,21 +2,26 @@ import { Component, OnInit, Output, Input, EventEmitter, signal } from '@angular
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { BaseAPI } from '../../services/base.api';
-import { ISelectorApi } from '../../interfaces/iselector.api';
+
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule, MatSelectChange } from '@angular/material/select';
+
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'pos-hs-doctor-selector',
-  standalone: true,                
-  imports: [CommonModule, FormsModule], 
+  standalone: true,
+  imports: [CommonModule, FormsModule, MatFormFieldModule, MatSelectModule, MatInputModule],
   templateUrl: './doctor-selector.component.html'
 })
-export class DoctorSelectorComponent implements OnInit , ISelectorApi {
+export class DoctorSelectorComponent implements OnInit {
   doctors = signal<any[]>([]);
-  selectedDoctorId: string = '';
 
-  @Input() functionOnReady?: (api: ISelectorApi) => void;
+  @Input() selectedDoctorId: string | null = null;
 
-  @Output() selectedDoctorChange = new EventEmitter<string>();
+  @Output() selectionChange = new EventEmitter<MatSelectChange>();
+
+  @Output() selectedDoctorIdChange = new EventEmitter<string | null>();
 
   constructor(private api: BaseAPI) { }
 
@@ -24,20 +29,14 @@ export class DoctorSelectorComponent implements OnInit , ISelectorApi {
     this.api.get<any[]>('api/doctor/lookup').subscribe({
       next: (res) => {
         this.doctors.set(res)
-
-        //if (this.functionOnReady) {
-        //  this.functionOnReady(this);
-        //}
       },
       error: (err) => console.error('Error loading doctors', err)
     });
   }
 
-  onChange() {
-    this.selectedDoctorChange.emit(this.selectedDoctorId);
-  }
-
-  getSelectedId(): string | null {
-    return this.selectedDoctorId;
+  onMatSelectionChange(event: MatSelectChange) {
+    let value = event.value;
+    this.selectedDoctorId = value;
+    this.selectedDoctorIdChange.emit(value);
   }
 }

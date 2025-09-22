@@ -28,9 +28,8 @@ export class PosHcEditor {
   doctors: Doctor[] = [];
   catalog: CatalogItem[] = [];
   catalogMap = new Map<string, CatalogItem>();
-
-  patientId = '';
-  doctorId = '';
+  selectedPatientId: string | null = null;
+  selectedDoctorId: string | null = null;
   doctorFee = 0;
 
   selectedItemId: string | null = null;
@@ -41,26 +40,21 @@ export class PosHcEditor {
   paymentType: PaymentType = 'Cash';
   private doctorApi?: ISelectorApi;
 
-  onDoctorReady = (api: ISelectorApi) => {
-    this.doctorApi = api;
-    const selectedId = this.doctorApi.getSelectedId();
-    console.log('Doctor selector ready!');
-  };
+  
   ngOnInit() {
     //this.api.patients().subscribe(p => { this.patients = p; this.patientId = p[0]?.id ?? ''; });
     //this.api.doctors().subscribe(d => { this.doctors = d; this.doctorId = d[0]?.id ?? ''; this.setVisitPrice(); });
     //this.api.catalog().subscribe(c => { this.catalog = c; c.forEach(x => this.catalogMap.set(x.id, x)); });
   }
-  onDoctorSelected(id: string) {
-    this.doctorId = id;
-    console.log('Doctor selected:', id);
+  onDoctorSelected(event: MatSelectChange) {
+    this.selectedDoctorId = event.value;
   }
 
-  onPatientSelected(event: MatSelectChange) { 
-    this.patientId = event.value;
+  onPatientSelected(event: MatSelectChange) {
+    this.selectedPatientId = event.value;
   }
   setVisitPrice() {
-    const doc = this.doctors.find(d => d.id === this.doctorId);
+    const doc = this.doctors.find(d => d.id === this.selectedDoctorId);
     this.doctorFee = doc?.visitPrice ?? 0;
   }
 
@@ -85,8 +79,8 @@ export class PosHcEditor {
   submit() {
 
     const payload = {
-      patientId: this.patientId,
-      doctorId: this.doctorId,
+      patientId: this.selectedPatientId,
+      doctorId: this.selectedDoctorId,
       discount: this.discount,
       items: this.items,
       payment: {
@@ -98,4 +92,10 @@ export class PosHcEditor {
     // TODO: send to backend
     // this.api.createVisit(payload).subscribe(...)
   }
+
+  clear() {
+    this.selectedPatientId = '';
+    this.selectedDoctorId = '';
+  }
+
 }
