@@ -7,6 +7,8 @@ import { PatientSelectorComponent } from '../patients/patient-selector/patient-s
 import { VisitItemsComponent } from '../visit-item/visit-item-component/visit-item-component';
 import { ISelectorApi } from '../interfaces/iselector.api';
 import { MatSelectChange } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+
 
 
 
@@ -19,7 +21,7 @@ type PaymentType = 'Cash' | 'Card' | 'Transfer' | 'OnAccount';
 @Component({
   selector: 'pos-hc-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, PatientSelectorComponent, DoctorSelectorComponent, VisitItemsComponent],
+  imports: [CommonModule, FormsModule, PatientSelectorComponent, DoctorSelectorComponent, VisitItemsComponent, MatInputModule],
   templateUrl: './pos-hc-editor.html',
   styleUrls: ['./pos-hc-editor.css']
 })

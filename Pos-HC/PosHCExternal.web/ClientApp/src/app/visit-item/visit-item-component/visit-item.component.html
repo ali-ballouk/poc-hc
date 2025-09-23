@@ -1,6 +1,4 @@
 
-<h6 class="text-2xl  mb-6 text-gray-800">Visit Items</h6>
-
 <div>
 
   <mat-form-field class="p-4">
@@ -12,6 +10,11 @@
       }
     </mat-select>
   </mat-form-field>
+  <mat-form-field class="p-4">
+    <mat-label>Quantity</mat-label>
+    <input matInput type="number" [(ngModel)]="quantity" min="1" step="1" />
+  </mat-form-field>
+
   <button class="p-4" mat-raised-button color="primary" (click)="addItem()">Add</button>
 </div>
 
@@ -36,6 +39,14 @@
     <ng-container matColumnDef="unitPrice">
       <mat-header-cell *matHeaderCellDef> Unit Price </mat-header-cell>
       <mat-cell *matCellDef="let element">{{element.unitPrice | currency}}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="quantity">
+      <mat-header-cell *matHeaderCellDef> Quantity </mat-header-cell>
+      <mat-cell *matCellDef="let element">{{element.quantity}}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="total">
+      <mat-header-cell *matHeaderCellDef> Total </mat-header-cell>
+      <mat-cell *matCellDef="let element">{{element.unitPrice * element.quantity}}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="actions">
       <mat-header-cell mat-header-cell *matHeaderCellDef></mat-header-cell>

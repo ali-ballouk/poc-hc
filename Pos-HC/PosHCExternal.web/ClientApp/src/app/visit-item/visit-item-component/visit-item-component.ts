@@ -4,6 +4,7 @@ import { BaseAPI } from '../../services/base.api';
 
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
@@ -22,6 +23,7 @@ import { MatIcon, MatIconModule } from '@angular/material/icon';
     MatFormFieldModule,
     MatSelectModule,
     MatButtonModule,
+    MatInputModule,
     MatTableModule,
     MatIconModule,
     MatIcon
@@ -47,7 +49,9 @@ export class VisitItemsComponent implements OnInit {
 
   selectedItemId: string | null = null;
 
-  displayedColumns: string[] = ['name', 'unitPrice', 'type', 'description', 'actions'];
+  quantity: number = 1;
+
+  displayedColumns: string[] = ['name', 'type', 'description', 'unitPrice','quantity' ,'total','actions'];
   dataSource = new MatTableDataSource<any>([]);
 
 
@@ -71,13 +75,14 @@ export class VisitItemsComponent implements OnInit {
 
     const selected = this.items().find(d => d.Id === this.selectedItemId);
     if (!selected) return;
-
+    const quantity = this.quantity;
     // clone the item with quantity
     const row = {
       id: selected.Id,
       name: selected.Name,
       unitPrice: selected.UnitPrice,
       type: selected.Type == 1 ? 'Product' : 'Service',
+      quantity: quantity,
       description: this.settingsToString(selected.Settings)
     };
 
@@ -93,7 +98,7 @@ export class VisitItemsComponent implements OnInit {
   }
 
   private emitTotal() {
-    const total = this.dataSource.data.reduce((sum, x) => sum + x.unitPrice, 0);
+    const total = this.dataSource.data.reduce((sum, x) => sum + x.unitPrice * x.quantity, 0);
     this.itemsChanged.emit(total);
   }
 }

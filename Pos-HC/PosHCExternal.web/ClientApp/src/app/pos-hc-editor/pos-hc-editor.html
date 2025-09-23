@@ -1,4 +1,4 @@
-<div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
+<div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
   <h2 class="text-2xl font-bold mb-6 text-gray-800">Create New Visit</h2>
 
   <form #visitForm="ngForm" class="space-y-6">
@@ -9,17 +9,21 @@
 
     </div>
 
-   
+
+
+    <fieldset class="border border-gray-300 rounded-lg p-4">
+      <legend class="text-sm font-medium text-gray-700 px-2">visit Items</legend>
+      <div class="mb-4">
+        <pos-hs-visit-item (itemsChanged)="onItemUpdated($event)"></pos-hs-visit-item>
+      </div>
+    </fieldset>
     <!-- Visit Items -->
-    <pos-hs-visit-item (itemsChanged)="onItemUpdated($event)"></pos-hs-visit-item>
-
     <!-- Discount -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Discount</label>
-      <input type="number" [(ngModel)]="discount" name="discount" min="0"
-             class="block w-40 rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-    </div>
 
+    <mat-form-field class="p-4">
+      <mat-label>Discount</mat-label>
+      <input matInput type="number" [(ngModel)]="discount" min="1" step="1" />
+    </mat-form-field>
     <!-- Payment Type -->
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Payment Type</label>
