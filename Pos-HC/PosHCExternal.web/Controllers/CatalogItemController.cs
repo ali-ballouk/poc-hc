@@ -18,7 +18,7 @@ namespace PosHCExternal.web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllItems(CancellationToken cancellationToken)
         {
-            var result = await _catalogItemService.GetAllItems(cancellationToken);
+            var result = await _catalogItemService.GetAllCatalogItemsAsync(cancellationToken);
             return Ok(result);
         }
     }

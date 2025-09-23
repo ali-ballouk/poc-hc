@@ -26,6 +26,8 @@ namespace PosHC.Infrastructure.Persistence
 
         public DbSet<CatalogItem> CatalogItem => Set<CatalogItem>();
 
+        public DbSet<Invoice> Invoice => Set<Invoice>();
+
 
     }
 }

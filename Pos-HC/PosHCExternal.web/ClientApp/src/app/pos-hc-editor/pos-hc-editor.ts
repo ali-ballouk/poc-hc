@@ -5,8 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { DoctorSelectorComponent } from '../doctors/doctor-selector/doctor-selector';
 import { PatientSelectorComponent } from '../patients/patient-selector/patient-selector';
 import { VisitItemsComponent } from '../visit-item/visit-item-component/visit-item-component';
-import { ISelectorApi } from '../interfaces/iselector.api';
-import { MatSelectChange } from '@angular/material/select';
+import { BaseAPI } from '../services/base.api';
 import { MatInputModule } from '@angular/material/input';
 
 
@@ -47,7 +46,7 @@ export class PosHcEditor {
   discount = 0;
   paymentType: PaymentType = 'Cash';
 
-
+  constructor(private api: BaseAPI) { }
   ngOnInit() {
     //this.api.patients().subscribe(p => { this.patients = p; this.patientId = p[0]?.id ?? ''; });
     //this.api.doctors().subscribe(d => { this.doctors = d; this.doctorId = d[0]?.id ?? ''; this.setVisitPrice(); });
@@ -78,18 +77,17 @@ export class PosHcEditor {
 
   submit() {
     const payload = {
-      patientId: this.selectedPatientId,
-      doctorId: this.selectedDoctorId,
-      discount: this.discount,
-      items: this.visitItemsComponent.getVisitItems(),
-      payment: {
-        paymentType: this.paymentType,
-        amount: this.total()
-      }
+      DoctorId: this.selectedDoctorId,
+      PatientId: this.selectedPatientId,
+      Discount: this.discount,
+      Items: this.visitItemsComponent.getVisitItems(),
     };
-    console.log('Submitting visit:', payload);
-    // TODO: send to backend
-    // this.api.createVisit(payload).subscribe(...)
+    this.api.post<any>('api/invoice', payload).subscribe({
+      next: (res) => {
+        console.log('Submitted successfully', res);
+      },
+      error: (err) => console.error('Error loading patients', err)
+    });
   }
 
   clear() {

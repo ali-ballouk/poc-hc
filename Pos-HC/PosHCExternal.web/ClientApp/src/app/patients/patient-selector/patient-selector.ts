@@ -25,13 +25,13 @@ export class PatientSelectorComponent implements OnInit {
 
   constructor(private api: BaseAPI) { }
 
-  ngOnInit(): void {
-    this.api.get<any[]>('api/patients/lookup').subscribe({
+  ngOnInit(): void {this.api.get<any[]>('api/patients/lookup').subscribe({
       next: (res) => {
         this.patients.set(res);
       },
       error: (err) => console.error('Error loading patients', err)
     });
+    
   }
 
   onSelectionChange(event: MatSelectChange) {

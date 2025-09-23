@@ -28,5 +28,20 @@ namespace PosHC.Infrastructure.Repositories
         {
             return await _context.CatalogItem.AsNoTracking().ToListAsync(cancellationToken);
         }
+
+        public async Task<List<Invoice>> GetAllIInvoiceAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Invoice.Include(i => i.Items).AsNoTracking().ToListAsync(cancellationToken);
+        }
+
+        public async Task<Invoice> SaveInvoice(Invoice invoice,CancellationToken cancellationToken = default)
+        {
+
+            _context.Invoice.Add(invoice);
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return invoice;
+        }
     }
 }
