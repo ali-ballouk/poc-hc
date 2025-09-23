@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
+<div >
   <h2 class="text-2xl font-bold mb-6 text-gray-800">Create New Visit</h2>
 
   <form #visitForm="ngForm" class="space-y-6">
@@ -13,14 +13,12 @@
 
     <fieldset class="border border-gray-300 rounded-lg p-4">
       <legend class="text-sm font-medium text-gray-700 px-2">visit Items</legend>
-      <div class="mb-4">
         <pos-hs-visit-item (itemsChanged)="onItemUpdated($event)"></pos-hs-visit-item>
-      </div>
     </fieldset>
     <!-- Visit Items -->
     <!-- Discount -->
 
-    <mat-form-field class="p-4">
+    <mat-form-field class="pl-4 pr-4">
       <mat-label>Discount</mat-label>
       <input matInput type="number" [(ngModel)]="discount" min="1" step="1" name="discount" />
     </mat-form-field>

@@ -1,1 +1,44 @@
-<p>invoices works!</p>
+<div class="p-4">
+  <mat-table [dataSource]="dataSource" class="mat-elevation-z2 mt-3 w-full">
+
+    <!-- Item Type -->
+    <ng-container matColumnDef="InvoiceId">
+      <mat-header-cell *matHeaderCellDef> # </mat-header-cell>
+      <mat-cell *matCellDef="let element" class="cell-small cell-tight" style="font-size:10px">{{ element.InvoiceId }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="InvoiceDate">
+      <mat-header-cell *matHeaderCellDef> Invoice Date </mat-header-cell>
+      <mat-cell *matCellDef="let element" class="cell-small cell-tight">{{ element.InvoiceDate | date:'yyyy-MM-dd hh:mm' }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="DoctorName">
+      <mat-header-cell *matHeaderCellDef> Doctor Name </mat-header-cell>
+      <mat-cell *matCellDef="let element" class="cell-small">{{ element.DoctorName }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="PatientName">
+      <mat-header-cell *matHeaderCellDef> Patient Name </mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.PatientName }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="DoctorFee">
+      <mat-header-cell *matHeaderCellDef> Doctor Fee </mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.DoctorFee }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="Discount">
+      <mat-header-cell *matHeaderCellDef> Discount </mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.Discount | currency }}</mat-cell>
+    </ng-container>
+    
+    <ng-container matColumnDef="Total">
+      <mat-header-cell *matHeaderCellDef> Total </mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.Total | currency }}</mat-cell>
+    </ng-container>
+    <!-- Header + Rows -->
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+
+  </mat-table>
+</div>

@@ -15,8 +15,8 @@ namespace PosHC.Application.DTOs
 
         public Guid PatientId { get; set; }
 
-        public string DoctorName { get; set; }
-        public string PatientName { get; set; }
+        public string? DoctorName { get; set; }
+        public string? PatientName { get; set; }
 
         public decimal? Discount { get; set; }
         public List<InvoiceItemDto> Items { get; set; } = new();
@@ -28,11 +28,11 @@ namespace PosHC.Application.DTOs
 
         public DateTime InvoiceDate { get; set; }
         public Guid DoctorId { get; set; }
-        public string DoctorName { get; set; }
+        public string? DoctorName { get; set; }
 
         public Guid PatientId { get; set; }
 
-        public string PatientName { get; set; }
+        public string? PatientName { get; set; }
 
         public decimal? Discount { get; set; }
 
