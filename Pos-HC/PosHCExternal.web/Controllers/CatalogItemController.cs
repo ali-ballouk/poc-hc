@@ -5,7 +5,7 @@ using PosHC.Application.Services;
 namespace PosHCExternal.web.Controllers
 {
     [ApiController]
-    [Route("api/catalogtitems")]
+    [Route("api/catalogtitem")]
     public class CatalogItemController : ControllerBase
     {
         private readonly ICatalogItemService _catalogItemService;

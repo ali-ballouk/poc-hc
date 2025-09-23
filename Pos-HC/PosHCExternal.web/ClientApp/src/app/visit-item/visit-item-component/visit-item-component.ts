@@ -38,7 +38,7 @@ export class VisitItemsComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.api.get<any[]>('api/catalogtitems').subscribe({
+    this.api.get<any[]>('api/catalogtitem').subscribe({
       next: (res) => {
         this.items.set(res);
       },
