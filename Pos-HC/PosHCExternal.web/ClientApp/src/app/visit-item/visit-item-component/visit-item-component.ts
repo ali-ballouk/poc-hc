@@ -61,8 +61,8 @@ export class VisitItemsComponent implements OnInit {
   }
 
 
-  getVisitItems(): string[] {
-    return this.dataSource.data.map((x: any) => x.id)
+  getVisitItems(): any[] {
+    return this.dataSource.data.map((x: any) => ({TypeId: x.id, Quantity: x.quantity}))
   }
 
   clearItems() {

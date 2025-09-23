@@ -45,7 +45,7 @@ export class DoctorSelectorComponent implements OnInit {
   onSelectionChange(event: MatSelectChange) {
     let value = event.value;
     this.selectedDoctorId = value;
-    this.selectionChange.emit(value);
     this.selectedDoctorIdChange.emit(value);
+    this.selectionChange.emit(value);
   }
 }

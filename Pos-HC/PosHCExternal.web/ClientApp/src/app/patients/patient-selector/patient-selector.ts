@@ -34,10 +34,11 @@ export class PatientSelectorComponent implements OnInit {
     });
   }
 
-  onMatSelectionChange(event: MatSelectChange) {
+  onSelectionChange(event: MatSelectChange) {
     let value = event.value;
     this.selectedPatientId = value;
     this.selectedPatientIdChange.emit(value);
     this.selectionChange.emit(value);
   }
+
 }

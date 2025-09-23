@@ -38,7 +38,7 @@ export class PosHcEditor {
 
   @ViewChild(VisitItemsComponent) visitItemsComponent!: VisitItemsComponent;
 
-  doctorFee : number  = 0;
+  doctorFee: number = 0;
 
   selectedItemId: string | null = null;
   qty = 1;
@@ -47,19 +47,19 @@ export class PosHcEditor {
   discount = 0;
   paymentType: PaymentType = 'Cash';
 
-  
+
   ngOnInit() {
     //this.api.patients().subscribe(p => { this.patients = p; this.patientId = p[0]?.id ?? ''; });
     //this.api.doctors().subscribe(d => { this.doctors = d; this.doctorId = d[0]?.id ?? ''; this.setVisitPrice(); });
     //this.api.catalog().subscribe(c => { this.catalog = c; c.forEach(x => this.catalogMap.set(x.id, x)); });
   }
-  onDoctorSelected(event: MatSelectChange) {
+  onDoctorSelected(value: any) {
     this.doctorFee = this.doctorSelector.getSelectedDoctorFee();
-    this.selectedDoctorId = event.value;
+    this.selectedDoctorId = value;
   }
-  
-  onPatientSelected(event: MatSelectChange) {
-    this.selectedPatientId = event.value;
+
+  onPatientSelected(value: any) {
+    this.selectedPatientId = value;
   }
 
 
@@ -72,17 +72,16 @@ export class PosHcEditor {
   total() { return this.doctorFee + this.subtotal - this.discount; }
 
   onItemUpdated(totalItems: number) {
-    
+
     this.subtotal = totalItems;
   }
 
   submit() {
-    console.log(this.visitItemsComponent.getVisitItems())
     const payload = {
       patientId: this.selectedPatientId,
       doctorId: this.selectedDoctorId,
       discount: this.discount,
-      items: this.items,
+      items: this.visitItemsComponent.getVisitItems(),
       payment: {
         paymentType: this.paymentType,
         amount: this.total()
