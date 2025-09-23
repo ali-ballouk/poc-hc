@@ -8,6 +8,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+
 
 
 @Component({
@@ -20,7 +22,9 @@ import { MatTableDataSource } from '@angular/material/table';
     MatFormFieldModule,
     MatSelectModule,
     MatButtonModule,
-    MatTableModule
+    MatTableModule,
+    MatIconModule,
+    MatIcon
   ],
   templateUrl: './visit-item.component.html'
 })
@@ -42,7 +46,7 @@ export class VisitItemsComponent implements OnInit {
 
   selectedItemId: string | null = null;
 
-  displayedColumns: string[] = ['name', 'unitPrice', 'type' , 'description'];
+  displayedColumns: string[] = ['name', 'unitPrice', 'type', 'description', 'actions'];
   dataSource = new MatTableDataSource<any>([]);
 
 
@@ -74,5 +78,9 @@ export class VisitItemsComponent implements OnInit {
 
     // reset select
     this.selectedItemId = null
+  }
+
+  removeItem(id: string) {
+    this.dataSource.data = this.dataSource.data.filter(x => x.id !== id);
   }
 }
