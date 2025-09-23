@@ -9,7 +9,7 @@ namespace PosHC.Domain.Entities
         Product = 1,
         Service = 2
     }
-    public class Item
+    public class CatalogItem
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;

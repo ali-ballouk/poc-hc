@@ -13,18 +13,18 @@ namespace PosHC.Infrastructure.Persistence
 
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Item>()
+            modelBuilder.Entity<CatalogItem>()
             .Property(v => v.Settings)
             .HasColumnType("nvarchar(max)");
 
-            modelBuilder.Entity<Item>()
+            modelBuilder.Entity<CatalogItem>()
                 .Property(v => v.Type)
                 .HasConversion<int>(); // store enum as int
         }
         public DbSet<Doctor> Doctor => Set<Doctor>();
         public DbSet<Patient> Patient => Set<Patient>();
 
-        public DbSet<Item> Item => Set<Item>();
+        public DbSet<CatalogItem> CatalogItem => Set<CatalogItem>();
 
 
     }

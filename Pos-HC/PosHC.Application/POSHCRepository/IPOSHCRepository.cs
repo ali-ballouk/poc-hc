@@ -8,7 +8,7 @@ namespace PosHC.Application.Interfaces
         Task<List<Doctor>> GetAllDoctorsAsync(CancellationToken cancellationToken = default);
 
         Task<List<Patient>> GetAllPatientsAsync(CancellationToken cancellationToken = default);
-        Task<List<Item>> GetAllItemsAsync(CancellationToken cancellationToken = default);
+        Task<List<CatalogItem>> GetAllItemsAsync(CancellationToken cancellationToken = default);
 
     }
 }

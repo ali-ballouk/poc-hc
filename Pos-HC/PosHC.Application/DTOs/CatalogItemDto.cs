@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PosHC.Application.DTOs
 {
-    public class ItemDto
+    public class CatalogItemDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
@@ -19,11 +19,11 @@ namespace PosHC.Application.DTOs
     }
 
 
-    public static class ItemMapper
+    public static class CatalogItemDtoMapper
     {
-        public static ItemDto ToDto(Item entity)
+        public static CatalogItemDto ToDto(CatalogItem entity)
         {
-            var dto = new ItemDto
+            var dto = new CatalogItemDto
             {
                 Id = entity.Id,
                 Name = entity.Name,
@@ -44,9 +44,9 @@ namespace PosHC.Application.DTOs
             return dto;
         }
 
-        public static Item ToEntity(ItemDto dto)
+        public static CatalogItem ToEntity(CatalogItemDto dto)
         {
-            var entity = new Item
+            var entity = new CatalogItem
             {
                 Id = dto.Id,
                 Name = dto.Name,

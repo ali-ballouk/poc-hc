@@ -3,21 +3,21 @@ using PosHC.Application.Interfaces;
 
 namespace PosHC.Application.Services
 {
-    public class ItemService : IItemService
+    public class CatalogItemService : ICatalogItemService
     {
 
         private readonly IPOSHCRepository _poshsRepository;
 
-        public ItemService(IPOSHCRepository poshsRepository)
+        public CatalogItemService(IPOSHCRepository poshsRepository)
         {
             _poshsRepository = poshsRepository;
         }
 
-        public async Task<List<ItemDto>> GetAllItems(CancellationToken cancellationToken = default)
+        public async Task<List<CatalogItemDto>> GetAllItems(CancellationToken cancellationToken = default)
         {
             var Items = await _poshsRepository.GetAllItemsAsync(cancellationToken);
 
-            return Items.Select(ItemMapper.ToDto).ToList();
+            return Items.Select(CatalogItemDtoMapper.ToDto).ToList();
         }
     }
 }
