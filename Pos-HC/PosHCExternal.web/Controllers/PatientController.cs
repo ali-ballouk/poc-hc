@@ -4,7 +4,7 @@ using PosHC.Application.Interfaces;
 namespace PosHCExternal.web.Controllers
 {
     [ApiController]
-    [Route("api/patient")]
+    [Route("api/patients")]
     public class PatientController : ControllerBase
     {
         private readonly IPatientService _patientService;

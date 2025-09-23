@@ -4,7 +4,7 @@ using PosHC.Application.Interfaces;
 namespace PosHCExternal.web.Controllers
 {
     [ApiController]
-    [Route("api/item")]
+    [Route("api/items")]
     public class ItemController : ControllerBase
     {
         private readonly IItemService _ItemService;
