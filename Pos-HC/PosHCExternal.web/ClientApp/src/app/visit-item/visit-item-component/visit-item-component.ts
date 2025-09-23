@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, Output, EventEmitter } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { BaseAPI } from '../../services/base.api';
 
@@ -30,7 +30,8 @@ import { MatIcon, MatIconModule } from '@angular/material/icon';
 })
 export class VisitItemsComponent implements OnInit {
   // sample items for the select
- 
+  @Output() itemsChanged = new EventEmitter<number>();  // 👈 Parent will listen
+
   items = signal<any[]>([]);
 
 
@@ -59,6 +60,12 @@ export class VisitItemsComponent implements OnInit {
   getVisitItems(): string[] {
     return this.dataSource.data.map((x: any) => x.id)
   }
+
+  clearItems() {
+    if (this.selectedItemId) this.selectedItemId = null;
+    this.dataSource.data = [];
+    this.emitTotal();
+  }
   addItem() {
     if (!this.selectedItemId) return;
 
@@ -75,12 +82,18 @@ export class VisitItemsComponent implements OnInit {
     };
 
     this.dataSource.data = [...this.dataSource.data, row];
-
-    // reset select
     this.selectedItemId = null
+    this.emitTotal();
+
   }
 
   removeItem(id: string) {
     this.dataSource.data = this.dataSource.data.filter(x => x.id !== id);
+    this.emitTotal();
+  }
+
+  private emitTotal() {
+    const total = this.dataSource.data.reduce((sum, x) => sum + x.unitPrice, 0);
+    this.itemsChanged.emit(total);
   }
 }

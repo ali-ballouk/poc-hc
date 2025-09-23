@@ -57,28 +57,22 @@ export class PosHcEditor {
   }
   
   onPatientSelected(event: MatSelectChange) {
-    console.log('Selected Patient ID:', event.value);
     this.selectedPatientId = event.value;
   }
 
 
-  addItem() {
-    if (!this.selectedItemId || this.qty < 1) return;
-    this.items.push({ catalogItemId: this.selectedItemId, quantity: this.qty });
-    this.selectedItemId = null; this.qty = 1;
+
+
+  rowTotal(it: VisitItem) { 0 }
+
+  subtotal = 0;
+
+  total() { return this.doctorFee + this.subtotal - this.discount; }
+
+  onItemUpdated(totalItems: number) {
+    
+    this.subtotal = totalItems;
   }
-
-  remove(i: number) { this.items.splice(i, 1); }
-
-  unitPrice(it: VisitItem) {
-    return it.overrideUnitPrice ?? (this.catalogMap.get(it.catalogItemId)?.unitPrice ?? 0);
-  }
-
-  rowTotal(it: VisitItem) { return this.unitPrice(it) * it.quantity; }
-
-  subtotal() { return this.items.reduce((s, i) => s + this.rowTotal(i), 0); }
-
-  total() { return this.doctorFee + this.subtotal() - this.discount; }
 
   submit() {
     console.log(this.visitItemsComponent.getVisitItems())
@@ -101,6 +95,7 @@ export class PosHcEditor {
     this.selectedPatientId = '';
     this.selectedDoctorId = '';
     this.doctorFee = 0;
+    this.visitItemsComponent.clearItems();
   }
 
 }

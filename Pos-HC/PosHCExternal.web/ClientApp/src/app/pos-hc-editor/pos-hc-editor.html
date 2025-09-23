@@ -11,7 +11,7 @@
 
    
     <!-- Visit Items -->
-    <pos-hs-visit-item></pos-hs-visit-item>
+    <pos-hs-visit-item (itemsChanged)="onItemUpdated($event)"></pos-hs-visit-item>
 
     <!-- Discount -->
     <div>
@@ -35,7 +35,7 @@
     <!-- Totals -->
     <div class="bg-gray-50 rounded-md p-4 space-y-1">
       <p class="text-sm text-gray-700">Doctor Fee: <span class="font-semibold">{{ doctorFee | number:'1.2-2' }}</span></p>
-      <p class="text-sm text-gray-700">Items Subtotal: <span class="font-semibold">{{ subtotal() | number:'1.2-2' }}</span></p>
+      <p class="text-sm text-gray-700">Items Subtotal: <span class="font-semibold">{{ subtotal | number:'1.2-2' }}</span></p>
       <p class="text-sm text-gray-700">Discount: <span class="font-semibold">{{ discount | number:'1.2-2' }}</span></p>
       <h3 class="text-lg font-bold text-gray-900">Total: {{ total() | number:'1.2-2' }}</h3>
     </div>
