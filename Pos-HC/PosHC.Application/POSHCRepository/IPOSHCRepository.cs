@@ -16,5 +16,7 @@ namespace PosHC.Application.Interfaces
 
         Task<List<PaymentType>> GetAllPaymentTypeAsync(CancellationToken cancellationToken = default);
 
+        Task<Payment> SavePayment(Payment payment, CancellationToken cancellationToken = default);
+
     }
 }

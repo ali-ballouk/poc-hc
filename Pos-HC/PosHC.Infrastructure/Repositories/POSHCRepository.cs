@@ -48,5 +48,13 @@ namespace PosHC.Infrastructure.Repositories
 
             return invoice;
         }
+
+
+        public async Task<Payment> SavePayment(Payment payment, CancellationToken cancellationToken = default)
+        {
+            _context.Payment.Add(payment);
+            await _context.SaveChangesAsync(cancellationToken);
+            return payment;
+        }
     }
 }

@@ -21,7 +21,6 @@ namespace PosHC.Domain.Entities
         public PaymentType PaymentType { get; set; } = null!;
 
         public DateTime PaymentDate { get; set; } = DateTime.UtcNow;
-        public decimal Amount { get; set; }
         public string Settings { get; set; }
     }
 

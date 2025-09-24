@@ -11,10 +11,20 @@ namespace PosHC.Application.DTOs
 
     public class PaymentRequestDto 
     {
-        public Guid Id { get; set; }
         public Guid InvoiceId { get; set; }
-        public decimal Amount { get; set; }
+        public int PaymentTypeId { get; set; }
         public PaymentSettings Settings { get; set; } = null!;
+    }
+
+    public class PaymentResultDto
+    {
+        public Guid Id { get; set; }
+
+        public Guid InvoiceId { get; set; }
+
+        public int PaymentTypeId { get; set; }
+
+        public DateTime PaymentDate { get; set; }
     }
 
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "paymentType")]

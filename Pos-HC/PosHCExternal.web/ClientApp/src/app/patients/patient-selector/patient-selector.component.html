@@ -3,7 +3,7 @@
   <mat-select [value]="selectedPatientId" (selectionChange)="onSelectionChange($event)">
     <mat-option [value]="null">-- choose item --</mat-option>
 
-    @for(p of patients(); track p; ) {
+    @for(p of patients(); track p.Id; ) {
     <mat-option [value]="p.Id">{{ p.FullName }}</mat-option>
     }
   </mat-select>

@@ -15,8 +15,8 @@ namespace PosHC.Application.Services
 
         public async Task<List<PaymentTypeLookupDto>> GetPaymentTypeLookupDtos(CancellationToken cancellationToken = default)
         {
-            var patients = await GetAllPaymentTypes(cancellationToken);
-            return patients.Select(PaymentTypeLookupDtoMapper).ToList();
+            var types = await GetAllPaymentTypes(cancellationToken);
+            return types.Select(PaymentTypeLookupDtoMapper).OrderBy(t => t.Id).ToList();
         }
 
 

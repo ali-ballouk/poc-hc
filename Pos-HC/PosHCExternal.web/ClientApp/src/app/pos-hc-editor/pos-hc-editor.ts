@@ -78,9 +78,12 @@ export class PosHcEditor {
   }
 
   pay() {
-
-    this.dialog.openComponent(PosHsPayment, 'Payment', { invoiceId: 123 });
-
+     this.dialog.openComponent(PosHsPayment, 'Payment', {
+      params: { invoiceId: 123 }
+    }).subscribe(result => {
+      console.log('Closed with result:', result);
+        this.clear();
+    })
   }
 
   clear() {

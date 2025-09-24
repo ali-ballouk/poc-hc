@@ -1,5 +1,5 @@
 
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ViewChild } from '@angular/core';
 
 import { Type } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -26,17 +26,25 @@ export const PaymentComponentMap: Record<number, Type<any>> = {
   templateUrl: './pos-hc-payment.html',
 
 })
-export class PosHsPayment {
 
+export class PosHsPayment {
   selectedPaymentTypeId: Number | null = 0;
   selectedComponent: Type<any> | null = null;
+
+  @ViewChild(PosHsWrapperComponent) wrapper!: PosHsWrapperComponent;
+
   constructor(
     private dialogRef: MatDialogRef<PosHsPayment>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 
   save() {
-    this.dialogRef.close({ success: true, id: this.data?.invoiceId });
+    const paymentData = this.wrapper?.getData?.();
+
+
+    this.dialogRef.close({
+      success: true
+    });
   }
 
   onPaymentTypeSelected(value: any) {

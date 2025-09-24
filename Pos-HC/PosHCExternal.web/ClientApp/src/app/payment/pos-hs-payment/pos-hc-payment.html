@@ -1,8 +1,10 @@
 <pos-hs-paymenttype-selector (selectionChange)="onPaymentTypeSelected($event)" [(selectedPaymentTypeId)]="selectedPaymentTypeId"></pos-hs-paymenttype-selector>
 
 <app-dynamic-wrapper [component]="selectedComponent" #wrapper></app-dynamic-wrapper>
+<div class="flex justify-end space-x-4">
+  <button type="button" (click)="save()"  class=" py-3 px-4 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 focus:outline-none disabled:opacity-50">
+    Save
+  </button>
+</div>
 
-<button type="button" (click)="close()"
-        class=" py-3 px-4 rounded-lg bg-yellow-600 text-white font-semibold hover:bg-yellow-700 focus:outline-none disabled:opacity-50">
-  Close
-</button>
+
