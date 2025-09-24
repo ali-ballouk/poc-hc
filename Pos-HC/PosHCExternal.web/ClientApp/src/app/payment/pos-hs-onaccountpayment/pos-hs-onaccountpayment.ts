@@ -13,7 +13,7 @@ export class PosHsOnaccountpayment {
   getData() {
     return {
       paymentType: 'on-account',
-      AccountId: this.accountId,
+      AccountId: this.accountId
     };
   }
 }

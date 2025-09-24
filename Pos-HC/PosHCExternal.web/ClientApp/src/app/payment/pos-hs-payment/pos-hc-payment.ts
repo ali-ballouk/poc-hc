@@ -4,6 +4,7 @@ import { Component, Inject, ViewChild } from '@angular/core';
 import { Type } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { PosHsWrapperComponent } from '../../../app/ui-shared/pos-hs-wrapper-component/pos-hs-wrapper-component';
+import { BaseAPI } from '../../services/base.api';
 
 import { PosHsCashpayment } from '../pos-hs-cashpayment/pos-hs-cashpayment';
 import { PosHsCardpayment } from '../pos-hs-cardpayment/pos-hs-cardpayment';
@@ -17,6 +18,11 @@ export const PaymentComponentMap: Record<number, Type<any>> = {
   2: PosHsCardpayment,
   3: PosHsTransferpayment,
   4: PosHsOnaccountpayment,
+}
+interface Payment {
+  InvoiceId: string;
+  PaymentTypeId: Number,
+  Settings: any
 }
 
 @Component({
@@ -35,12 +41,23 @@ export class PosHsPayment {
 
   constructor(
     private dialogRef: MatDialogRef<PosHsPayment>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any, private api: BaseAPI
   ) { }
 
   save() {
     const paymentData = this.wrapper?.getData?.();
-
+    console.log('Payment Data', this.data.invoiceId); 
+    const payload = {
+      InvoiceId: this.data.invoiceId,
+      PaymentTypeId: this.selectedPaymentTypeId,
+      Settings: paymentData
+    }
+    this.api.post<Payment>('api/payment', payload).subscribe({
+      next: (res) => {
+        console.log('Submitted successfully', res);
+      },
+      error: (err) => console.error('Error loading patients', err)
+    });
 
     this.dialogRef.close({
       success: true

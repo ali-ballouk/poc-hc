@@ -8,7 +8,7 @@ import { VisitItemsComponent } from '../visit-item/visit-item-component/visit-it
 import { BaseAPI } from '../services/base.api';
 import { MatInputModule } from '@angular/material/input';
 import { DialogService } from '../services/pos-hs-dialog.service';
-import { PosHsPayment } from '../payment/pos-hs-payment/pos-hc-payment';  
+import { PosHsPayment } from '../payment/pos-hs-payment/pos-hc-payment';
 interface Invoice {
   DoctorId: string;
   PatientId: string,
@@ -16,7 +16,6 @@ interface Invoice {
   Items: any[]
 }
 
-type PaymentType = 'Cash' | 'Card' | 'Transfer' | 'OnAccount';
 
 @Component({
   selector: 'pos-hc-editor',
@@ -26,10 +25,10 @@ type PaymentType = 'Cash' | 'Card' | 'Transfer' | 'OnAccount';
 })
 export class PosHcEditor {
 
- 
+
   selectedPatientId: string | null = null;
   selectedDoctorId: string | null = null;
-  invoiceResult   : any | null = null;
+  invoiceResult: any | null = null;
 
   @ViewChild(DoctorSelectorComponent) doctorSelector!: DoctorSelectorComponent;
 
@@ -40,9 +39,8 @@ export class PosHcEditor {
   selectedItemId: string | null = null;
   qty = 1;
   discount = 0;
-  paymentType: PaymentType = 'Cash';
   constructor(private api: BaseAPI, private dialog: DialogService) { }
-  ngOnInit() {}
+  ngOnInit() { }
   onDoctorSelected(value: any) {
     this.doctorFee = this.doctorSelector.getSelectedDoctorFee();
     this.selectedDoctorId = value;
@@ -78,12 +76,12 @@ export class PosHcEditor {
   }
 
   pay() {
-     this.dialog.openComponent(PosHsPayment, 'Payment', {
-      params: { invoiceId: 123 }
-    }).subscribe(result => {
-      console.log('Closed with result:', result);
-        this.clear();
-    })
+    let params = {
+      invoiceId: this.invoiceResult.InvoiceId
+    }
+    this.dialog.openComponent(PosHsPayment, 'Payment', params).afterClosed().subscribe(result => {
+      this.clear();
+    });;
   }
 
   clear() {

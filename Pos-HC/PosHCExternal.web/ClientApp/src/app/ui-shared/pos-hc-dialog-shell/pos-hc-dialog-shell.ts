@@ -1,5 +1,5 @@
 // dialog-shell.component.ts
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { PortalModule, ComponentPortal } from '@angular/cdk/portal';
@@ -34,9 +34,19 @@ export class PosHcDialogShell {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: DialogShellData,
-    private dialogRef: MatDialogRef<PosHcDialogShell>
+    private dialogRef: MatDialogRef<PosHcDialogShell>,
+    private injector: Injector
   ) {
-    this.portal = new ComponentPortal(data.component);
+    // 👇 نعمل injector مخصص للـ child component
+    const customInjector = Injector.create({
+      providers: [
+        { provide: MAT_DIALOG_DATA, useValue: data.data },    // هنا عم نمرر الـ payload
+        { provide: MatDialogRef, useValue: dialogRef }        // إذا بدك ال dialogRef كمان يوصل لل child
+      ],
+      parent: this.injector
+    });
+
+    this.portal = new ComponentPortal(data.component, null, customInjector);
   }
 
   close() {
