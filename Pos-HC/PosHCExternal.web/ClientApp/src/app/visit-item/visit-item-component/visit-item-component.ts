@@ -68,6 +68,7 @@ export class VisitItemsComponent implements OnInit {
   clearItems() {
     if (this.selectedItemId) this.selectedItemId = null;
     this.dataSource.data = [];
+    this.quantity = 1;
     this.emitTotal();
   }
   addItem() {

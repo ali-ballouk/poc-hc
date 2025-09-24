@@ -2,30 +2,22 @@
   <h2 class="text-2xl font-bold mb-6 text-gray-800">Create New Visit</h2>
 
   <form #visitForm="ngForm" class="space-y-6">
-    <!-- Patient selector -->
     <div>
       <pos-hs-patient-selector (selectionChange)="onPatientSelected($event)" [(selectedPatientId)]="selectedPatientId"></pos-hs-patient-selector>
       <pos-hs-doctor-selector (selectionChange)="onDoctorSelected($event)" [(selectedDoctorId)]="selectedDoctorId"></pos-hs-doctor-selector>
-
     </div>
-
-
 
     <fieldset class="border border-gray-300 rounded-lg p-4">
       <legend class="text-sm font-medium text-gray-700 px-2">visit Items</legend>
         <pos-hs-visit-item (itemsChanged)="onItemUpdated($event)"></pos-hs-visit-item>
     </fieldset>
-    <!-- Visit Items -->
-    <!-- Discount -->
+
 
     <mat-form-field class="pl-4 pr-4">
       <mat-label>Discount</mat-label>
-      <input matInput type="number" [(ngModel)]="discount" min="1" step="1" name="discount" />
+      <input matInput type="number" [(ngModel)]="discount"  step="1" name="discount" />
     </mat-form-field>
-    <!-- Payment Type -->
-    
 
-    <!-- Totals -->
     <div class="bg-gray-50 rounded-md p-4 space-y-1">
       <p class="text-sm text-gray-700">Doctor Fee: <span class="font-semibold">{{ doctorFee | number:'1.2-2' }}</span></p>
       <p class="text-sm text-gray-700">Items Subtotal: <span class="font-semibold">{{ subtotal | number:'1.2-2' }}</span></p>
@@ -42,11 +34,10 @@
               class=" py-3 px-4 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 focus:outline-none disabled:opacity-50">
         Pay
       </button>
-      <button type="button" (click)="submit()"
+      <button *ngIf="!invoiceResult" type="button" (click)="submit()"
               class=" py-3 px-4 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 focus:outline-none disabled:opacity-50">
         Create
       </button>
-
     </div>
   </form>
 </div>

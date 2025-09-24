@@ -29,6 +29,7 @@ export class PosHcEditor {
  
   selectedPatientId: string | null = null;
   selectedDoctorId: string | null = null;
+  invoiceResult   : any | null = null;
 
   @ViewChild(DoctorSelectorComponent) doctorSelector!: DoctorSelectorComponent;
 
@@ -69,6 +70,7 @@ export class PosHcEditor {
     };
     this.api.post<Invoice>('api/invoice', payload).subscribe({
       next: (res) => {
+        this.invoiceResult = res;
         console.log('Submitted successfully', res);
       },
       error: (err) => console.error('Error loading patients', err)
@@ -85,7 +87,9 @@ export class PosHcEditor {
     this.selectedPatientId = '';
     this.selectedDoctorId = '';
     this.doctorFee = 0;
+    this.discount = 0;
     this.visitItemsComponent.clearItems();
+    this.invoiceResult = null;
   }
 
 }

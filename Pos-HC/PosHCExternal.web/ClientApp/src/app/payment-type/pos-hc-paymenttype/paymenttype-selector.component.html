@@ -1,9 +1,7 @@
 <mat-form-field class="pl-4 pr-4">
   <mat-label>Type</mat-label>
   <mat-select [value]="selectedPaymentTypeId" (selectionChange)="onSelectionChange($event)">
-    <mat-option [value]="null">-- choose item --</mat-option>
-
-    @for(p of paymenttypes(); track p; ){
+    @for(p of paymenttypes(); track p.id; ){
     <mat-option [value]="p.Id">{{ p.Name }}</mat-option>
     }
   </mat-select>
