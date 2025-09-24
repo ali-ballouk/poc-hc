@@ -20,5 +20,7 @@ namespace PosHC.Application.Interfaces
 
         Task<List<Payment>> GetAllPaymentAsync(CancellationToken cancellationToken = default);
 
+        Task<Invoice> GetInvoiceByIdAsync(Guid invoiceId, CancellationToken cancellationToken = default);
+
     }
 }

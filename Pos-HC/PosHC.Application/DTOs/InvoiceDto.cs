@@ -51,4 +51,25 @@ namespace PosHC.Application.DTOs
         public DateTime InvoiceDate { get; set; }
     }
 
+
+    public record InvoiceItemGenerateDto(
+       Guid Id,
+       string Name,
+       int Quantity,
+       decimal UnitPrice,
+       decimal LineTotal
+   );
+
+    public record InvoiceGenerateDto(
+        Guid Id,
+        string DoctorName,
+        string PatientName,
+        decimal DoctorFee,
+        decimal? Discount,
+        DateTime CreatedAt,
+        decimal Subtotal,
+        decimal Total,
+        List<InvoiceItemGenerateDto> Items
+    );
+
 }

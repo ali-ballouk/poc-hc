@@ -12,7 +12,7 @@ namespace PosHC.Domain.Entities
     public class CatalogItem
     {
         public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
+        public string Name { get; set; }
         public decimal UnitPrice { get; set; }
 
         // discriminator

@@ -61,5 +61,14 @@ namespace PosHC.Infrastructure.Repositories
             await _context.SaveChangesAsync(cancellationToken);
             return payment;
         }
+
+        public async Task<Invoice?> GetInvoiceByIdAsync(Guid id, CancellationToken ct)
+        {
+            return await _context.Invoice
+                .Include(i => i.Items).ThenInclude(ii => ii.CatalogItem)
+                .Include(i => i.Doctor)
+                .Include(i => i.Patient)
+                .FirstOrDefaultAsync(i => i.Id == id, ct);
+        }
     }
 }

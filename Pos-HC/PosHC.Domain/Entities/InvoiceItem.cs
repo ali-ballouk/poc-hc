@@ -14,8 +14,10 @@ namespace PosHC.Domain.Entities
         public int Quantity { get; set; } = 1;
         public decimal UnitPrice { get; set; }
 
-        public Invoice Invoice { get; set; } = null!;
-        public CatalogItem CatalogItem { get; set; } = null!;
+        public Invoice Invoice { get; set; } 
+
+        public string Name { get{ return this.CatalogItem.Name; } } 
+        public CatalogItem CatalogItem { get; set; } 
 
         // Not mapped: Computed line total
         public decimal LineTotal => Quantity * UnitPrice;

@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PosHC.Application.Interfaces;
+using PosHC.Application.Invoices.Queries;
 using PosHC.Application.Services;
+using PosHC.Infrastructure.Pdf;
 using PosHC.Infrastructure.Persistence;
 using PosHC.Infrastructure.Repositories;
 
@@ -19,6 +21,13 @@ public static class DependencyInjection
         services.AddScoped<IDoctorService, DoctorService>();
         services.AddScoped<IPatientService, PatientService>();
         services.AddScoped<ICatalogItemService, CatalogItemService>();
+
+        // PDF Generator
+        services.AddScoped<IInvoicePdfGenerator, InvoicePdfGenerator>();
+
+        // Use Cases
+        services.AddScoped<InvoiceForPrintService>();
+
         services.AddScoped<IInvoiceService, InvoiceService>();
         services.AddScoped<IPaymentTypeService, PaymentTypeService>();
         services.AddScoped<IPaymentService, PaymentService>();
