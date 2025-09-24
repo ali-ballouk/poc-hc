@@ -20,7 +20,7 @@ export class BaseAPI {
 
   // POST
   post<T>(api: string, body: any): Observable<T> {
-    return this.http.post<T>(this.buildUrl(api),body);
+    return this.http.post<T>(this.buildUrl(api), body);
   }
 
   // PUT
@@ -31,5 +31,11 @@ export class BaseAPI {
   // DELETE
   delete<T>(api: string): Observable<T> {
     return this.http.delete<T>(this.buildUrl(api));
+  }
+  downloadPdf<T>(api: string) {
+    return this.http.get(api, {
+      responseType: 'blob',
+      observe: 'response'
+    });
   }
 }

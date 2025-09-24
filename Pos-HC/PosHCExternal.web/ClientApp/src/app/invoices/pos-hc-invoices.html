@@ -31,10 +31,19 @@
       <mat-header-cell *matHeaderCellDef> Discount </mat-header-cell>
       <mat-cell *matCellDef="let element">{{ element.Discount | currency }}</mat-cell>
     </ng-container>
-    
+
     <ng-container matColumnDef="Total">
       <mat-header-cell *matHeaderCellDef> Total </mat-header-cell>
       <mat-cell *matCellDef="let element">{{ element.Total | currency }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <mat-header-cell mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell mat-cell *matCellDef="let element">
+        <button mat-icon-button color="warn" (click)="downloadInvoice(element.InvoiceId)">
+          <mat-icon>download</mat-icon>
+        </button>
+      </mat-cell>
     </ng-container>
     <!-- Header + Rows -->
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
