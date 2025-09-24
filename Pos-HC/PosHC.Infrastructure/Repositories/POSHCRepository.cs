@@ -29,9 +29,14 @@ namespace PosHC.Infrastructure.Repositories
             return await _context.CatalogItem.AsNoTracking().ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Invoice>> GetAllIInvoiceAsync(CancellationToken cancellationToken = default)
+        public async Task<List<Invoice>> GetAllInvoiceAsync(CancellationToken cancellationToken = default)
         {
             return await _context.Invoice.Include(i => i.Items).AsNoTracking().ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<PaymentType>> GetAllPaymentTypeAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.PaymentType.AsNoTracking().ToListAsync(cancellationToken);
         }
 
         public async Task<Invoice> SaveInvoice(Invoice invoice,CancellationToken cancellationToken = default)

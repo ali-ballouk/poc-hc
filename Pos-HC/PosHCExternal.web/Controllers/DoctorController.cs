@@ -4,7 +4,7 @@ using PosHC.Application.Interfaces;
 namespace PosHCExternal.web.Controllers
 {
     [ApiController]
-    [Route("api/doctors")]
+    [Route("api/doctor")]
     public class DoctorController : ControllerBase
     {
         private readonly IDoctorService _doctorService;
@@ -15,7 +15,7 @@ namespace PosHCExternal.web.Controllers
         }
 
         [HttpGet("lookup")]
-        public async Task<IActionResult> GetLookup(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllDoctorInfo(CancellationToken cancellationToken)
         {
             var result = await _doctorService.GetAllDoctorInfo(cancellationToken);
             return Ok(result);

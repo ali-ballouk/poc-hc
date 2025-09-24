@@ -73,7 +73,7 @@ namespace PosHC.Application.Services
 
         public async Task<List<InvoiceDto>> GetAllInvoicesDto(CancellationToken cancellationToken = default)
         {
-            var invoices = await _invoiceRepository.GetAllIInvoiceAsync(cancellationToken);
+            var invoices = await _invoiceRepository.GetAllInvoiceAsync(cancellationToken);
             return invoices.Select(InvoiceDtoMapper).OrderByDescending(dto => dto.InvoiceDate).ToList();
         }
        

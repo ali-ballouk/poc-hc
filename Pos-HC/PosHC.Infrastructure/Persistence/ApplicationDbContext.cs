@@ -28,6 +28,8 @@ namespace PosHC.Infrastructure.Persistence
 
         public DbSet<Invoice> Invoice => Set<Invoice>();
 
+        public DbSet<PaymentType> PaymentType => Set<PaymentType>();
+
 
     }
 }

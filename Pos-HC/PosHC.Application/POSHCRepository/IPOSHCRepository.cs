@@ -12,7 +12,9 @@ namespace PosHC.Application.Interfaces
 
         Task<Invoice> SaveInvoice(Invoice invoice, CancellationToken cancellationToken = default);
 
-        Task<List<Invoice>> GetAllIInvoiceAsync(CancellationToken cancellationToken = default);
+        Task<List<Invoice>> GetAllInvoiceAsync(CancellationToken cancellationToken = default);
+
+        Task<List<PaymentType>> GetAllPaymentTypeAsync(CancellationToken cancellationToken = default);
 
     }
 }

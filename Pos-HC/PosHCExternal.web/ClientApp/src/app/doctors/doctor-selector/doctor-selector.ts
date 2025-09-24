@@ -26,7 +26,7 @@ export class DoctorSelectorComponent implements OnInit {
   constructor(private api: BaseAPI) { }
 
   ngOnInit(): void {
-    this.api.get<any[]>('api/doctors/lookup').subscribe({
+    this.api.get<any[]>('api/doctor/lookup').subscribe({
       next: (res) => {
         this.doctors.set(res)
       },
