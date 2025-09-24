@@ -14,7 +14,7 @@ namespace PosHCExternal.web.Controllers
             _paymentTypeService = service;
         }
 
-        [HttpGet]
+        [HttpGet("lookup")]
         public async Task<IActionResult> GetLookup(CancellationToken cancellationToken)
         {
             var result = await _paymentTypeService.GetPaymentTypeLookupDtos();

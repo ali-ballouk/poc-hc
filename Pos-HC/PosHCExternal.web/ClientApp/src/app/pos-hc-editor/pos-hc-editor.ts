@@ -8,7 +8,7 @@ import { VisitItemsComponent } from '../visit-item/visit-item-component/visit-it
 import { BaseAPI } from '../services/base.api';
 import { MatInputModule } from '@angular/material/input';
 import { DialogService } from '../services/pos-hs-dialog.service';
-import { PosHsPayment } from '../payment/pos-hs-payment/pos-hs-payment';  
+import { PosHsPayment } from '../payment/pos-hs-payment/pos-hc-payment';  
 interface Invoice {
   DoctorId: string;
   PatientId: string,

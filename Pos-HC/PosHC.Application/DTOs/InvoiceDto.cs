@@ -48,6 +48,7 @@ namespace PosHC.Application.DTOs
     {
         public Guid InvoiceId { get; set; }
         public decimal Total { get; set; }
+        public DateTime InvoiceDate { get; set; }
     }
 
 }

@@ -66,7 +66,8 @@ namespace PosHC.Application.Services
             return new InvoiceResultDto
             {
                 InvoiceId = invoiceCreated.Id,
-                Total = invoiceCreated.Total
+                Total = invoiceCreated.Total,
+                InvoiceDate = invoiceCreated.CreatedAt
             };
         }
 

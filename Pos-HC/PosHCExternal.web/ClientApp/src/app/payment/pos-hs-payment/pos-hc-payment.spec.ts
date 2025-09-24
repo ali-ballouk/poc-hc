@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PosHsPayment } from './pos-hs-payment';
+import { PosHsPayment } from './pos-hc-payment';
 
 describe('PosHsPayment', () => {
   let component: PosHsPayment;
