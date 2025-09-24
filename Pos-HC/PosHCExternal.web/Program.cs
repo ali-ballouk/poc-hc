@@ -1,9 +1,11 @@
 
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PosHC.Application.Interfaces;
 using PosHC.Application.Services;
 using PosHC.Infrastructure.Persistence;
 using PosHC.Infrastructure.Repositories;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

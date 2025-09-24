@@ -4,3 +4,14 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/*Override Angular Material dialog styles to use min-width instead of max-width*/
+
+.pos-hs .cdk-overlay-pane.mat-mdc-dialog-panel {
+  max-width: unset;
+  min-width: var(--mat-dialog-container-min-width, 280px);
+}
+
+.pos-hs .mat-mdc-dialog-title:before {
+  display: none;
+}

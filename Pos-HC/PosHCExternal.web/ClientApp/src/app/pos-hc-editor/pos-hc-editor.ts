@@ -7,6 +7,8 @@ import { PatientSelectorComponent } from '../patients/patient-selector/patient-s
 import { VisitItemsComponent } from '../visit-item/visit-item-component/visit-item-component';
 import { BaseAPI } from '../services/base.api';
 import { MatInputModule } from '@angular/material/input';
+import { DialogService } from '../services/pos-hs-dialog.service';
+import { PosHsPayment } from '../payment/pos-hs-payment/pos-hs-payment';  
 interface Invoice {
   DoctorId: string;
   PatientId: string,
@@ -38,8 +40,7 @@ export class PosHcEditor {
   qty = 1;
   discount = 0;
   paymentType: PaymentType = 'Cash';
-
-  constructor(private api: BaseAPI) { }
+  constructor(private api: BaseAPI, private dialog: DialogService) { }
   ngOnInit() {}
   onDoctorSelected(value: any) {
     this.doctorFee = this.doctorSelector.getSelectedDoctorFee();
@@ -72,6 +73,12 @@ export class PosHcEditor {
       },
       error: (err) => console.error('Error loading patients', err)
     });
+  }
+
+  pay() {
+
+    this.dialog.openComponent(PosHsPayment, 'Payment', { invoiceId: 123 });
+
   }
 
   clear() {
