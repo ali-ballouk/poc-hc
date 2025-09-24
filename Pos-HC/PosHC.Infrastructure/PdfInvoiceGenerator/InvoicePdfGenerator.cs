@@ -72,6 +72,11 @@ namespace PosHC.Infrastructure.Pdf
                                 t.Cell().AlignRight().Text(it.LineTotal.ToString("0.00"));
                             }
 
+
+                            // Summary
+                            t.Cell().ColumnSpan(2);
+                            t.Cell().AlignRight().Text("Doctor Fee:");
+                            t.Cell().AlignRight().Text(inv.DoctorFee.ToString("0.00"));
                             // Summary
                             t.Cell().ColumnSpan(2);
                             t.Cell().AlignRight().Text("Subtotal:");
