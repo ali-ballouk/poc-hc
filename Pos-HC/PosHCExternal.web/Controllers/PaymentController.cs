@@ -16,7 +16,7 @@ namespace PosHCExternal.web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SavePayment(PaymentRequestDto paymentRequestDto,CancellationToken cancellationToken)
+        public async Task<IActionResult> SavePayment(PaymentRequestDto paymentRequestDto, CancellationToken cancellationToken)
         {
             var result = await _paymentService.SavePayment(paymentRequestDto);
             return Ok(result);

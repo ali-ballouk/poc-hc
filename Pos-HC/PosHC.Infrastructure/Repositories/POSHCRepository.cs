@@ -50,6 +50,11 @@ namespace PosHC.Infrastructure.Repositories
         }
 
 
+        public async Task<List<Payment>> GetAllPaymentAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Payment.AsNoTracking().ToListAsync(cancellationToken);
+        }
+
         public async Task<Payment> SavePayment(Payment payment, CancellationToken cancellationToken = default)
         {
             _context.Payment.Add(payment);
