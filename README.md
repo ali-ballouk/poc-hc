@@ -37,10 +37,10 @@ The project follows **Clean Architecture** principles with four layers:
 
 ## 📂 Documentation
 Detailed documentation for each layer:  
-- [Domain Layer](/Pos-HC/PosHC.Application/README-Application.md)  
-- [Application Layer](README-Application.md)  
-- [Infrastructure Layer](README-Infrastructure.md)  
-- [Web API](README-WebAPI.md)  
-- [ClientApp (Angular Frontend)](README-ClientApp.md)  
+- [Domain Layer](/Pos-HC/PosHC.Domain/README-Domain.md)  
+- [Application Layer](/Pos-HC/PosHC.Application/README-Application.md)  
+- [Infrastructure Layer](/Pos-HC/PosHC.Infrastructure/README-Infrastructure.md)  
+- [Web API](/Pos-HC/PosHCExternal.web/README-WebAPI.md)  
+- [ClientApp (Angular Frontend)](/Pos-HC/PosHCExternal.web/README-ClientApp.md)  
 
 ---
