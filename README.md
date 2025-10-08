@@ -37,7 +37,7 @@ The project follows **Clean Architecture** principles with four layers:
 
 ## 📂 Documentation
 Detailed documentation for each layer:  
-- [Domain Layer](README-Domain.md)  
+- [Domain Layer](/Pos-HC/PosHC.Application/README-Application.md)  
 - [Application Layer](README-Application.md)  
 - [Infrastructure Layer](README-Infrastructure.md)  
 - [Web API](README-WebAPI.md)  
