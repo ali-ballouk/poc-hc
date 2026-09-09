@@ -1,3 +1,4 @@
+import { TranslatePipe, LanguageService } from '../../../i18n/language';
 import { CommonModule } from '@angular/common';
 import {
   AfterContentInit,
@@ -31,7 +32,7 @@ let nextGridId = 0;
 @Component({
   selector: 'app-generic-grid',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, FormsModule],
   templateUrl: './generic-grid.component.html',
   styleUrl: './generic-grid.component.css',
   providers: [
@@ -50,6 +51,7 @@ export class GenericGridComponent<T extends object = any>
   @Input() actions: readonly GridAction<T>[] = [];
   @Input() loading = false;
   @Input() label = 'Data grid';
+  language = inject(LanguageService);
   @Input() emptyMessage = 'No data available';
   readonly gridId = 'grid-' + nextGridId++;
   columnMenuOpen = false;
@@ -273,24 +275,40 @@ export class GenericGridComponent<T extends object = any>
     switch (column.type ?? 'text') {
       case 'number':
         return typeof value === 'number'
-          ? new Intl.NumberFormat().format(value)
+          ? new Intl.NumberFormat(this.language.locale()).format(value)
           : String(value);
       case 'date': {
         const date = value instanceof Date ? value : new Date(String(value));
         return Number.isNaN(date.getTime())
           ? String(value)
-          : new Intl.DateTimeFormat().format(date);
+          : new Intl.DateTimeFormat(this.language.locale()).format(date);
       }
       case 'boolean':
-        return value ? 'Yes' : 'No';
+        return this.language.translate(value ? 'Yes' : 'No');
       case 'currency':
         return typeof value === 'number'
-          ? new Intl.NumberFormat(undefined, {
+          ? new Intl.NumberFormat(this.language.locale(), {
               style: 'currency',
               currency: 'USD',
             }).format(value)
           : String(value);
       default:
+        if (typeof value === 'number')
+          return new Intl.NumberFormat(this.language.locale()).format(value);
+        if (typeof value === 'boolean')
+          return this.language.translate(value ? 'Yes' : 'No');
+        if (
+          [
+            'Status',
+            'PaymentStatus',
+            'Kind',
+            'Role',
+            'Method',
+            'Type',
+            'type',
+          ].includes(String(column.key))
+        )
+          return this.language.translate(value);
         return String(value);
     }
   }
@@ -326,7 +344,11 @@ export class GenericGridComponent<T extends object = any>
       this.resizing?.pointerId !== event.pointerId
     )
       return;
-    this.resizeColumn(column, event.clientX - this.resizing.x);
+    this.resizeColumn(
+      column,
+      (event.clientX - this.resizing.x) *
+        (this.language.language() === 'ar' ? -1 : 1),
+    );
     this.resizing.x = event.clientX;
   }
 

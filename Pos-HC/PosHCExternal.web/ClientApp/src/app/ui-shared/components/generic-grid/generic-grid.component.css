@@ -102,7 +102,7 @@
 .resize-handle {
   position: absolute;
   top: 8px;
-  right: 0;
+  inset-inline-end: 0;
   bottom: 8px;
   width: 8px;
   cursor: col-resize;
@@ -114,7 +114,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 3px;
+  inset-inline-start: 3px;
   width: 1px;
   background: var(--bs-border-color);
 }

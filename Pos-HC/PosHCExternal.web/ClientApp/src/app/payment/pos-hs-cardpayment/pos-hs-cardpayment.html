@@ -1,6 +1,8 @@
 <div class="row g-3">
   <div class="col-md-6">
-    <label for="card-last-four" class="form-label">Last 4 digits</label
+    <label for="card-last-four" class="form-label">{{
+      "Last 4 digits" | t
+    }}</label
     ><input
       id="card-last-four"
       type="text"
@@ -11,7 +13,7 @@
     />
   </div>
   <div class="col-md-6">
-    <label for="card-token" class="form-label">Token</label
+    <label for="card-token" class="form-label">{{ "Token" | t }}</label
     ><input
       id="card-token"
       type="text"
@@ -20,7 +22,7 @@
     />
   </div>
   <div class="col-md-6">
-    <label for="card-expiry" class="form-label">Expiry date</label
+    <label for="card-expiry" class="form-label">{{ "Expiry date" | t }}</label
     ><input
       id="card-expiry"
       type="month"

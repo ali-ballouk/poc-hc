@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../i18n/language';
 import {
   Component,
   inject,
@@ -11,7 +12,7 @@ import { GenericGridComponent } from '../ui-shared/components/generic-grid/gener
 import { GridColumn } from '../ui-shared/components/generic-grid/generic-grid.models';
 @Component({
   standalone: true,
-  imports: [FormsModule, GenericGridComponent],
+  imports: [TranslatePipe, FormsModule, GenericGridComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './reports.component.html',
 })

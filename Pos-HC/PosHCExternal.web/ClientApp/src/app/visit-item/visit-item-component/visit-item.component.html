@@ -5,14 +5,14 @@
       valueField="Id"
       textField="Name"
       mode="single"
-      label="Choose item"
-      placeholder="Choose item"
+      [label]="'Choose item' | t"
+      [placeholder]="'Choose item' | t"
       [initialSelection]="selectedItemId"
       (selectionChanged)="selectedItemId = $event?.Id ?? null"
     ></app-generic-selector>
   </div>
   <div class="col-7 col-md-3">
-    <label for="item-quantity" class="form-label">Quantity</label>
+    <label for="item-quantity" class="form-label">{{ "Quantity" | t }}</label>
     <input
       id="item-quantity"
       class="form-control"
@@ -30,7 +30,7 @@
       (click)="addItem()"
       [disabled]="!selectedItemId || quantity < 1"
     >
-      Add
+      {{ "Add" | t }}
     </button>
   </div>
 </div>
@@ -40,6 +40,6 @@
   [actions]="actions"
   [rowId]="rowId"
   [selectable]="false"
-  label="Items on this visit"
+  [label]="'Items on this visit' | t"
   emptyMessage="No items added yet."
 ></app-generic-grid>

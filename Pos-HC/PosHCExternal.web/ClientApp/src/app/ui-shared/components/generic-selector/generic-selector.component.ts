@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../i18n/language';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -25,7 +26,7 @@ let nextSelectorId = 0;
 @Component({
   selector: 'app-generic-selector',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, FormsModule],
   templateUrl: './generic-selector.component.html',
   styleUrl: './generic-selector.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +40,7 @@ export class GenericSelectorComponent<T extends object = any>
   @Input({ required: true }) mode: SelectorMode = 'single';
   @Input() placeholder = 'Select an option...';
   @Input() label = '';
+  @Input() translateOptions = false;
   @Input() disabled = false;
   // Bound IDs stay synchronized when the parent clears or changes a selection.
   @Input() initialSelection: unknown = null;

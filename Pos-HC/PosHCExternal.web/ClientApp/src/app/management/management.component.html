@@ -1,23 +1,25 @@
 <div class="d-flex justify-content-between mb-3">
-  <h1 class="h3">{{ definition.title }}</h1>
+  <h1 class="h3">{{ definition.title | t }}</h1>
   @if (canWrite()) {
-    <button class="btn btn-primary" (click)="edit()">Add new</button>
+    <button class="btn btn-primary" (click)="edit()">
+      {{ "Add new" | t }}
+    </button>
   }
 </div>
 @if (error) {
-  <div class="alert alert-danger" role="alert">{{ error }}</div>
+  <div class="alert alert-danger" role="alert">{{ error | t }}</div>
 }
 @if (message) {
-  <div class="alert alert-info" role="status">{{ message }}</div>
+  <div class="alert alert-info" role="status">{{ message | t }}</div>
 }
 <form class="d-flex gap-2 mb-3" (ngSubmit)="page = 1; load()">
   <input
     class="form-control"
     name="search"
     [(ngModel)]="search"
-    placeholder="Search records"
-    aria-label="Search all records"
-  /><button class="btn btn-outline-primary">Search</button>
+    [placeholder]="'Search records' | t"
+    [attr.aria-label]="'Search all records' | t"
+  /><button class="btn btn-outline-primary">{{ "Search" | t }}</button>
 </form>
 <app-generic-grid
   [data]="rows"
@@ -34,13 +36,13 @@
     [disabled]="page === 1 || loading"
     (click)="page = page - 1; load()"
   >
-    Previous 50</button
-  ><span>{{ total }} records · Page {{ page }}</span
+    {{ "Previous 50" | t }}</button
+  ><span>{{ total }} {{ "records · Page" | t }} {{ page }}</span
   ><button
     class="btn btn-outline-secondary"
     [disabled]="page * 50 >= total || loading"
     (click)="page = page + 1; load()"
   >
-    Next 50
+    {{ "Next 50" | t }}
   </button>
 </div>

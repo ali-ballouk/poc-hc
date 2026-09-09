@@ -9,6 +9,6 @@ namespace PosHC.Application.Interfaces
 {
     public interface IInvoicePdfGenerator
     {
-        byte[] GenerateInvoicePdf(InvoiceGenerateDto inv);
+        byte[] GenerateInvoicePdf(InvoiceGenerateDto inv, string language = "en");
     }
 }

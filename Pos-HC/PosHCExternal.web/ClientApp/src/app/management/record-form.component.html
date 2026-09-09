@@ -1,5 +1,5 @@
 @if (error) {
-  <div class="alert alert-danger" role="alert">{{ error }}</div>
+  <div class="alert alert-danger" role="alert">{{ error | t }}</div>
 }
 <form #form="ngForm" (ngSubmit)="save()">
   <div class="row g-3">
@@ -7,11 +7,12 @@
       <div class="col-md-6">
         @if (field.type === "select") {
           <app-generic-selector
+            [translateOptions]="!field.lookup"
             [data]="choices[field.key] || field.options || []"
             valueField="Id"
             textField="Name"
             mode="single"
-            [label]="field.label + (field.required ? ' *' : '')"
+            [label]="(field.label | t) + (field.required ? ' *' : '')"
             [initialSelection]="value[field.key]"
             (selectionChanged)="value[field.key] = $event?.Id ?? null"
           ></app-generic-selector>
@@ -24,12 +25,12 @@
               [name]="field.key"
               [(ngModel)]="value[field.key]"
             /><label class="form-check-label" [for]="'field-' + field.key">{{
-              field.label
+              field.label | t
             }}</label>
           </div>
         } @else {
           <label class="form-label" [for]="'field-' + field.key"
-            >{{ field.label }}{{ field.required ? " *" : "" }}</label
+            >{{ field.label | t }}{{ (field.required ? " *" : "") | t }}</label
           >
           <input
             class="form-control"
@@ -56,9 +57,9 @@
       (click)="ref.close()"
       [disabled]="busy"
     >
-      Cancel</button
+      {{ "Cancel" | t }}</button
     ><button class="btn btn-primary" [disabled]="busy || form.invalid">
-      {{ busy ? "Saving…" : "Save" }}
+      {{ (busy ? "Saving…" : "Save") | t }}
     </button>
   </div>
 </form>

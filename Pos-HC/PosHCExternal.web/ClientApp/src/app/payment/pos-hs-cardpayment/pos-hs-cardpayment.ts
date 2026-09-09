@@ -1,9 +1,10 @@
+import { TranslatePipe } from '../../i18n/language';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-pos-hs-cardpayment',
-  imports: [FormsModule],
+  imports: [TranslatePipe, FormsModule],
   standalone: true,
   templateUrl: './pos-hs-cardpayment.html',
   changeDetection: ChangeDetectionStrategy.Eager,

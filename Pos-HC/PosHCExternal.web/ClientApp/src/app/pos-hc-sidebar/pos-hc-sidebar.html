@@ -6,7 +6,7 @@
       <a
         class="fs-4 fw-bold text-primary text-decoration-none"
         routerLink="/pointofsale"
-        >POS HC</a
+        >{{ "POS HC" | t }}</a
       >
       <button
         type="button"
@@ -14,16 +14,16 @@
         (click)="navigationOpen = !navigationOpen"
         aria-controls="main-navigation"
         [attr.aria-expanded]="navigationOpen"
-        aria-label="Toggle navigation"
+        [attr.aria-label]="'Toggle navigation' | t"
       >
-        Menu
+        {{ "Menu" | t }}
       </button>
     </div>
     <nav
       id="main-navigation"
       class="p-3 d-lg-block"
       [class.d-none]="!navigationOpen"
-      aria-label="Main navigation"
+      [attr.aria-label]="'Main navigation' | t"
     >
       <div class="nav nav-pills flex-column gap-2">
         @if (auth.can("Administrator", "Receptionist", "Cashier")) {
@@ -33,7 +33,7 @@
             routerLinkActive="active"
             ariaCurrentWhenActive="page"
             (click)="navigationOpen = false"
-            >Point of sale</a
+            >{{ "Point of sale" | t }}</a
           >
           <a
             class="nav-link"
@@ -41,7 +41,7 @@
             routerLinkActive="active"
             ariaCurrentWhenActive="page"
             (click)="navigationOpen = false"
-            >Invoices</a
+            >{{ "Invoices" | t }}</a
           >
         }
         @for (module of modules; track module.key) {
@@ -51,16 +51,19 @@
               [routerLink]="'/manage/' + module.key"
               routerLinkActive="active"
               (click)="navigationOpen = false"
-              >{{ module.title }}</a
+              >{{ module.title | t }}</a
             >
           }
         }
         @if (auth.can("Administrator")) {
-          <a class="nav-link" routerLink="/reports" routerLinkActive="active"
-            >Reports and export</a
-          >
-          <a class="nav-link" routerLink="/settings" routerLinkActive="active"
-            >Clinic settings</a
+          <a class="nav-link" routerLink="/reports" routerLinkActive="active">{{
+            "Reports and export" | t
+          }}</a>
+          <a
+            class="nav-link"
+            routerLink="/settings"
+            routerLinkActive="active"
+            >{{ "Clinic settings" | t }}</a
           >
         }
       </div>
@@ -68,14 +71,14 @@
   </aside>
   <div class="app-content">
     <header class="bg-white border-bottom px-4 py-3">
-      <span class="fw-semibold">POS HC Dashboard</span>
+      <span class="fw-semibold">{{ "POS HC Dashboard" | t }}</span>
       <span class="float-end"
         >{{ auth.user()?.Username }}
         <button
           class="btn btn-sm btn-outline-secondary ms-2"
           (click)="auth.logout()"
         >
-          Sign out
+          {{ "Sign out" | t }}
         </button></span
       >
     </header>

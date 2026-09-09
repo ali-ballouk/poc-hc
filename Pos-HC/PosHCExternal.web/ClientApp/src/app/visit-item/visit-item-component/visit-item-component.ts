@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../i18n/language';
 import {
   Component,
   OnInit,
@@ -29,7 +30,12 @@ interface VisitRow {
 @Component({
   selector: 'pos-hs-visit-item',
   standalone: true,
-  imports: [FormsModule, GenericGridComponent, GenericSelectorComponent],
+  imports: [
+    TranslatePipe,
+    FormsModule,
+    GenericGridComponent,
+    GenericSelectorComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './visit-item.component.html',
 })

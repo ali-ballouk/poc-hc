@@ -1,0 +1,9 @@
+# Arabic and English
+
+The language buttons above the app are available before and after sign-in. English is the default. The selection is saved in browser local storage (`pos-hc-language`), sets the document language and direction, and updates the current screen without reloading or discarding form values.
+
+UI translations live in `ClientApp/src/app/i18n/translations.ts` under the web project. English labels are the keys. Import `TranslatePipe` in standalone components and use `{{ 'Label' | t }}` for UI copy. Use `LocalNumberPipe` for displayed amounts. Shared grids format dates and numbers using the selected locale; data-entry values retain their native formats. Translate selector options only for application-defined enums (`translateOptions`), never for patient, doctor, or catalog records. User-entered names, descriptions, identifiers, and stored invoice snapshots remain unchanged.
+
+`BaseAPI.downloadPdf` sends `language=en` or `language=ar` to invoice and receipt endpoints. Both endpoints retain English defaults for existing clients; unsupported languages fall back to English. PDF labels, status, direction and culture follow this parameter. Noto Sans Arabic is embedded in the infrastructure assembly and registered once, so Arabic rendering works without server-installed fonts. The font license is included beside the font. Currency, amounts and stored invoice contents are unaffected by language selection.
+
+Validation: run `npm test` and `npm run build` in the web project's `ClientApp`, and `dotnet test Pos-HC/PosHC.Tests/PosHC.Tests.csproj` from the repository root. PDF tests cover both languages, mixed-script names, unknown-language fallback and multi-page invoices with missing-glyph checks enabled. Set `POSHC_PDF_QA_DIR` to a local output directory when running tests to produce optional sample PDFs for visual review.

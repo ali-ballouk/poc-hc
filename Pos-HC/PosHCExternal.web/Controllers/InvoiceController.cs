@@ -36,7 +36,7 @@ namespace PosHCExternal.web.Controllers
         }
 
         [HttpGet("{id:guid}/print")]
-        public async Task<IActionResult> Print(Guid id, CancellationToken ct)
+        public async Task<IActionResult> Print(Guid id, CancellationToken ct, [FromQuery] string language = "en")
         {
             var dto = await _invoiceForPrintService.GetInvoice(id, ct);
             if (dto is null)
@@ -44,7 +44,7 @@ namespace PosHCExternal.web.Controllers
                 return NotFound();
             }
 
-            var bytes = _iInvoicePdfGenerator.GenerateInvoicePdf(dto);
+            var bytes = _iInvoicePdfGenerator.GenerateInvoicePdf(dto, language);
             var fileName = $"Invoice-{dto.Id}.pdf";
 
             return File(bytes, "application/pdf", fileName);

@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../i18n/language';
 import {
   Component,
   Inject,
@@ -32,7 +33,7 @@ interface Payment {
 @Component({
   selector: 'app-pos-hc-payment',
   standalone: true,
-  imports: [PaymentTypeSelectorComponent, PosHsWrapperComponent],
+  imports: [TranslatePipe, PaymentTypeSelectorComponent, PosHsWrapperComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './pos-hc-payment.html',
 })

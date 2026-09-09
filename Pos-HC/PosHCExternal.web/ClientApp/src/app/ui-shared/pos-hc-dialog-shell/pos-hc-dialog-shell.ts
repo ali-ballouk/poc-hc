@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../i18n/language';
 import {
   Component,
   Inject,
@@ -17,7 +18,7 @@ export interface DialogShellData {
 @Component({
   selector: 'app-dialog-shell',
   standalone: true,
-  imports: [NgComponentOutlet],
+  imports: [TranslatePipe, NgComponentOutlet],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './pos-hc-dialog-shell.html',
 })

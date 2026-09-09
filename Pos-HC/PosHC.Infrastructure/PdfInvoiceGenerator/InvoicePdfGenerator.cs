@@ -8,37 +8,38 @@ namespace PosHC.Infrastructure.Pdf
 {
     public class InvoicePdfGenerator : IInvoicePdfGenerator
     {
-        public byte[] GenerateInvoicePdf(InvoiceGenerateDto inv)
+        public byte[] GenerateInvoicePdf(InvoiceGenerateDto inv, string language = "en")
         {
+            var l = new PdfLanguage(language);
             var doc = Document.Create(container =>
             {
                 container.Page(page =>
                 {
                     page.Size(PageSizes.A4);
                     page.Margin(30);
-                    page.DefaultTextStyle(x => x.FontSize(10));
+                    l.Configure(page);
 
                     // Header
-                    page.Header().Row(row =>
+                    page.Header().BorderBottom(2).BorderColor("#087F82").PaddingBottom(18).Row(row =>
                     {
                         row.RelativeItem().Column(col =>
                         {
-                            col.Item().Text(inv.ClinicName).Bold().FontSize(16);
+                            col.Item().Text(inv.ClinicName).Bold().FontSize(20).FontColor("#087F82");
                             col.Item().Text(inv.ClinicAddress);
-                            col.Item().Text(inv.ClinicPhone);
+                            col.Item().Text("\u2066" + inv.ClinicPhone + "\u2069");
                         });
                         row.ConstantItem(200).Column(col =>
                         {
-                            col.Item().Text($"INVOICE #{inv.Number} — {inv.Status}").Bold();
-                            col.Item().Text($"Currency: {inv.Currency}");
-                            col.Item().Text($"Date: {inv.CreatedAt:yyyy-MM-dd}");
-                            col.Item().Text($"Doctor: {inv.DoctorName}");
-                            col.Item().Text($"Patient: {inv.PatientName}");
+                            col.Item().Text($"{l.Text("INVOICE", "فاتورة")} #{inv.Number} - {l.Status(inv.Status)}").Bold();
+                            col.Item().Text($"{l.Text("Currency", "العملة")}: {inv.Currency}");
+                            col.Item().Text($"{l.Text("Date", "التاريخ")}: \u2066{inv.CreatedAt.ToString("yyyy-MM-dd", l.Culture)}\u2069");
+                            col.Item().Text($"{l.Text("Doctor", "الطبيب")}: {inv.DoctorName}");
+                            col.Item().Text($"{l.Text("Patient", "المريض")}: {inv.PatientName}");
                         });
                     });
 
                     // Body
-                    page.Content().Column(col =>
+                    page.Content().PaddingTop(20).Column(col =>
                     {
                         col.Item().Table(t =>
                         {
@@ -53,51 +54,50 @@ namespace PosHC.Infrastructure.Pdf
                             // Header
                             t.Header(h =>
                             {
-                                h.Cell().Element(H).Text("Item");
-                                h.Cell().Element(H).AlignRight().Text("Qty");
-                                h.Cell().Element(H).AlignRight().Text("Unit Price");
-                                h.Cell().Element(H).AlignRight().Text("Line Total");
+                                h.Cell().Element(H).Text(l.Text("Item", "البند"));
+                                h.Cell().Element(H).Text(l.Text("Qty", "الكمية"));
+                                h.Cell().Element(H).Text(l.Text("Unit Price", "سعر الوحدة"));
+                                h.Cell().Element(H).Text(l.Text("Line Total", "إجمالي البند"));
 
                                 static IContainer H(IContainer x) =>
-                                    x.DefaultTextStyle(s => s.SemiBold())
-                                     .BorderBottom(1).BorderColor(Colors.Grey.Medium)
-                                     .PaddingVertical(5);
+                                    x.Background("#087F82").DefaultTextStyle(s => s.SemiBold().FontColor("#FFFFFF"))
+                                     .Padding(8);
                             });
 
                             // Rows
                             foreach (var it in inv.Items)
                             {
-                                t.Cell().Text(it.Name);
-                                t.Cell().AlignRight().Text(it.Quantity.ToString());
-                                t.Cell().AlignRight().Text(it.UnitPrice.ToString("0.00"));
-                                t.Cell().AlignRight().Text(it.LineTotal.ToString("0.00"));
+                                t.Cell().Padding(8).Text(it.Name);
+                                t.Cell().Padding(8).Text(it.Quantity.ToString(l.Culture));
+                                t.Cell().Padding(8).Text(l.Number(it.UnitPrice));
+                                t.Cell().Padding(8).Text(l.Number(it.LineTotal));
                             }
 
 
                             // Summary
                             t.Cell().ColumnSpan(2);
-                            t.Cell().AlignRight().Text("Doctor Fee:");
-                            t.Cell().AlignRight().Text(inv.DoctorFee.ToString("0.00"));
+                            t.Cell().PaddingVertical(6).Text(l.Text("Doctor Fee:", "أتعاب الطبيب:"));
+                            t.Cell().PaddingVertical(6).Text(l.Number(inv.DoctorFee));
                             // Summary
                             t.Cell().ColumnSpan(2);
-                            t.Cell().AlignRight().Text("Subtotal:");
-                            t.Cell().AlignRight().Text(inv.Subtotal.ToString("0.00"));
+                            t.Cell().PaddingVertical(6).Text(l.Text("Subtotal:", "المجموع الفرعي:"));
+                            t.Cell().PaddingVertical(6).Text(l.Number(inv.Subtotal));
 
                             t.Cell().ColumnSpan(2);
-                            t.Cell().AlignRight().Text("Discount:");
-                            t.Cell().AlignRight().Text($"-{inv.Discount ?? 0:0.00}");
+                            t.Cell().PaddingVertical(6).Text(l.Text("Discount:", "الخصم:"));
+                            t.Cell().PaddingVertical(6).Text("\u2066" + l.Number(-(inv.Discount ?? 0)) + "\u2069");
 
                             t.Cell().ColumnSpan(2);
-                            t.Cell().AlignRight().Text("Tax:");
-                            t.Cell().AlignRight().Text(inv.Tax.ToString("0.00"));
+                            t.Cell().PaddingVertical(6).Text(l.Text("Tax:", "الضريبة:"));
+                            t.Cell().PaddingVertical(6).Text(l.Number(inv.Tax));
                             t.Cell().ColumnSpan(2);
-                            t.Cell().AlignRight().Text(txt => txt.Span("TOTAL:").SemiBold());
-                            t.Cell().AlignRight().Text(txt => txt.Span(inv.Total.ToString("0.00")).SemiBold());
+                            t.Cell().Background("#E2F3EF").PaddingVertical(8).Text(l.Text("TOTAL:", "الإجمالي:")).SemiBold();
+                            t.Cell().Background("#E2F3EF").PaddingVertical(8).Text(l.Number(inv.Total)).SemiBold();
                         });
                     });
 
                     // Footer
-                    page.Footer().AlignCenter().Text($"Printed {DateTime.Now:yyyy-MM-dd HH:mm}");
+                    page.Footer().AlignCenter().Text(text => { text.Span(l.Text("Page ", "صفحة ")); text.CurrentPageNumber(); text.Span(" / "); text.TotalPages(); });
                 });
             });
 

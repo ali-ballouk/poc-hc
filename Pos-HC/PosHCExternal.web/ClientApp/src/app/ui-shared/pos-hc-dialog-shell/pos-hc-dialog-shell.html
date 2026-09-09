@@ -1,12 +1,12 @@
 <div class="modal-header">
   <h2 class="modal-title fs-5" id="pos-dialog-title">
-    {{ data.title || "Dialog" }}
+    {{ data.title || "Dialog" | t }}
   </h2>
   <button
     type="button"
     class="btn-close"
     (click)="close()"
-    aria-label="Close"
+    [attr.aria-label]="'Close' | t"
   ></button>
 </div>
 <div class="modal-body">

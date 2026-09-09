@@ -1,16 +1,18 @@
-<h1 class="h3 mb-3">Clinic settings</h1>
+<h1 class="h3 mb-3">{{ "Clinic settings" | t }}</h1>
 @if (error) {
-  <div class="alert alert-danger" role="alert">{{ error }}</div>
+  <div class="alert alert-danger" role="alert">{{ error | t }}</div>
 }
 @if (message) {
-  <div class="alert alert-success" role="status">{{ message }}</div>
+  <div class="alert alert-success" role="status">{{ message | t }}</div>
 }
 @if (settings) {
   <form #form="ngForm" (ngSubmit)="save()" class="card">
     <div class="card-body row g-3">
       @for (field of fields; track field.key) {
         <div class="col-md-6">
-          <label class="form-label" [for]="field.key">{{ field.label }}</label
+          <label class="form-label" [for]="field.key">{{
+            field.label | t
+          }}</label
           ><input
             class="form-control"
             [id]="field.key"
@@ -23,14 +25,19 @@
         </div>
       }
       <p class="text-secondary mb-0">
-        Base service prices and doctor fees are in USD. LBP invoices use the
-        confirmed rate below. Existing invoices keep their original rate. Tax is
-        disabled until you configure an applicable rate.
+        {{
+          "Base service prices and doctor fees are in USD. LBP invoices use the confirmed rate below. Existing invoices keep their original rate. Tax is disabled until you configure an applicable rate."
+            | t
+        }}
       </p>
-      <p>Time zone: Asia/Beirut. Save confirms the entered exchange rate.</p>
+      <p>
+        {{
+          "Time zone: Asia/Beirut. Save confirms the entered exchange rate." | t
+        }}
+      </p>
       <div>
         <button class="btn btn-primary" [disabled]="busy || form.invalid">
-          {{ busy ? "Saving…" : "Save settings and confirm rate" }}
+          {{ (busy ? "Saving…" : "Save settings and confirm rate") | t }}
         </button>
       </div>
     </div>

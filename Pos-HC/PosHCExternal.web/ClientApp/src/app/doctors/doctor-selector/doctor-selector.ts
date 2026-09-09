@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../i18n/language';
 import {
   Component,
   OnInit,
@@ -14,7 +15,7 @@ import { BaseAPI } from '../../services/base.api';
 @Component({
   selector: 'pos-hs-doctor-selector',
   standalone: true,
-  imports: [GenericSelectorComponent],
+  imports: [TranslatePipe, GenericSelectorComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './doctor-selector.component.html',
 })

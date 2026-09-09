@@ -17,7 +17,7 @@ describe('PosHcInvoices', () => {
     const createUrl = spyOn(URL, 'createObjectURL');
     fixture.componentInstance.downloadInvoice('invoice-1');
     http
-      .expectOne('/api/invoice/invoice-1/print')
+      .expectOne('/api/invoice/invoice-1/print?language=en')
       .flush(new Blob(['<!doctype html>'], { type: 'text/html' }));
     expect(createUrl).not.toHaveBeenCalled();
     expect(fixture.componentInstance.downloadError).toContain(

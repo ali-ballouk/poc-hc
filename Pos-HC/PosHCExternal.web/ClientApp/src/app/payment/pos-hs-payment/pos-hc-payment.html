@@ -9,7 +9,7 @@
   #wrapper
 ></app-dynamic-wrapper>
 @if (errorMessage) {
-  <div class="alert alert-danger mt-3" role="alert">{{ errorMessage }}</div>
+  <div class="alert alert-danger mt-3" role="alert">{{ errorMessage | t }}</div>
 }
 <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-4">
   <button
@@ -18,7 +18,7 @@
     (click)="close()"
     [disabled]="saving"
   >
-    Cancel
+    {{ "Cancel" | t }}
   </button>
   <button
     type="button"
@@ -26,6 +26,6 @@
     (click)="save()"
     [disabled]="!selectedComponent || saving"
   >
-    {{ saving ? "Saving…" : "Save payment" }}
+    {{ (saving ? "Saving…" : "Save payment") | t }}
   </button>
 </div>

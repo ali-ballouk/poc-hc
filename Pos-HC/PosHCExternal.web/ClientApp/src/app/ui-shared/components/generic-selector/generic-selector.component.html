@@ -1,5 +1,5 @@
 @if (label) {
-  <label class="form-label" [for]="inputId">{{ label }}</label>
+  <label class="form-label" [for]="inputId">{{ label | t }}</label>
 }
 <div class="generic-selector-wrapper">
   <div class="dropdown" [class.show]="isOpen">
@@ -12,10 +12,18 @@
       [disabled]="disabled"
       [attr.aria-expanded]="isOpen"
       [attr.aria-controls]="inputId + '-options'"
-      [attr.aria-label]="label || placeholder"
+      [attr.aria-label]="label || placeholder | t"
       [attr.aria-haspopup]="mode === 'single' ? 'listbox' : 'dialog'"
     >
-      <span class="selector-text">{{ displayText }}</span>
+      <span class="selector-text">{{
+        selectedItems.size === 0
+          ? (placeholder | t)
+          : mode !== "single"
+            ? selectedItems.size + " " + ("selected" | t)
+            : translateOptions
+              ? (displayText | t)
+              : displayText
+      }}</span>
     </button>
     <div
       #dropdownMenu
@@ -29,7 +37,7 @@
             #searchInput
             type="search"
             class="form-control"
-            placeholder="Search..."
+            [placeholder]="'Search...' | t"
             [(ngModel)]="searchTerm"
             [ngModelOptions]="{ standalone: true }"
             (ngModelChange)="onSearchChanged($event)"
@@ -41,7 +49,7 @@
               class="btn btn-outline-secondary"
               type="button"
               (click)="clearSearch()"
-              aria-label="Clear search"
+              [attr.aria-label]="'Clear search' | t"
             >
               ×
             </button>
@@ -53,7 +61,7 @@
           class="dropdown-options"
           role="listbox"
           [id]="inputId + '-options'"
-          [attr.aria-label]="label || placeholder"
+          [attr.aria-label]="label || placeholder | t"
         >
           @for (option of filteredOptions; track option.value) {
             <button
@@ -65,10 +73,12 @@
               [attr.aria-selected]="isOptionSelected(option)"
               [disabled]="disabled"
             >
-              {{ option.text }}
+              {{ translateOptions ? (option.text | t) : option.text }}
             </button>
           } @empty {
-            <div class="dropdown-item disabled">No options available</div>
+            <div class="dropdown-item disabled">
+              {{ "No options available" | t }}
+            </div>
           }
         </div>
       } @else {
@@ -76,7 +86,7 @@
           class="dropdown-multi-container"
           role="dialog"
           [id]="inputId + '-options'"
-          [attr.aria-label]="label || placeholder"
+          [attr.aria-label]="label || placeholder | t"
         >
           <div class="multi-panel-layout">
             <div class="dropdown-options-multi">
@@ -92,7 +102,7 @@
                     (change)="toggleSelectAll()"
                     [disabled]="disabled"
                   />
-                  <span>Select all matching options</span>
+                  <span>{{ "Select all matching options" | t }}</span>
                 </label>
               </div>
               <div class="options-list">
@@ -105,10 +115,14 @@
                       (change)="toggleOptionSelection(option, $event)"
                       [disabled]="disabled"
                     />
-                    <span class="form-check-label">{{ option.text }}</span>
+                    <span class="form-check-label">{{
+                      translateOptions ? (option.text | t) : option.text
+                    }}</span>
                   </label>
                 } @empty {
-                  <div class="dropdown-item disabled">No options available</div>
+                  <div class="dropdown-item disabled">
+                    {{ "No options available" | t }}
+                  </div>
                 }
               </div>
             </div>
@@ -116,7 +130,7 @@
               <div class="selected-items-panel has-selections">
                 <div class="selected-items-header">
                   <span class="badge bg-primary"
-                    >{{ getSelectedCount() }} selected</span
+                    >{{ getSelectedCount() }} {{ "selected" | t }}</span
                   >
                   <button
                     type="button"
@@ -124,13 +138,13 @@
                     (click)="clearAll()"
                     [disabled]="disabled"
                   >
-                    Clear all
+                    {{ "Clear all" | t }}
                   </button>
                 </div>
                 <div class="selected-items-list">
                   @for (option of selectedOptions; track option.value) {
                     <span class="badge bg-info text-dark">{{
-                      option.text
+                      translateOptions ? (option.text | t) : option.text
                     }}</span>
                   }
                 </div>
@@ -148,7 +162,7 @@
       (click)="clearSelection()"
       [disabled]="disabled"
       [attr.aria-label]="'Clear ' + (label || 'selection')"
-      title="Clear selection"
+      [title]="'Clear selection' | t"
     >
       ×
     </button>

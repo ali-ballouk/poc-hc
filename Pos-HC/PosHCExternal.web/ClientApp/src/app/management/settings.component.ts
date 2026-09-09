@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../i18n/language';
 import {
   Component,
   inject,
@@ -8,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { BaseAPI } from '../services/base.api';
 @Component({
   standalone: true,
-  imports: [FormsModule],
+  imports: [TranslatePipe, FormsModule],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './settings.component.html',
 })

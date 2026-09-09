@@ -1,6 +1,6 @@
-<h1 class="h3 mb-4">Invoices</h1>
+<h1 class="h3 mb-4">{{ "Invoices" | t }}</h1>
 @if (downloadError) {
-  <div class="alert alert-danger" role="alert">{{ downloadError }}</div>
+  <div class="alert alert-danger" role="alert">{{ downloadError | t }}</div>
 }
 <app-generic-grid
   [data]="rows"
@@ -8,17 +8,17 @@
   [rowId]="rowId"
   [selectable]="false"
   [loading]="loading"
-  label="Clinic invoices"
+  [label]="'Clinic invoices' | t"
   emptyMessage="No invoices to display."
 >
   <app-generic-grid-column
     key="InvoiceId"
-    header="Invoice"
+    [header]="'Invoice' | t"
     [widthPx]="310"
   ></app-generic-grid-column>
   <app-generic-grid-column
     key="InvoiceDate"
-    header="Date"
+    [header]="'Date' | t"
     type="date"
     [widthPx]="190"
   >
@@ -28,27 +28,27 @@
   </app-generic-grid-column>
   <app-generic-grid-column
     key="DoctorName"
-    header="Doctor"
+    [header]="'Doctor' | t"
   ></app-generic-grid-column>
   <app-generic-grid-column
     key="PatientName"
-    header="Patient"
+    [header]="'Patient' | t"
   ></app-generic-grid-column>
   <app-generic-grid-column
     key="DoctorFee"
-    header="Doctor fee"
+    [header]="'Doctor fee' | t"
     type="currency"
     [widthPx]="130"
   ></app-generic-grid-column>
   <app-generic-grid-column
     key="Discount"
-    header="Discount"
+    [header]="'Discount' | t"
     type="currency"
     [widthPx]="120"
   ></app-generic-grid-column>
   <app-generic-grid-column
     key="Total"
-    header="Total"
+    [header]="'Total' | t"
     type="currency"
     [widthPx]="120"
   ></app-generic-grid-column>

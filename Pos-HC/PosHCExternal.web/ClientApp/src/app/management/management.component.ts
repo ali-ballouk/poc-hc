@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../i18n/language';
 import {
   Component,
   inject,
@@ -17,7 +18,7 @@ import { modules, ModuleDefinition, amount } from './module-definitions';
 import { RecordFormComponent } from './record-form.component';
 @Component({
   standalone: true,
-  imports: [FormsModule, GenericGridComponent],
+  imports: [TranslatePipe, FormsModule, GenericGridComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './management.component.html',
 })

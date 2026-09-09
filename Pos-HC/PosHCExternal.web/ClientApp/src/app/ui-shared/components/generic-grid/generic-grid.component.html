@@ -1,4 +1,4 @@
-<section class="grid-surface card shadow-sm" [attr.aria-label]="label">
+<section class="grid-surface card shadow-sm" [attr.aria-label]="label | t">
   <div class="column-definitions" aria-hidden="true">
     <ng-content select="app-generic-grid-column" />
   </div>
@@ -6,12 +6,14 @@
     class="card-header bg-white d-flex flex-wrap align-items-center justify-content-between gap-2"
   >
     <div class="input-group grid-search">
-      <label class="input-group-text" [for]="gridId + '-search'">Search</label>
+      <label class="input-group-text" [for]="gridId + '-search'">{{
+        "Search" | t
+      }}</label>
       <input
         [id]="gridId + '-search'"
         class="form-control"
         type="search"
-        placeholder="Filter rows"
+        [placeholder]="'Filter rows' | t"
         [(ngModel)]="searchTerm"
         [ngModelOptions]="{ standalone: true }"
         (ngModelChange)="onSearchChanged()"
@@ -20,10 +22,10 @@
         <button
           class="btn btn-outline-secondary"
           type="button"
-          aria-label="Clear search"
+          [attr.aria-label]="'Clear search' | t"
           (click)="clearSearch()"
         >
-          Clear
+          {{ "Clear" | t }}
         </button>
       }
     </div>
@@ -34,7 +36,7 @@
       [attr.aria-expanded]="columnMenuOpen"
       (click)="columnMenuOpen = !columnMenuOpen"
     >
-      Columns
+      {{ "Columns" | t }}
     </button>
   </div>
   @if (columnMenuOpen) {
@@ -48,7 +50,7 @@
               [checked]="!isColumnHidden(column)"
               (change)="setColumnHidden(column, !$any($event.target).checked)"
             />
-            <span class="form-check-label">{{ column.header }}</span>
+            <span class="form-check-label">{{ column.header | t }}</span>
           </label>
         }
       </div>
@@ -59,12 +61,12 @@
       <div
         class="spinner-border text-primary"
         role="status"
-        aria-label="Loading"
+        [attr.aria-label]="'Loading' | t"
       ></div>
     </div>
   } @else if (sortedRows.length > 0) {
     <div class="grid-scroll">
-      <div class="grid-flex" role="table" [attr.aria-label]="label">
+      <div class="grid-flex" role="table" [attr.aria-label]="label | t">
         <div class="grid-row grid-header" role="row">
           @if (selectable) {
             <div class="grid-cell select-cell" role="columnheader">
@@ -73,7 +75,7 @@
                 type="checkbox"
                 [checked]="allPageRowsSelected"
                 [indeterminate]="partiallySelected"
-                aria-label="Select current page"
+                [attr.aria-label]="'Select current page' | t"
                 (change)="togglePage($any($event.target).checked)"
               />
             </div>
@@ -98,10 +100,10 @@
                 [disabled]="column.sortable === false"
                 (click)="toggleSort(column)"
               >
-                <span>{{ column.header }}</span>
+                <span>{{ column.header | t }}</span>
                 @if (sort?.columnKey === column.key) {
                   <span class="sort-indicator">{{
-                    sort?.direction === "asc" ? "↑" : "↓"
+                    (sort?.direction === "asc" ? "↑" : "↓") | t
                   }}</span>
                 }
               </button>
@@ -128,7 +130,7 @@
           }
           @if (actions.length > 0) {
             <div class="grid-cell actions-cell" role="columnheader">
-              Actions
+              {{ "Actions" | t }}
             </div>
           }
         </div>
@@ -144,7 +146,7 @@
                   class="form-check-input"
                   type="checkbox"
                   [checked]="selectedIds.has(rowId(row))"
-                  aria-label="Select row"
+                  [attr.aria-label]="'Select row' | t"
                   (change)="toggleRow(row, $any($event.target).checked)"
                 />
               </div>
@@ -178,7 +180,7 @@
                 <div
                   class="btn-group btn-group-sm"
                   role="group"
-                  aria-label="Row actions"
+                  [attr.aria-label]="'Row actions' | t"
                 >
                   @for (action of actions; track action.label) {
                     <button
@@ -186,10 +188,10 @@
                       [class.btn-outline-primary]="action.color !== 'warn'"
                       [class.btn-outline-danger]="action.color === 'warn'"
                       type="button"
-                      [attr.aria-label]="action.label"
+                      [attr.aria-label]="action.label | t"
                       (click)="action.handler(row)"
                     >
-                      {{ action.label }}
+                      {{ action.label | t }}
                     </button>
                   }
                 </div>
@@ -203,11 +205,14 @@
       class="card-footer bg-white d-flex flex-wrap align-items-center justify-content-between gap-3"
     >
       <div class="text-body-secondary small">
-        Showing {{ pageStart }} to {{ pageEnd }} of {{ sortedRows.length }}
+        {{ "Showing" | t }} {{ pageStart }} {{ "to" | t }} {{ pageEnd }}
+        {{ "of" | t }} {{ sortedRows.length }}
       </div>
       <div class="d-flex flex-wrap align-items-center gap-2">
-        <label class="small text-body-secondary" [for]="gridId + '-page-size'"
-          >Rows</label
+        <label
+          class="small text-body-secondary"
+          [for]="gridId + '-page-size'"
+          >{{ "Rows" | t }}</label
         >
         <select
           [id]="gridId + '-page-size'"
@@ -223,7 +228,7 @@
         <div
           class="btn-group btn-group-sm"
           role="group"
-          aria-label="Pagination"
+          [attr.aria-label]="'Pagination' | t"
         >
           <button
             class="btn btn-outline-secondary"
@@ -231,7 +236,7 @@
             [disabled]="pageIndex === 0"
             (click)="previousPage()"
           >
-            Previous
+            {{ "Previous" | t }}
           </button>
           <button class="btn btn-outline-secondary" type="button" disabled>
             {{ pageIndex + 1 }} / {{ pageCount }}
@@ -242,14 +247,14 @@
             [disabled]="pageIndex >= pageCount - 1"
             (click)="nextPage()"
           >
-            Next
+            {{ "Next" | t }}
           </button>
         </div>
       </div>
     </div>
   } @else {
     <div class="empty-state">
-      {{ searchTerm ? "No matching rows." : emptyMessage }}
+      {{ (searchTerm ? "No matching rows." : emptyMessage) | t }}
     </div>
   }
 </section>

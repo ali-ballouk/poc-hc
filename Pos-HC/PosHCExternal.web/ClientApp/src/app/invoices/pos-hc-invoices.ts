@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../i18n/language';
 import {
   Component,
   OnInit,
@@ -27,7 +28,12 @@ interface Invoice {
 }
 @Component({
   selector: 'pos-hs-invoices',
-  imports: [CommonModule, GenericGridComponent, GenericGridColumnComponent],
+  imports: [
+    TranslatePipe,
+    CommonModule,
+    GenericGridComponent,
+    GenericGridColumnComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './pos-hc-invoices.html',
 })

@@ -1,10 +1,12 @@
-<h1 class="h3 mb-3">Reports and data export</h1>
+<h1 class="h3 mb-3">{{ "Reports and data export" | t }}</h1>
 @if (error) {
-  <div class="alert alert-danger" role="alert">{{ error }}</div>
+  <div class="alert alert-danger" role="alert">{{ error | t }}</div>
 }
 <form class="row g-3 align-items-end mb-4" (ngSubmit)="load()">
   <div class="col-md-4">
-    <label class="form-label" for="report-from">From (device local date)</label
+    <label class="form-label" for="report-from">{{
+      "From (device local date)" | t
+    }}</label
     ><input
       class="form-control"
       id="report-from"
@@ -15,7 +17,7 @@
     />
   </div>
   <div class="col-md-4">
-    <label class="form-label" for="report-to">Through</label
+    <label class="form-label" for="report-to">{{ "Through" | t }}</label
     ><input
       class="form-control"
       id="report-to"
@@ -26,24 +28,27 @@
     />
   </div>
   <div class="col-md-4">
-    <button class="btn btn-primary" [disabled]="busy">Run report</button>
+    <button class="btn btn-primary" [disabled]="busy">
+      {{ "Run report" | t }}
+    </button>
   </div>
 </form>
 <p class="text-secondary">
-  USD and LBP are reported separately. Outstanding balances are current; other
-  figures use the selected period. Service sales are before invoice-level
-  discounts and tax.
+  {{
+    "USD and LBP are reported separately. Outstanding balances are current; other figures use the selected period. Service sales are before invoice-level discounts and tax."
+      | t
+  }}
 </p>
 @if (report) {
   @for (section of sections; track section.key) {
     <section class="mb-4">
       <div class="d-flex justify-content-between">
-        <h2 class="h5">{{ section.label }}</h2>
+        <h2 class="h5">{{ section.label | t }}</h2>
         <button
           class="btn btn-sm btn-outline-secondary mb-2"
           (click)="csv(section.key)"
         >
-          Export CSV
+          {{ "Export CSV" | t }}
         </button>
       </div>
       <app-generic-grid
@@ -57,14 +62,15 @@
 }
 <section class="card mt-4">
   <div class="card-body">
-    <h2 class="h5">Clinic data export</h2>
+    <h2 class="h5">{{ "Clinic data export" | t }}</h2>
     <p>
-      Download a portable JSON copy of clinic records. Database backups are
-      managed by the server backup command and include account data needed for
-      recovery.
+      {{
+        "Download a portable JSON copy of clinic records. Database backups are managed by the server backup command and include account data needed for recovery."
+          | t
+      }}
     </p>
     <button class="btn btn-outline-primary" (click)="exportData()">
-      Download clinic data
+      {{ "Download clinic data" | t }}
     </button>
   </div>
 </section>

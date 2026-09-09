@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { LanguageService } from '../i18n/language';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -6,6 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class BaseAPI {
+  private language = inject(LanguageService);
   constructor(private http: HttpClient) {}
   private baseUrl = '/';
 
@@ -33,6 +35,7 @@ export class BaseAPI {
   }
   downloadPdf(api: string) {
     return this.http.get(this.buildUrl(api), {
+      params: { language: this.language.language() },
       responseType: 'blob',
       observe: 'response',
     });

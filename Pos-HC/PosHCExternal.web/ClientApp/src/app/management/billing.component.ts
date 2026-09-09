@@ -1,3 +1,4 @@
+import { TranslatePipe, LocalNumberPipe } from '../i18n/language';
 import {
   Component,
   inject,
@@ -21,7 +22,13 @@ const cols = (...keys: string[]): GridColumn<any>[] =>
   keys.map((key) => ({ key, header: key.replace(/([a-z])([A-Z])/g, '$1 $2') }));
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, GenericGridComponent],
+  imports: [
+    TranslatePipe,
+    LocalNumberPipe,
+    CommonModule,
+    FormsModule,
+    GenericGridComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './billing.component.html',
 })

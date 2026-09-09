@@ -1,23 +1,25 @@
 <main class="container py-5" style="max-width: 520px">
   <div class="card shadow-sm">
     <div class="card-body p-4">
-      <h1 class="h3">POS HC</h1>
+      <div class="login-brand" aria-hidden="true">+</div>
+      <h1 class="h3">{{ "POS HC" | t }}</h1>
       <p>
         {{
-          auth.setupRequired()
+          (auth.setupRequired()
             ? "Create the first administrator account"
             : reset
               ? "Reset your password"
               : "Sign in to your clinic"
+          ) | t
         }}
       </p>
       @if (error || auth.error()) {
         <div class="alert alert-danger" role="alert">
-          {{ error || auth.error() }}
+          {{ error || auth.error() | t }}
         </div>
       }
       <form #form="ngForm" (ngSubmit)="submit()">
-        <label class="form-label" for="username">Username</label
+        <label class="form-label" for="username">{{ "Username" | t }}</label
         ><input
           id="username"
           name="username"
@@ -27,7 +29,9 @@
           autocomplete="username"
         />
         @if (auth.setupRequired()) {
-          <label class="form-label" for="displayName">Your name</label
+          <label class="form-label" for="displayName">{{
+            "Your name" | t
+          }}</label
           ><input
             id="displayName"
             name="displayName"
@@ -38,7 +42,7 @@
         }
         @if (auth.setupRequired() || reset) {
           <label class="form-label" for="token">{{
-            reset ? "Password reset token" : "Installation setup token"
+            (reset ? "Password reset token" : "Installation setup token") | t
           }}</label
           ><input
             id="token"
@@ -51,13 +55,14 @@
           />
           <p class="small text-secondary">
             {{
-              reset
+              (reset
                 ? "Ask your clinic administrator for a reset token."
                 : "Your installer provides this token. It is required only once."
+              ) | t
             }}
           </p>
         }
-        <label class="form-label" for="password">Password</label
+        <label class="form-label" for="password">{{ "Password" | t }}</label
         ><input
           id="password"
           name="password"
@@ -72,13 +77,14 @@
         />
         <button class="btn btn-primary w-100" [disabled]="form.invalid || busy">
           {{
-            busy
+            (busy
               ? "Please wait…"
               : auth.setupRequired()
                 ? "Create administrator"
                 : reset
                   ? "Reset password"
                   : "Sign in"
+            ) | t
           }}
         </button>
       </form>
@@ -87,7 +93,7 @@
           class="btn btn-link px-0 mt-2"
           (click)="reset = !reset; error = ''"
         >
-          {{ reset ? "Back to sign in" : "Forgot password?" }}
+          {{ (reset ? "Back to sign in" : "Forgot password?") | t }}
         </button>
       }
     </div>

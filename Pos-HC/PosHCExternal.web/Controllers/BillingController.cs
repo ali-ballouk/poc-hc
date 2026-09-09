@@ -44,7 +44,7 @@ public class BillingController(BillingService billing, IClinicStore store, IRece
     [HttpGet("invoices/{id:guid}")]
     public async Task<object> Details(Guid id, CancellationToken ct) => new { Summary = await billing.Balance(id, ct), Payments = await store.List<Payment>(x => x.InvoiceId == id, int.MaxValue, ct: ct), CreditNotes = await store.List<CreditNote>(x => x.InvoiceId == id, int.MaxValue, ct: ct) };
     [HttpGet("payments/{id:guid}/receipt")]
-    public async Task<IActionResult> Receipt(Guid id, CancellationToken ct)
+    public async Task<IActionResult> Receipt(Guid id, CancellationToken ct, [FromQuery] string language = "en")
     {
         var payment = await store.Find<Payment>(x => x.Id == id, ct);
         if (payment == null)
@@ -52,7 +52,7 @@ public class BillingController(BillingService billing, IClinicStore store, IRece
             return NotFound();
         }
 
-        return File(receipts.Generate(payment, await billing.Invoice(payment.InvoiceId, ct)), "application/pdf", $"Receipt-{id}.pdf");
+        return File(receipts.Generate(payment, await billing.Invoice(payment.InvoiceId, ct), language), "application/pdf", $"Receipt-{id}.pdf");
     }
     [HttpPost("invoices/{id:guid}/status"), Authorize(Roles = "Administrator,Cashier")]
     public Task<Invoice> Status(Guid id, StatusInput input, CancellationToken ct) => billing.ChangeStatus(id, input.Status, input.Reason, ct);

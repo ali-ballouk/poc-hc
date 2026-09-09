@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../i18n/language';
 import {
   Component,
   Inject,
@@ -18,7 +19,7 @@ export interface RecordFormData {
 }
 @Component({
   standalone: true,
-  imports: [FormsModule, GenericSelectorComponent],
+  imports: [TranslatePipe, FormsModule, GenericSelectorComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './record-form.component.html',
 })

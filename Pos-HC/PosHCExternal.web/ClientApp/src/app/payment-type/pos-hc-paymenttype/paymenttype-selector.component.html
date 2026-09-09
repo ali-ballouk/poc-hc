@@ -1,10 +1,11 @@
 <app-generic-selector
+  [translateOptions]="true"
   [data]="paymenttypes()"
   valueField="Id"
   textField="Name"
   mode="single"
-  label="Payment type"
-  placeholder="Choose payment type"
+  [label]="'Payment type' | t"
+  [placeholder]="'Choose payment type' | t"
   [initialSelection]="selectedPaymentTypeId"
   (selectionChanged)="onSelectionChange($event?.Id ?? null)"
 ></app-generic-selector>

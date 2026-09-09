@@ -1,3 +1,4 @@
+import { TranslatePipe, LocalNumberPipe } from '../i18n/language';
 import {
   Component,
   ViewChild,
@@ -25,6 +26,8 @@ interface Invoice {
   selector: 'pos-hc-editor',
   standalone: true,
   imports: [
+    TranslatePipe,
+    LocalNumberPipe,
     CommonModule,
     FormsModule,
     PatientSelectorComponent,

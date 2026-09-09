@@ -1,5 +1,26 @@
+<div class="language-bar" role="group" aria-label="Language / اللغة">
+  <span class="language-caption">{{ "Clinic workspace" | t }}</span>
+  <button
+    type="button"
+    lang="en"
+    [class.selected]="language.language() === 'en'"
+    [attr.aria-pressed]="language.language() === 'en'"
+    (click)="language.setLanguage('en')"
+  >
+    English
+  </button>
+  <button
+    type="button"
+    lang="ar"
+    [class.selected]="language.language() === 'ar'"
+    [attr.aria-pressed]="language.language() === 'ar'"
+    (click)="language.setLanguage('ar')"
+  >
+    العربية
+  </button>
+</div>
 @if (!auth.ready()) {
-  <p class="p-4" role="status">Connecting to clinic…</p>
+  <p class="p-4" role="status">{{ "Connecting to clinic…" | t }}</p>
 } @else if (auth.user()) {
   <app-layout></app-layout>
 } @else {

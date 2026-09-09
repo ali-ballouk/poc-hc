@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Persistence/Upgrades/*.sql" />
+    <EmbeddedResource Include="PdfInvoiceGenerator/Fonts/*.ttf" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 

@@ -3,8 +3,8 @@
   valueField="Id"
   textField="FullName"
   mode="single"
-  label="Patient"
-  placeholder="Choose patient"
+  [label]="'Patient' | t"
+  [placeholder]="'Choose patient' | t"
   [initialSelection]="selectedPatientId"
   (selectionChanged)="onSelectionChange($event?.Id ?? null)"
 ></app-generic-selector>
