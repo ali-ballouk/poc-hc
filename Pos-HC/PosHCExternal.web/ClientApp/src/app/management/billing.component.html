@@ -1,0 +1,124 @@
+<h1 class="h3 mb-3">Invoices and collections</h1>
+@if (error) {
+  <div class="alert alert-danger" role="alert">{{ error }}</div>
+}
+<form class="d-flex gap-2 mb-3" (ngSubmit)="page = 1; load()">
+  <input
+    class="form-control"
+    [(ngModel)]="search"
+    name="search"
+    placeholder="Invoice number, patient or doctor"
+    aria-label="Search invoices"
+  /><button class="btn btn-outline-primary">Search</button>
+</form>
+<app-generic-grid
+  [data]="rows"
+  [columns]="columns"
+  [actions]="actions"
+  [rowId]="rowId"
+  [selectable]="false"
+  [loading]="loading"
+  label="Invoices"
+></app-generic-grid>
+<div class="d-flex gap-3 align-items-center my-3">
+  <button
+    class="btn btn-outline-secondary"
+    [disabled]="page === 1"
+    (click)="page = page - 1; load()"
+  >
+    Previous 50</button
+  ><span>{{ total }} invoices · Page {{ page }}</span
+  ><button
+    class="btn btn-outline-secondary"
+    [disabled]="page * 50 >= total"
+    (click)="page = page + 1; load()"
+  >
+    Next 50
+  </button>
+</div>
+@if (detail; as d) {
+  <section class="card mt-4">
+    <div class="card-body">
+      <h2 class="h4">
+        Invoice #{{ d.Summary.Invoice.Number }} ·
+        {{ d.Summary.Invoice.Currency }}
+      </h2>
+      <p>
+        {{ d.Summary.Invoice.PatientName }} ·
+        {{ d.Summary.Invoice.DoctorName }} · {{ d.Summary.PaymentStatus }}
+      </p>
+      <p>
+        Total:
+        <strong>{{ d.Summary.Invoice.Total | number: "1.0-2" }}</strong> ·
+        Collected: {{ d.Summary.Paid | number: "1.0-2" }} · Credits:
+        {{ d.Summary.Credits | number: "1.0-2" }} · Balance:
+        <strong>{{ d.Summary.Balance | number: "1.0-2" }}</strong>
+      </p>
+      <div class="d-flex flex-wrap gap-2 mb-4">
+        <button
+          class="btn btn-outline-primary"
+          (click)="
+            download(
+              'api/invoice/' + d.Summary.Invoice.Id + '/print',
+              'Invoice-' + d.Summary.Invoice.Number + '.pdf'
+            )
+          "
+        >
+          Download invoice
+        </button>
+        @if (auth.can("Administrator", "Cashier")) {
+          @if (d.Summary.Invoice.Status === "Draft") {
+            <button class="btn btn-primary" (click)="status('Issued')">
+              Issue invoice
+            </button>
+          }
+          @if (d.Summary.Invoice.Status === "Issued" && d.Summary.Balance > 0) {
+            <button class="btn btn-success" (click)="collect()">
+              Record payment
+            </button>
+          }
+          @if (
+            d.Summary.Invoice.Status !== "Void" &&
+            d.Summary.Paid === 0 &&
+            d.Summary.Credits === 0
+          ) {
+            <button class="btn btn-outline-danger" (click)="status('Void')">
+              Void invoice
+            </button>
+          }
+          @if (d.Summary.Balance < 0) {
+            <button class="btn btn-outline-danger" (click)="adjust('refunds')">
+              Record refund
+            </button>
+          }
+        }
+        @if (
+          auth.can("Administrator") && d.Summary.Invoice.Status === "Issued"
+        ) {
+          <button class="btn btn-outline-danger" (click)="adjust('credits')">
+            Credit note
+          </button>
+        }
+      </div>
+      <h3 class="h5">Invoice items</h3>
+      <app-generic-grid
+        [data]="d.Summary.Invoice.Items"
+        [columns]="itemColumns"
+        [selectable]="false"
+      ></app-generic-grid>
+      <h3 class="h5 mt-4">Payments and refunds</h3>
+      <app-generic-grid
+        [data]="d.Payments"
+        [columns]="paymentColumns"
+        [actions]="paymentActions"
+        [selectable]="false"
+      ></app-generic-grid>
+      <h3 class="h5 mt-4">Credit notes</h3>
+      <app-generic-grid
+        [data]="d.CreditNotes"
+        [columns]="creditColumns"
+        [selectable]="false"
+      ></app-generic-grid>
+    </div>
+  </section>
+}

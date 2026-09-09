@@ -1,105 +1,134 @@
-import { Component, OnInit, signal, Output, EventEmitter } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import {
+  Component,
+  OnInit,
+  signal,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { GenericGridComponent } from '../../ui-shared/components/generic-grid/generic-grid.component';
+import {
+  GridAction,
+  GridColumn,
+} from '../../ui-shared/components/generic-grid/generic-grid.models';
+import { GenericSelectorComponent } from '../../ui-shared/components/generic-selector/generic-selector.component';
 import { BaseAPI } from '../../services/base.api';
 
 import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
 
-
+interface VisitRow {
+  rowId: number;
+  id: string;
+  name: string;
+  unitPrice: number;
+  type: string;
+  quantity: number;
+  description: string;
+}
 
 @Component({
   selector: 'pos-hs-visit-item',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CurrencyPipe,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatInputModule,
-    MatTableModule,
-    MatIconModule,
-    MatIcon
-  ],
-  templateUrl: './visit-item.component.html'
+  imports: [FormsModule, GenericGridComponent, GenericSelectorComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './visit-item.component.html',
 })
 export class VisitItemsComponent implements OnInit {
   // sample items for the select
-  @Output() itemsChanged = new EventEmitter<number>();  // 👈 Parent will listen
+  @Output() itemsChanged = new EventEmitter<number>(); // 👈 Parent will listen
 
   items = signal<any[]>([]);
-
 
   ngOnInit(): void {
     this.api.get<any[]>('api/catalogtitem').subscribe({
       next: (res) => {
         this.items.set(res);
       },
-      error: (err) => console.error('Error loading items', err)
+      error: (err) => console.error('Error loading items', err),
     });
   }
-  constructor(private api: BaseAPI) { }
+  constructor(private api: BaseAPI) {}
 
   selectedItemId: string | null = null;
 
   quantity: number = 1;
 
-  displayedColumns: string[] = ['name', 'type', 'description', 'unitPrice','quantity' ,'total','actions'];
-  dataSource = new MatTableDataSource<any>([]);
-
+  rows: VisitRow[] = [];
+  private nextRowId = 0;
+  readonly rowId = (row: VisitRow) => row.rowId;
+  readonly columns: GridColumn<VisitRow>[] = [
+    { key: 'name', header: 'Item name', widthPx: 190 },
+    { key: 'type', header: 'Type', widthPx: 110 },
+    { key: 'description', header: 'Description', widthPx: 190 },
+    { key: 'unitPrice', header: 'Unit price', type: 'currency', widthPx: 130 },
+    { key: 'quantity', header: 'Quantity', type: 'number', widthPx: 110 },
+    {
+      key: 'total',
+      header: 'Total',
+      type: 'currency',
+      widthPx: 130,
+      valueAccessor: (row) => row.unitPrice * row.quantity,
+    },
+  ];
+  readonly actions: GridAction<VisitRow>[] = [
+    {
+      label: 'Remove',
+      color: 'warn',
+      handler: (row) => this.removeItem(row.rowId),
+    },
+  ];
 
   settingsToString(settings: Record<string, any>): string {
     if (!settings) return '';
     return Object.values(settings).join(' / ');
   }
 
-
   getVisitItems(): any[] {
-    return this.dataSource.data.map((x: any) => ({ CatalogItemId: x.id, Quantity: x.quantity}))
+    return this.rows.map((x: any) => ({
+      CatalogItemId: x.id,
+      Quantity: x.quantity,
+    }));
   }
 
   clearItems() {
     if (this.selectedItemId) this.selectedItemId = null;
-    this.dataSource.data = [];
+    this.rows = [];
     this.quantity = 1;
     this.emitTotal();
   }
   addItem() {
     if (!this.selectedItemId) return;
 
-    const selected = this.items().find(d => d.Id === this.selectedItemId);
+    const selected = this.items().find((d) => d.Id === this.selectedItemId);
     if (!selected) return;
     const quantity = this.quantity;
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10000) return;
     // clone the item with quantity
-    const row = {
+    const row: VisitRow = {
+      rowId: this.nextRowId++,
       id: selected.Id,
       name: selected.Name,
       unitPrice: selected.UnitPrice,
       type: selected.Type == 1 ? 'Product' : 'Service',
       quantity: quantity,
-      description: this.settingsToString(selected.Settings)
+      description: this.settingsToString(selected.Settings),
     };
 
-    this.dataSource.data = [...this.dataSource.data, row];
-    this.selectedItemId = null
+    this.rows = [...this.rows, row];
+    this.selectedItemId = null;
     this.emitTotal();
-
   }
 
-  removeItem(id: string) {
-    this.dataSource.data = this.dataSource.data.filter(x => x.id !== id);
+  removeItem(rowId: number) {
+    this.rows = this.rows.filter((x) => x.rowId !== rowId);
     this.emitTotal();
   }
 
   private emitTotal() {
-    const total = this.dataSource.data.reduce((sum, x) => sum + x.unitPrice * x.quantity, 0);
+    const total = this.rows.reduce(
+      (sum, x) => sum + x.unitPrice * x.quantity,
+      0,
+    );
     this.itemsChanged.emit(total);
   }
 }

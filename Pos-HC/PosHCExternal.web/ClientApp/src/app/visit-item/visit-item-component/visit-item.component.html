@@ -1,65 +1,45 @@
-
-<div>
-
-  <mat-form-field class="pr-4">
-    <mat-label>Choose Item</mat-label>
-    <mat-select [(value)]="selectedItemId">
-      <mat-option [value]="null">-- choose item --</mat-option>
-      @for(v of items(); track v; ) {
-      <mat-option [value]="v.Id">{{ v.Name }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-  <mat-form-field class="pr-4">
-    <mat-label>Quantity</mat-label>
-    <input matInput type="number" [(ngModel)]="quantity" min="1" step="1" />
-  </mat-form-field>
-
-  <button class="pl-4 pr-4" mat-raised-button color="primary" (click)="addItem()">Add</button>
+<div class="row g-3 align-items-end mb-3">
+  <div class="col-md-7">
+    <app-generic-selector
+      [data]="items()"
+      valueField="Id"
+      textField="Name"
+      mode="single"
+      label="Choose item"
+      placeholder="Choose item"
+      [initialSelection]="selectedItemId"
+      (selectionChanged)="selectedItemId = $event?.Id ?? null"
+    ></app-generic-selector>
+  </div>
+  <div class="col-7 col-md-3">
+    <label for="item-quantity" class="form-label">Quantity</label>
+    <input
+      id="item-quantity"
+      class="form-control"
+      type="number"
+      min="1"
+      step="1"
+      [(ngModel)]="quantity"
+      [ngModelOptions]="{ standalone: true }"
+    />
+  </div>
+  <div class="col-5 col-md-2">
+    <button
+      type="button"
+      class="btn btn-primary w-100"
+      (click)="addItem()"
+      [disabled]="!selectedItemId || quantity < 1"
+    >
+      Add
+    </button>
+  </div>
 </div>
-
-<div class="pl-4 pr-4">
-
-  <mat-table [dataSource]="dataSource" class="mat-elevation-z2 mt-3">
-
-    <ng-container matColumnDef="type">
-      <mat-header-cell *matHeaderCellDef> Item Type </mat-header-cell>
-      <mat-cell *matCellDef="let element">{{element.type}}</mat-cell>
-    </ng-container>
-    <!-- Name Column -->
-    <ng-container matColumnDef="name">
-      <mat-header-cell *matHeaderCellDef> Item Name </mat-header-cell>
-      <mat-cell *matCellDef="let element">{{element.name}}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="description">
-      <mat-header-cell *matHeaderCellDef> Description </mat-header-cell>
-      <mat-cell *matCellDef="let element">{{element.description}}</mat-cell>
-    </ng-container>
-    <!-- UnitPrice Column -->
-    <ng-container matColumnDef="unitPrice">
-      <mat-header-cell *matHeaderCellDef> Unit Price </mat-header-cell>
-      <mat-cell *matCellDef="let element">{{element.unitPrice | currency}}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="quantity">
-      <mat-header-cell *matHeaderCellDef> Quantity </mat-header-cell>
-      <mat-cell *matCellDef="let element">{{element.quantity}}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="total">
-      <mat-header-cell *matHeaderCellDef> Total </mat-header-cell>
-      <mat-cell *matCellDef="let element">{{element.unitPrice * element.quantity}}</mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-      <mat-header-cell mat-header-cell *matHeaderCellDef></mat-header-cell>
-      <mat-cell mat-cell *matCellDef="let element">
-        <button mat-icon-button color="warn" (click)="removeItem(element.id)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </mat-cell>
-    </ng-container>
-    <!-- Quantity Column -->
-
-
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-  </mat-table>
-</div>
+<app-generic-grid
+  [data]="rows"
+  [columns]="columns"
+  [actions]="actions"
+  [rowId]="rowId"
+  [selectable]="false"
+  label="Items on this visit"
+  emptyMessage="No items added yet."
+></app-generic-grid>

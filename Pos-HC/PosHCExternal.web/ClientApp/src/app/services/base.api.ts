@@ -3,12 +3,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BaseAPI {
-
-  constructor(private http: HttpClient) { }
-  private baseUrl = 'http://localhost:5269/';
+  constructor(private http: HttpClient) {}
+  private baseUrl = '/';
 
   private buildUrl(api: string): string {
     return `${this.baseUrl}${api}`;
@@ -32,10 +31,10 @@ export class BaseAPI {
   delete<T>(api: string): Observable<T> {
     return this.http.delete<T>(this.buildUrl(api));
   }
-  downloadPdf<T>(api: string) {
-    return this.http.get(api, {
+  downloadPdf(api: string) {
+    return this.http.get(this.buildUrl(api), {
       responseType: 'blob',
-      observe: 'response'
+      observe: 'response',
     });
   }
 }

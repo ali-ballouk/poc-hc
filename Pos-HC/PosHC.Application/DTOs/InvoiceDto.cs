@@ -1,4 +1,4 @@
-﻿using PosHC.Domain.Entities;
+using PosHC.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,37 +8,88 @@ using System.Threading.Tasks;
 namespace PosHC.Application.DTOs
 {
 
-  
+
     public class CreateInvoiceDto
     {
-        public Guid DoctorId { get; set; }
+        public string Currency { get; set; } = "USD";
+        public bool Draft
+        {
+            get; set;
+        }
+        public Guid? RequestId
+        {
+            get; set;
+        }
+        public Guid DoctorId
+        {
+            get; set;
+        }
 
-        public Guid PatientId { get; set; }
+        public Guid PatientId
+        {
+            get; set;
+        }
 
-        public string? DoctorName { get; set; }
-        public string? PatientName { get; set; }
+        public string? DoctorName
+        {
+            get; set;
+        }
+        public string? PatientName
+        {
+            get; set;
+        }
 
-        public decimal? Discount { get; set; }
+        public decimal? Discount
+        {
+            get; set;
+        }
         public List<InvoiceItemDto> Items { get; set; } = new();
     }
 
     public class InvoiceDto
     {
-        public Guid InvoiceId  { get; set; }
+        public Guid InvoiceId
+        {
+            get; set;
+        }
 
-        public DateTime InvoiceDate { get; set; }
-        public Guid DoctorId { get; set; }
-        public string? DoctorName { get; set; }
+        public DateTime InvoiceDate
+        {
+            get; set;
+        }
+        public Guid DoctorId
+        {
+            get; set;
+        }
+        public string? DoctorName
+        {
+            get; set;
+        }
 
-        public Guid PatientId { get; set; }
+        public Guid PatientId
+        {
+            get; set;
+        }
 
-        public string? PatientName { get; set; }
+        public string? PatientName
+        {
+            get; set;
+        }
 
-        public decimal? Discount { get; set; }
+        public decimal? Discount
+        {
+            get; set;
+        }
 
-        public decimal DoctorFee { get; set; }
+        public decimal DoctorFee
+        {
+            get; set;
+        }
 
-        public decimal Total { get; set; }
+        public decimal Total
+        {
+            get; set;
+        }
 
 
         public List<InvoiceItemDto> Items { get; set; } = new();
@@ -46,9 +97,18 @@ namespace PosHC.Application.DTOs
 
     public class InvoiceResultDto
     {
-        public Guid InvoiceId { get; set; }
-        public decimal Total { get; set; }
-        public DateTime InvoiceDate { get; set; }
+        public Guid InvoiceId
+        {
+            get; set;
+        }
+        public decimal Total
+        {
+            get; set;
+        }
+        public DateTime InvoiceDate
+        {
+            get; set;
+        }
     }
 
 
@@ -69,7 +129,14 @@ namespace PosHC.Application.DTOs
         DateTime CreatedAt,
         decimal Subtotal,
         decimal Total,
-        List<InvoiceItemGenerateDto> Items
+        List<InvoiceItemGenerateDto> Items,
+        long Number = 0,
+        string Currency = "USD",
+        string Status = "Issued",
+        decimal Tax = 0,
+        string ClinicName = "POS HC",
+        string ClinicAddress = "",
+        string ClinicPhone = ""
     );
 
 }

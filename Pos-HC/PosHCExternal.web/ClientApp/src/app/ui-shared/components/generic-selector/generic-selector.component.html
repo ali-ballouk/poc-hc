@@ -1,0 +1,156 @@
+@if (label) {
+  <label class="form-label" [for]="inputId">{{ label }}</label>
+}
+<div class="generic-selector-wrapper">
+  <div class="dropdown" [class.show]="isOpen">
+    <button
+      #trigger
+      [id]="inputId"
+      class="btn btn-outline-secondary dropdown-toggle"
+      type="button"
+      (click)="toggleDropdown()"
+      [disabled]="disabled"
+      [attr.aria-expanded]="isOpen"
+      [attr.aria-controls]="inputId + '-options'"
+      [attr.aria-label]="label || placeholder"
+      [attr.aria-haspopup]="mode === 'single' ? 'listbox' : 'dialog'"
+    >
+      <span class="selector-text">{{ displayText }}</span>
+    </button>
+    <div
+      #dropdownMenu
+      class="dropdown-menu"
+      [class.show]="isOpen"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="dropdown-header">
+        <div class="input-group input-group-sm">
+          <input
+            #searchInput
+            type="search"
+            class="form-control"
+            placeholder="Search..."
+            [(ngModel)]="searchTerm"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onSearchChanged($event)"
+            [disabled]="disabled"
+            [attr.aria-label]="'Search ' + (label || placeholder)"
+          />
+          @if (searchTerm) {
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              (click)="clearSearch()"
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          }
+        </div>
+      </div>
+      @if (mode === "single") {
+        <div
+          class="dropdown-options"
+          role="listbox"
+          [id]="inputId + '-options'"
+          [attr.aria-label]="label || placeholder"
+        >
+          @for (option of filteredOptions; track option.value) {
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.active]="isOptionSelected(option)"
+              (click)="onOptionClicked(option)"
+              role="option"
+              [attr.aria-selected]="isOptionSelected(option)"
+              [disabled]="disabled"
+            >
+              {{ option.text }}
+            </button>
+          } @empty {
+            <div class="dropdown-item disabled">No options available</div>
+          }
+        </div>
+      } @else {
+        <div
+          class="dropdown-multi-container"
+          role="dialog"
+          [id]="inputId + '-options'"
+          [attr.aria-label]="label || placeholder"
+        >
+          <div class="multi-panel-layout">
+            <div class="dropdown-options-multi">
+              <div class="select-all-container">
+                <label class="select-all-label">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [checked]="allItemsSelected"
+                    [indeterminate]="
+                      getSelectedCount() > 0 && !allItemsSelected
+                    "
+                    (change)="toggleSelectAll()"
+                    [disabled]="disabled"
+                  />
+                  <span>Select all matching options</span>
+                </label>
+              </div>
+              <div class="options-list">
+                @for (option of filteredOptions; track option.value) {
+                  <label class="dropdown-item-multi">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      [checked]="isOptionSelected(option)"
+                      (change)="toggleOptionSelection(option, $event)"
+                      [disabled]="disabled"
+                    />
+                    <span class="form-check-label">{{ option.text }}</span>
+                  </label>
+                } @empty {
+                  <div class="dropdown-item disabled">No options available</div>
+                }
+              </div>
+            </div>
+            @if (getSelectedCount() > 0) {
+              <div class="selected-items-panel has-selections">
+                <div class="selected-items-header">
+                  <span class="badge bg-primary"
+                    >{{ getSelectedCount() }} selected</span
+                  >
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-link"
+                    (click)="clearAll()"
+                    [disabled]="disabled"
+                  >
+                    Clear all
+                  </button>
+                </div>
+                <div class="selected-items-list">
+                  @for (option of selectedOptions; track option.value) {
+                    <span class="badge bg-info text-dark">{{
+                      option.text
+                    }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+  @if (selectedItems.size > 0 && mode === "single") {
+    <button
+      type="button"
+      class="btn btn-sm btn-outline-secondary"
+      (click)="clearSelection()"
+      [disabled]="disabled"
+      [attr.aria-label]="'Clear ' + (label || 'selection')"
+      title="Clear selection"
+    >
+      ×
+    </button>
+  }
+</div>

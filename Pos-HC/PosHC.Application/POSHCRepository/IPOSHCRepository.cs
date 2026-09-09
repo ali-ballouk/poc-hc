@@ -1,4 +1,4 @@
-﻿using PosHC.Domain.Entities;
+using PosHC.Domain.Entities;
 
 namespace PosHC.Application.Interfaces
 {

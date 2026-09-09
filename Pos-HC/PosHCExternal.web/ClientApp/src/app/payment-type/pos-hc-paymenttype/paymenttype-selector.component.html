@@ -1,8 +1,10 @@
-<mat-form-field class="pl-4 pr-4">
-  <mat-label>Type</mat-label>
-  <mat-select [value]="selectedPaymentTypeId" (selectionChange)="onSelectionChange($event)">
-    @for(p of paymenttypes(); track p.Id; ){
-    <mat-option [value]="p.Id">{{ p.Name }}</mat-option>
-    }
-  </mat-select>
-</mat-form-field>
+<app-generic-selector
+  [data]="paymenttypes()"
+  valueField="Id"
+  textField="Name"
+  mode="single"
+  label="Payment type"
+  placeholder="Choose payment type"
+  [initialSelection]="selectedPaymentTypeId"
+  (selectionChanged)="onSelectionChange($event?.Id ?? null)"
+></app-generic-selector>

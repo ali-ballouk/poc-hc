@@ -1,4 +1,4 @@
-﻿using PosHC.Domain.Entities;
+using PosHC.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +11,23 @@ namespace PosHC.Application.DTOs
 {
     public class CatalogItemDto
     {
-        public Guid Id { get; set; }
+        public Guid Id
+        {
+            get; set;
+        }
         public string Name { get; set; } = null!;
-        public decimal UnitPrice { get; set; }
-        public ItemType Type { get; set; }
-        public object Settings { get; set; }
+        public decimal UnitPrice
+        {
+            get; set;
+        }
+        public ItemType Type
+        {
+            get; set;
+        }
+        public object Settings
+        {
+            get; set;
+        }
     }
 
 

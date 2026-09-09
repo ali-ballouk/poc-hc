@@ -1,0 +1,152 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.grid-surface {
+  overflow: hidden;
+}
+
+.column-definitions {
+  display: none;
+}
+
+.grid-search {
+  width: min(420px, 100%);
+}
+
+.grid-loading,
+.empty-state {
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  color: var(--bs-secondary-color);
+}
+
+.grid-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.grid-flex {
+  min-width: 680px;
+}
+
+.grid-row {
+  display: flex;
+  align-items: stretch;
+  min-width: max-content;
+}
+
+.grid-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-emphasis-color);
+  font-weight: 600;
+}
+
+.data-row {
+  cursor: pointer;
+  transition: background-color 140ms ease;
+}
+
+.data-row:hover {
+  background: var(--bs-tertiary-bg);
+}
+
+.grid-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--bs-border-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-cell {
+  overflow: visible;
+}
+
+.header-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  color: inherit;
+  font: inherit;
+}
+
+.header-button:disabled {
+  color: inherit;
+  opacity: 1;
+  cursor: default;
+}
+
+.sort-indicator {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--bs-primary);
+  color: var(--bs-white);
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 3px 7px;
+}
+
+.resize-handle {
+  position: absolute;
+  top: 8px;
+  right: 0;
+  bottom: 8px;
+  width: 8px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 3px;
+  width: 1px;
+  background: var(--bs-border-color);
+}
+
+.select-cell {
+  flex: 0 0 56px;
+  justify-content: center;
+  min-width: 56px;
+}
+
+.actions-cell {
+  flex: 0 0 180px;
+  justify-content: flex-end;
+  min-width: 180px;
+}
+
+.grid-page-size {
+  width: 76px;
+}
+
+@media (max-width: 700px) {
+  .card-header,
+  .card-footer {
+    align-items: stretch !important;
+  }
+
+  .grid-search {
+    width: 100%;
+  }
+
+  .grid-cell {
+    min-height: 44px;
+    padding: 9px 12px;
+  }
+}

@@ -1,18 +1,25 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { PosHcSidebar } from './pos-hc-sidebar';
+import { LayoutComponent } from './pos-hc-sidebar';
 
-describe('PosHcSidebar', () => {
-  let component: PosHcSidebar;
-  let fixture: ComponentFixture<PosHcSidebar>;
+describe('LayoutComponent', () => {
+  let component: LayoutComponent;
+  let fixture: ComponentFixture<LayoutComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PosHcSidebar]
-    })
-    .compileComponents();
+      imports: [LayoutComponent],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(PosHcSidebar);
+    fixture = TestBed.createComponent(LayoutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

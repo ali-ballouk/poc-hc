@@ -1,0 +1,95 @@
+<main class="container py-5" style="max-width: 520px">
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+      <h1 class="h3">POS HC</h1>
+      <p>
+        {{
+          auth.setupRequired()
+            ? "Create the first administrator account"
+            : reset
+              ? "Reset your password"
+              : "Sign in to your clinic"
+        }}
+      </p>
+      @if (error || auth.error()) {
+        <div class="alert alert-danger" role="alert">
+          {{ error || auth.error() }}
+        </div>
+      }
+      <form #form="ngForm" (ngSubmit)="submit()">
+        <label class="form-label" for="username">Username</label
+        ><input
+          id="username"
+          name="username"
+          class="form-control mb-3"
+          [(ngModel)]="username"
+          required
+          autocomplete="username"
+        />
+        @if (auth.setupRequired()) {
+          <label class="form-label" for="displayName">Your name</label
+          ><input
+            id="displayName"
+            name="displayName"
+            class="form-control mb-3"
+            [(ngModel)]="displayName"
+            required
+          />
+        }
+        @if (auth.setupRequired() || reset) {
+          <label class="form-label" for="token">{{
+            reset ? "Password reset token" : "Installation setup token"
+          }}</label
+          ><input
+            id="token"
+            name="token"
+            type="password"
+            class="form-control mb-3"
+            [(ngModel)]="token"
+            required
+            autocomplete="off"
+          />
+          <p class="small text-secondary">
+            {{
+              reset
+                ? "Ask your clinic administrator for a reset token."
+                : "Your installer provides this token. It is required only once."
+            }}
+          </p>
+        }
+        <label class="form-label" for="password">Password</label
+        ><input
+          id="password"
+          name="password"
+          type="password"
+          class="form-control mb-3"
+          [(ngModel)]="password"
+          required
+          [minlength]="auth.setupRequired() || reset ? 12 : 1"
+          [attr.autocomplete]="
+            auth.setupRequired() || reset ? 'new-password' : 'current-password'
+          "
+        />
+        <button class="btn btn-primary w-100" [disabled]="form.invalid || busy">
+          {{
+            busy
+              ? "Please wait…"
+              : auth.setupRequired()
+                ? "Create administrator"
+                : reset
+                  ? "Reset password"
+                  : "Sign in"
+          }}
+        </button>
+      </form>
+      @if (!auth.setupRequired()) {
+        <button
+          class="btn btn-link px-0 mt-2"
+          (click)="reset = !reset; error = ''"
+        >
+          {{ reset ? "Back to sign in" : "Forgot password?" }}
+        </button>
+      }
+    </div>
+  </div>
+</main>

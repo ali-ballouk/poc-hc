@@ -1,43 +1,125 @@
-<div >
-  <h2 class="text-2xl font-bold mb-6 text-gray-800">Create New Visit</h2>
-
-  <form #visitForm="ngForm" class="space-y-6">
-    <div>
-      <pos-hs-patient-selector (selectionChange)="onPatientSelected($event)" [(selectedPatientId)]="selectedPatientId"></pos-hs-patient-selector>
-      <pos-hs-doctor-selector (selectionChange)="onDoctorSelected($event)" [(selectedDoctorId)]="selectedDoctorId"></pos-hs-doctor-selector>
+<h1 class="h3 mb-4">Create new visit</h1>
+@if (error) {
+  <div class="alert alert-danger" role="alert">{{ error }}</div>
+}
+@if (invoiceResult) {
+  <div class="alert alert-success">
+    Invoice saved: {{ invoiceResult.Total }} {{ currency }}. Open Invoices for
+    balances, receipts and further actions.
+  </div>
+}
+<form #visitForm="ngForm" class="card shadow-sm">
+  <fieldset class="card-body p-3 p-lg-4" [disabled]="saving || !!invoiceResult">
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label class="form-label" for="invoice-currency">Invoice currency</label
+        ><select
+          id="invoice-currency"
+          name="currency"
+          class="form-select"
+          [(ngModel)]="currency"
+          (ngModelChange)="discount = 0"
+        >
+          <option value="USD">USD</option>
+          <option value="LBP">Lebanese lira (LBP)</option>
+        </select>
+      </div>
+      <div class="col-md-4 form-check mt-5">
+        <input
+          id="invoice-draft"
+          class="form-check-input"
+          type="checkbox"
+          name="draft"
+          [(ngModel)]="draft"
+        /><label for="invoice-draft" class="form-check-label"
+          >Save as draft</label
+        >
+      </div>
     </div>
-
-    <fieldset class="border border-gray-300 rounded-lg p-4">
-      <legend class="text-sm font-medium text-gray-700 px-2">visit Items</legend>
-        <pos-hs-visit-item (itemsChanged)="onItemUpdated($event)"></pos-hs-visit-item>
+    @if (currency === "LBP") {
+      <p>
+        Rate: {{ settings.LbpPerUsd }} LBP per USD.
+        @if (!settings.ExchangeRateConfirmed) {
+          Confirm the exchange rate in clinic settings before creating an LBP
+          invoice.
+        }
+      </p>
+    }
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <pos-hs-patient-selector
+          (selectionChange)="onPatientSelected($event)"
+          [(selectedPatientId)]="selectedPatientId"
+        ></pos-hs-patient-selector>
+      </div>
+      <div class="col-md-6">
+        <pos-hs-doctor-selector
+          (selectionChange)="onDoctorSelected($event)"
+          [(selectedDoctorId)]="selectedDoctorId"
+        ></pos-hs-doctor-selector>
+      </div>
+    </div>
+    <fieldset class="border rounded p-3 mb-4">
+      <legend class="float-none w-auto px-2 fs-6 fw-semibold">
+        Visit items
+      </legend>
+      <pos-hs-visit-item
+        (itemsChanged)="onItemUpdated($event)"
+      ></pos-hs-visit-item>
     </fieldset>
-
-
-    <mat-form-field class="pl-4 pr-4">
-      <mat-label>Discount</mat-label>
-      <input matInput type="number" [(ngModel)]="discount"  step="1" name="discount" />
-    </mat-form-field>
-
-    <div class="bg-gray-50 rounded-md p-4 space-y-1">
-      <p class="text-sm text-gray-700">Doctor Fee: <span class="font-semibold">{{ doctorFee | number:'1.2-2' }}</span></p>
-      <p class="text-sm text-gray-700">Items Subtotal: <span class="font-semibold">{{ subtotal | number:'1.2-2' }}</span></p>
-      <p class="text-sm text-gray-700">Discount: <span class="font-semibold">{{ discount | number:'1.2-2' }}</span></p>
-      <h3 class="text-lg font-bold text-gray-900">Total: {{ total() | number:'1.2-2' }}</h3>
+    <div class="row g-4 align-items-start">
+      <div class="col-md-4">
+        <label for="visit-discount" class="form-label">Discount</label>
+        <input
+          id="visit-discount"
+          class="form-control"
+          type="number"
+          [(ngModel)]="discount"
+          step="1"
+          name="discount"
+        />
+      </div>
+      <div class="col-md-8">
+        <div class="bg-body-tertiary rounded p-3">
+          <dl class="row mb-0">
+            <dt class="col-7 fw-normal">Doctor fee ({{ currency }})</dt>
+            <dd class="col-5 text-end">
+              {{ converted(doctorFee) | number: "1.0-2" }}
+            </dd>
+            <dt class="col-7 fw-normal">Items subtotal ({{ currency }})</dt>
+            <dd class="col-5 text-end">{{ itemTotal() | number: "1.0-2" }}</dd>
+            <dt class="col-7 fw-normal">Tax</dt>
+            <dd class="col-5 text-end">{{ tax() | number: "1.0-2" }}</dd>
+            <dt class="col-7 fw-normal">Discount</dt>
+            <dd class="col-5 text-end">{{ discount | number: "1.2-2" }}</dd>
+            <dt class="col-7 border-top pt-2">Total</dt>
+            <dd class="col-5 text-end border-top pt-2 fw-bold mb-0">
+              {{ total() | number: "1.2-2" }}
+            </dd>
+          </dl>
+        </div>
+      </div>
     </div>
-
-    <div class="flex justify-end space-x-4">
-      <button type="button" (click)="clear()"
-              class=" py-3 px-4 rounded-lg bg-yellow-600 text-white font-semibold hover:bg-yellow-700 focus:outline-none disabled:opacity-50">
-        Clear
+  </fieldset>
+  <div class="card-footer bg-white d-flex justify-content-end gap-2 p-3">
+    <button type="button" class="btn btn-outline-secondary" (click)="clear()">
+      Clear
+    </button>
+    @if (invoiceResult) {
+      @if (!draft && auth.can("Administrator", "Cashier")) {
+        <button type="button" class="btn btn-success" (click)="pay()">
+          Pay
+        </button>
+      }
+    } @else {
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="saving"
+        (click)="submit()"
+      >
+        {{ saving ? "Saving…" : "Create invoice" }}
       </button>
-      <button *ngIf="invoiceResult" type="button" (click)="pay()"
-              class=" py-3 px-4 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 focus:outline-none disabled:opacity-50">
-        Pay
-      </button>
-      <button *ngIf="!invoiceResult" type="button" (click)="submit()"
-              class=" py-3 px-4 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 focus:outline-none disabled:opacity-50">
-        Create
-      </button>
-    </div>
-  </form>
-</div>
+    }
+  </div>
+</form>

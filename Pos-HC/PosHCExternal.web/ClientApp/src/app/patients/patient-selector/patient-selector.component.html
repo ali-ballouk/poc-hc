@@ -1,10 +1,10 @@
-<mat-form-field class="pl-4 pr-4">
-  <mat-label>Patient</mat-label>
-  <mat-select [value]="selectedPatientId" (selectionChange)="onSelectionChange($event)">
-    <mat-option [value]="null">-- choose item --</mat-option>
-
-    @for(p of patients(); track p.Id; ) {
-    <mat-option [value]="p.Id">{{ p.FullName }}</mat-option>
-    }
-  </mat-select>
-</mat-form-field>
+<app-generic-selector
+  [data]="patients()"
+  valueField="Id"
+  textField="FullName"
+  mode="single"
+  label="Patient"
+  placeholder="Choose patient"
+  [initialSelection]="selectedPatientId"
+  (selectionChanged)="onSelectionChange($event?.Id ?? null)"
+></app-generic-selector>

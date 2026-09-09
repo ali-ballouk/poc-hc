@@ -1,1 +1,7 @@
-<app-layout></app-layout>
+@if (!auth.ready()) {
+  <p class="p-4" role="status">Connecting to clinic…</p>
+} @else if (auth.user()) {
+  <app-layout></app-layout>
+} @else {
+  <app-login></app-login>
+}

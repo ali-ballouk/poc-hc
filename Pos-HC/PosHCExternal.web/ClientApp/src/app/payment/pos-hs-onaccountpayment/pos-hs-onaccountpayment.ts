@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-pos-hs-onaccountpayment',
   standalone: true,
-  imports: [FormsModule], 
-  templateUrl: './pos-hs-onaccountpayment.html'
+  imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './pos-hs-onaccountpayment.html',
 })
 export class PosHsOnaccountpayment {
   accountId: string = '';
@@ -13,7 +14,7 @@ export class PosHsOnaccountpayment {
   getData() {
     return {
       paymentType: 'on-account',
-      AccountId: this.accountId
+      AccountId: this.accountId,
     };
   }
 }

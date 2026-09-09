@@ -1,14 +1,14 @@
 
 # POS-HC (Healthcare Point of Sale System)
 
-**POS-HC** is a **Point of Sale system for healthcare clinics**, built with **.NET 8 (Clean Architecture + DDD)** and **Angular 20**.  
+**POS-HC** is a **Point of Sale system for healthcare clinics**, built with **.NET 8 (Clean Architecture + DDD)** and **Angular 22**.  
 It manages doctors, patients, invoices, catalog items, and payments with full **API + Frontend integration**.
 
 ---
 
 ## 🚀 Tech Stack
 - **Backend:** ASP.NET Core 8, Clean Architecture, EF Core 8  
-- **Frontend:** Angular 20, Angular Material, TailwindCSS  
+- **Frontend:** Angular 22, Bootstrap 5.3.8  
 - **Database:** SQL Server  
 - **PDF Generation:** QuestPDF  
 
@@ -22,7 +22,7 @@ The project follows **Clean Architecture** principles with four layers:
 3. **Infrastructure** → EF Core DbContext, repositories, PDF invoice generator.  
 4. **Web (API + Angular)** →  
    - **Web API:** Controllers exposing endpoints for invoices, doctors, patients, catalog, and payments.  
-   - **ClientApp:** Angular 20 frontend consuming the APIs.  
+   - **ClientApp:** Angular 22 frontend consuming the APIs.  
 
 ---
 
@@ -31,7 +31,7 @@ The project follows **Clean Architecture** principles with four layers:
 - Create **Invoices** with items and doctor fees  
 - Record **Payments** (Cash, Card, Transfer, On-Account)  
 - Print invoices as **PDF**  
-- Angular frontend with Material UI for seamless user experience  
+- Angular frontend with Bootstrap UI for seamless user experience  
 
 ---
 

@@ -7,6 +7,7 @@ using PosHC.Application.Services;
 namespace PosHCExternal.web.Controllers
 {
     [ApiController]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Administrator,Receptionist,Cashier")]
     [Route("api/invoice")]
     public class InvoiceControllerController : ControllerBase
     {
@@ -22,13 +23,13 @@ namespace PosHCExternal.web.Controllers
             _iInvoicePdfGenerator = invoicePdfGenerator;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllInvoice( CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllInvoice(CancellationToken cancellationToken)
         {
             var result = await _invoiceServiceService.GetAllInvoicesDto(cancellationToken);
             return Ok(result);
         }
         [HttpPost]
-        public async Task<IActionResult> CreatInvoice(CreateInvoiceDto invoice,CancellationToken cancellationToken)
+        public async Task<IActionResult> CreatInvoice(CreateInvoiceDto invoice, CancellationToken cancellationToken)
         {
             var result = await _invoiceServiceService.SaveInvoiceAsync(invoice, cancellationToken);
             return Ok(result);
@@ -38,12 +39,14 @@ namespace PosHCExternal.web.Controllers
         public async Task<IActionResult> Print(Guid id, CancellationToken ct)
         {
             var dto = await _invoiceForPrintService.GetInvoice(id, ct);
-            if (dto is null) return NotFound();
+            if (dto is null)
+            {
+                return NotFound();
+            }
 
             var bytes = _iInvoicePdfGenerator.GenerateInvoicePdf(dto);
             var fileName = $"Invoice-{dto.Id}.pdf";
 
-            Response.Headers.Append("Content-Disposition", $"attachment; filename=\"{fileName}\"");
             return File(bytes, "application/pdf", fileName);
         }
     }

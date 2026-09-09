@@ -1,0 +1,109 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.generic-selector-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.dropdown {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 2.375rem;
+  text-align: left;
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border-color: var(--bs-border-color);
+}
+.selector-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dropdown-menu {
+  inset: 100% 0 auto;
+  min-width: 100%;
+  max-height: min(400px, 60vh);
+  overflow-y: auto;
+  box-shadow: var(--bs-box-shadow);
+  margin-top: 0.125rem;
+}
+.dropdown-header {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+.dropdown-item {
+  padding: 0.5rem 0.75rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.multi-panel-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.dropdown-options-multi {
+  min-width: 0;
+}
+.select-all-container {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+.select-all-label,
+.dropdown-item-multi {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+.dropdown-item-multi {
+  padding: 0.5rem 0.75rem;
+  overflow-wrap: anywhere;
+}
+.dropdown-item-multi:hover {
+  background: var(--bs-tertiary-bg);
+}
+.form-check-input {
+  flex-shrink: 0;
+  margin-top: 0;
+}
+.selected-items-panel {
+  padding: 0.75rem;
+  background: var(--bs-tertiary-bg);
+  min-width: 0;
+}
+.selected-items-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.selected-items-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.selected-items-list .badge {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.generic-selector-wrapper > button {
+  min-height: 2.375rem;
+}
+/* Keep options within Bootstrap's scrollable modal rather than clipping an overlay. */
+:host-context(.modal) .dropdown-menu {
+  position: static;
+}
+@media (max-width: 768px) {
+  .multi-panel-layout {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PosWrapperComponent } from './pos-hs-wrapper-component';
+import { PosHsWrapperComponent } from './pos-hs-wrapper-component';
 
-describe('PosWrapperComponent', () => {
-  let component: PosWrapperComponent;
-  let fixture: ComponentFixture<PosWrapperComponent>;
+describe('PosHsWrapperComponent', () => {
+  let component: PosHsWrapperComponent;
+  let fixture: ComponentFixture<PosHsWrapperComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PosWrapperComponent]
-    })
-    .compileComponents();
+      imports: [PosHsWrapperComponent],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(PosWrapperComponent);
+    fixture = TestBed.createComponent(PosHsWrapperComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

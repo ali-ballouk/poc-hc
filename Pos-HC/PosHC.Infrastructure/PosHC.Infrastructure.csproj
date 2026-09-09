@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Persistence/Upgrades/*.sql" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
     <PackageReference Include="QuestPDF" Version="2025.7.1" />

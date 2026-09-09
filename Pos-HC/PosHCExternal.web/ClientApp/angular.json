@@ -5,7 +5,11 @@
   "projects": {
     "ClientApp": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "inlineTemplate": false
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -25,7 +29,7 @@
               }
             ],
             "styles": [
-              "src/custom-theme.scss",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ]
           },
@@ -55,6 +59,7 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": { "proxyConfig": "proxy.conf.json" },
           "configurations": {
             "production": {
               "buildTarget": "ClientApp:build:production"
@@ -83,6 +88,7 @@
               }
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ]
           }

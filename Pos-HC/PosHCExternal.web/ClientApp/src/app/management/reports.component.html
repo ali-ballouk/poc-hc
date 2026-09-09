@@ -1,0 +1,70 @@
+<h1 class="h3 mb-3">Reports and data export</h1>
+@if (error) {
+  <div class="alert alert-danger" role="alert">{{ error }}</div>
+}
+<form class="row g-3 align-items-end mb-4" (ngSubmit)="load()">
+  <div class="col-md-4">
+    <label class="form-label" for="report-from">From (device local date)</label
+    ><input
+      class="form-control"
+      id="report-from"
+      name="from"
+      type="date"
+      [(ngModel)]="from"
+      required
+    />
+  </div>
+  <div class="col-md-4">
+    <label class="form-label" for="report-to">Through</label
+    ><input
+      class="form-control"
+      id="report-to"
+      name="to"
+      type="date"
+      [(ngModel)]="to"
+      required
+    />
+  </div>
+  <div class="col-md-4">
+    <button class="btn btn-primary" [disabled]="busy">Run report</button>
+  </div>
+</form>
+<p class="text-secondary">
+  USD and LBP are reported separately. Outstanding balances are current; other
+  figures use the selected period. Service sales are before invoice-level
+  discounts and tax.
+</p>
+@if (report) {
+  @for (section of sections; track section.key) {
+    <section class="mb-4">
+      <div class="d-flex justify-content-between">
+        <h2 class="h5">{{ section.label }}</h2>
+        <button
+          class="btn btn-sm btn-outline-secondary mb-2"
+          (click)="csv(section.key)"
+        >
+          Export CSV
+        </button>
+      </div>
+      <app-generic-grid
+        [data]="report[section.key]"
+        [columns]="columns(report[section.key])"
+        [selectable]="false"
+        [label]="section.label"
+      ></app-generic-grid>
+    </section>
+  }
+}
+<section class="card mt-4">
+  <div class="card-body">
+    <h2 class="h5">Clinic data export</h2>
+    <p>
+      Download a portable JSON copy of clinic records. Database backups are
+      managed by the server backup command and include account data needed for
+      recovery.
+    </p>
+    <button class="btn btn-outline-primary" (click)="exportData()">
+      Download clinic data
+    </button>
+  </div>
+</section>

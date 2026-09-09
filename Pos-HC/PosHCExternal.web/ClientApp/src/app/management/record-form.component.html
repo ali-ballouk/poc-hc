@@ -1,0 +1,64 @@
+@if (error) {
+  <div class="alert alert-danger" role="alert">{{ error }}</div>
+}
+<form #form="ngForm" (ngSubmit)="save()">
+  <div class="row g-3">
+    @for (field of data.fields; track field.key) {
+      <div class="col-md-6">
+        @if (field.type === "select") {
+          <app-generic-selector
+            [data]="choices[field.key] || field.options || []"
+            valueField="Id"
+            textField="Name"
+            mode="single"
+            [label]="field.label + (field.required ? ' *' : '')"
+            [initialSelection]="value[field.key]"
+            (selectionChanged)="value[field.key] = $event?.Id ?? null"
+          ></app-generic-selector>
+        } @else if (field.type === "checkbox") {
+          <div class="form-check mt-4">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [id]="'field-' + field.key"
+              [name]="field.key"
+              [(ngModel)]="value[field.key]"
+            /><label class="form-check-label" [for]="'field-' + field.key">{{
+              field.label
+            }}</label>
+          </div>
+        } @else {
+          <label class="form-label" [for]="'field-' + field.key"
+            >{{ field.label }}{{ field.required ? " *" : "" }}</label
+          >
+          <input
+            class="form-control"
+            [id]="'field-' + field.key"
+            [name]="field.key"
+            [type]="field.type || 'text'"
+            [(ngModel)]="value[field.key]"
+            [required]="!!field.required"
+            [attr.min]="field.min ?? null"
+            [attr.step]="field.step ?? null"
+            [attr.autocomplete]="
+              field.type === 'password' ? 'new-password' : null
+            "
+            maxlength="500"
+          />
+        }
+      </div>
+    }
+  </div>
+  <div class="d-flex justify-content-end gap-2 mt-4">
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="ref.close()"
+      [disabled]="busy"
+    >
+      Cancel</button
+    ><button class="btn btn-primary" [disabled]="busy || form.invalid">
+      {{ busy ? "Saving…" : "Save" }}
+    </button>
+  </div>
+</form>

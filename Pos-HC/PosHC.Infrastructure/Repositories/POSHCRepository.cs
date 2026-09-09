@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PosHC.Application.Interfaces;
 using PosHC.Domain.Entities;
 using PosHC.Infrastructure.Persistence;
@@ -39,7 +39,7 @@ namespace PosHC.Infrastructure.Repositories
             return await _context.PaymentType.AsNoTracking().ToListAsync(cancellationToken);
         }
 
-        public async Task<Invoice> SaveInvoice(Invoice invoice,CancellationToken cancellationToken = default)
+        public async Task<Invoice> SaveInvoice(Invoice invoice, CancellationToken cancellationToken = default)
         {
 
             _context.Invoice.Add(invoice);

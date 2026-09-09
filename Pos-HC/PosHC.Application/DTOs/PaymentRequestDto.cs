@@ -1,30 +1,60 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace PosHC.Application.DTOs
 {
     public class PaymentTypeLookupDto
     {
-        public int Id { get; set; }
+        public int Id
+        {
+            get; set;
+        }
         public string Name { get; set; } = string.Empty;
     }
 
 
-    public class PaymentRequestDto 
+    public class PaymentRequestDto
     {
-        public Guid InvoiceId { get; set; }
-        public int PaymentTypeId { get; set; }
+        public decimal? Amount
+        {
+            get; set;
+        }
+        public Guid? RequestId
+        {
+            get; set;
+        }
+        public string Reference { get; set; } = "";
+        public Guid InvoiceId
+        {
+            get; set;
+        }
+        public int PaymentTypeId
+        {
+            get; set;
+        }
         public PaymentSettings Settings { get; set; } = null!;
     }
 
     public class PaymentResultDto
     {
-        public Guid Id { get; set; }
+        public Guid Id
+        {
+            get; set;
+        }
 
-        public Guid InvoiceId { get; set; }
+        public Guid InvoiceId
+        {
+            get; set;
+        }
 
-        public int PaymentTypeId { get; set; }
+        public int PaymentTypeId
+        {
+            get; set;
+        }
 
-        public DateTime PaymentDate { get; set; }
+        public DateTime PaymentDate
+        {
+            get; set;
+        }
     }
 
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "paymentType")]
@@ -32,7 +62,9 @@ namespace PosHC.Application.DTOs
     [JsonDerivedType(typeof(CardPaymentSettings), "card")]
     [JsonDerivedType(typeof(OnAccountPaymentSettings), "on-account")]
     [JsonDerivedType(typeof(TransferPaymentSettings), "transfer")]
-    public abstract class PaymentSettings { }
+    public abstract class PaymentSettings
+    {
+    }
 
     public class CashPaymentSettings : PaymentSettings
     {

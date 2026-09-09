@@ -1,4 +1,4 @@
-﻿using PosHC.Application.DTOs;
+using PosHC.Application.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +9,6 @@ namespace PosHC.Application.Interfaces
 {
     public interface IPaymentService
     {
-        Task<PaymentResultDto> SavePayment(PaymentRequestDto paymentRequestDto,CancellationToken cancellationToken = default);
+        Task<PaymentResultDto> SavePayment(PaymentRequestDto paymentRequestDto, CancellationToken cancellationToken = default);
     }
 }

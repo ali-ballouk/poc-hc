@@ -4,6 +4,6 @@ import { LayoutComponent } from './pos-hc-sidebar/pos-hc-sidebar';
 export const routes: Routes = [
   {
     path: '',
-    component: LayoutComponent
-  }
+    component: LayoutComponent,
+  },
 ];

@@ -1,4 +1,4 @@
-﻿using PosHC.Application.DTOs;
+using PosHC.Application.DTOs;
 using PosHC.Application.Interfaces;
 using PosHC.Domain.Entities;
 
@@ -16,12 +16,15 @@ namespace PosHC.Application.Invoices.Queries
         public async Task<InvoiceGenerateDto?> GetInvoice(Guid id, CancellationToken ct)
         {
             var inv = await _repo.GetInvoiceByIdAsync(id, ct);
-            if (inv is null) return null;
+            if (inv is null)
+            {
+                return null;
+            }
 
             return new InvoiceGenerateDto(
                 inv.Id,
-                inv.Doctor?.FirstName + " " + inv.Doctor?.LastName,
-                inv.Patient?.FirstName + " " + inv.Patient?.LastName,
+                inv.DoctorName,
+                inv.PatientName,
                 inv.DoctorFee,
                 inv.Discount,
                 inv.CreatedAt,
@@ -34,7 +37,7 @@ namespace PosHC.Application.Invoices.Queries
                         i.Quantity,
                         i.UnitPrice,
                         i.Quantity * i.UnitPrice
-                    )).ToList()
+                    )).ToList(), inv.Number, inv.Currency, inv.Status, inv.Tax, inv.ClinicName, inv.ClinicAddress, inv.ClinicPhone
             );
         }
     }

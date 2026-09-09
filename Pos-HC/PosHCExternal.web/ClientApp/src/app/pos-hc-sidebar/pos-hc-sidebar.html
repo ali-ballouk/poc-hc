@@ -1,1 +1,86 @@
-<p>pos-hc-sidebar works!</p>
+<div class="app-layout">
+  <aside class="app-sidebar bg-white border-end">
+    <div
+      class="d-flex align-items-center justify-content-between p-3 border-bottom"
+    >
+      <a
+        class="fs-4 fw-bold text-primary text-decoration-none"
+        routerLink="/pointofsale"
+        >POS HC</a
+      >
+      <button
+        type="button"
+        class="btn btn-outline-primary d-lg-none"
+        (click)="navigationOpen = !navigationOpen"
+        aria-controls="main-navigation"
+        [attr.aria-expanded]="navigationOpen"
+        aria-label="Toggle navigation"
+      >
+        Menu
+      </button>
+    </div>
+    <nav
+      id="main-navigation"
+      class="p-3 d-lg-block"
+      [class.d-none]="!navigationOpen"
+      aria-label="Main navigation"
+    >
+      <div class="nav nav-pills flex-column gap-2">
+        @if (auth.can("Administrator", "Receptionist", "Cashier")) {
+          <a
+            class="nav-link"
+            routerLink="/pointofsale"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            (click)="navigationOpen = false"
+            >Point of sale</a
+          >
+          <a
+            class="nav-link"
+            routerLink="/invoices"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            (click)="navigationOpen = false"
+            >Invoices</a
+          >
+        }
+        @for (module of modules; track module.key) {
+          @if (auth.canRoles(module.roles)) {
+            <a
+              class="nav-link"
+              [routerLink]="'/manage/' + module.key"
+              routerLinkActive="active"
+              (click)="navigationOpen = false"
+              >{{ module.title }}</a
+            >
+          }
+        }
+        @if (auth.can("Administrator")) {
+          <a class="nav-link" routerLink="/reports" routerLinkActive="active"
+            >Reports and export</a
+          >
+          <a class="nav-link" routerLink="/settings" routerLinkActive="active"
+            >Clinic settings</a
+          >
+        }
+      </div>
+    </nav>
+  </aside>
+  <div class="app-content">
+    <header class="bg-white border-bottom px-4 py-3">
+      <span class="fw-semibold">POS HC Dashboard</span>
+      <span class="float-end"
+        >{{ auth.user()?.Username }}
+        <button
+          class="btn btn-sm btn-outline-secondary ms-2"
+          (click)="auth.logout()"
+        >
+          Sign out
+        </button></span
+      >
+    </header>
+    <main class="container-fluid p-3 p-lg-4">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

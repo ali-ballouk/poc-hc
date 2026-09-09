@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
 namespace PosHC.Domain.Entities
@@ -11,12 +11,25 @@ namespace PosHC.Domain.Entities
     }
     public class CatalogItem
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public decimal UnitPrice { get; set; }
+        public Guid Id
+        {
+            get; set;
+        }
+        public string Name
+        {
+            get; set;
+        }
+        public decimal UnitPrice
+        {
+            get; set;
+        }
+        public bool IsActive { get; set; } = true;
 
         // discriminator
-        public ItemType Type { get; set; }
+        public ItemType Type
+        {
+            get; set;
+        }
 
         // raw JSON stored in SQL
         public string Settings { get; set; } = "{}";
@@ -27,7 +40,9 @@ namespace PosHC.Domain.Entities
             get
             {
                 if (string.IsNullOrWhiteSpace(Settings))
+                {
                     return null;
+                }
 
                 return Type switch
                 {

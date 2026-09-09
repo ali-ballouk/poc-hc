@@ -1,16 +1,26 @@
 # ClientApp
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.0.
+This project uses Angular 22 and Bootstrap 5.3.8.
+
+## Prerequisites
+
+Use Node.js 24.15 or newer within the 24.x LTS release line (recommended).
+Angular also supports Node.js 22.22.3 or newer within 22.x, or Node.js 26+.
+See the [Angular compatibility table](https://angular.dev/reference/versions).
+
+Install the locked dependencies from this directory with `npm ci`.
 
 ## Development server
 
 To start a local development server, run:
 
 ```bash
-ng serve
+npm run ng-serve
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+Use `npm start` to start both Angular and the .NET API. The API requires the .NET 8 SDK and the configured SQL Server database.
 
 ## Code scaffolding
 
@@ -31,7 +41,7 @@ ng generate --help
 To build the project run:
 
 ```bash
-ng build
+npm run build
 ```
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
@@ -41,7 +51,7 @@ This will compile your project and store the build artifacts in the `dist/` dire
 To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
 
 ```bash
-ng test
+npm test
 ```
 
 ## Running end-to-end tests

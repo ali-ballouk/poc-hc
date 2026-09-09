@@ -1,104 +1,98 @@
-import { Component, OnInit, signal, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  signal,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { BaseAPI } from '../services/base.api';
 
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { GenericGridComponent } from '../ui-shared/components/generic-grid/generic-grid.component';
+import { GenericGridColumnComponent } from '../ui-shared/components/generic-grid/generic-grid-column.component';
+import { GridAction } from '../ui-shared/components/generic-grid/generic-grid.models';
 
 interface Invoice {
   InvoiceId: string;
   InvoiceDate: Date;
   DoctorId: string;
-  DoctorName:string;
+  DoctorName: string;
   PatientId: string;
-  PatientName:string
-  Discount:Number
+  PatientName: string;
+  Discount: Number;
   DoctorFee: Number;
   Total: Number;
-  Items: any[]
+  Items: any[];
 }
 @Component({
   selector: 'pos-hs-invoices',
-  imports:  [
-    CommonModule,
-    FormsModule,
-    CurrencyPipe,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatInputModule,
-    MatTableModule,
-    MatIconModule,
-    MatIcon
-  ],
-  templateUrl: './pos-hc-invoices.html'
+  imports: [CommonModule, GenericGridComponent, GenericGridColumnComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './pos-hc-invoices.html',
 })
-
 export class PosHcInvoices implements OnInit {
+  constructor(private api: BaseAPI) {}
 
-  constructor(private api: BaseAPI) { }
-
-
-  dataSource = new MatTableDataSource<any>([]);
+  rows: Invoice[] = [];
+  loading = true;
+  downloadError = '';
+  readonly rowId = (row: Invoice) => row.InvoiceId;
+  readonly actions: GridAction<Invoice>[] = [
+    {
+      label: 'Download PDF',
+      color: 'primary',
+      handler: (row) => this.downloadInvoice(row.InvoiceId),
+    },
+  ];
 
   ngOnInit(): void {
     this.api.get<any[]>('api/invoice').subscribe({
       next: (res) => {
         this.bindaData(res);
+        this.loading = false;
       },
-      error: (err) => console.error('Error loading invoices', err)
+      error: (err) => {
+        this.loading = false;
+        console.error('Error loading invoices', err);
+      },
     });
   }
 
   bindaData(response: Invoice[]) {
-    this.dataSource.data = response.map(x => ({
+    this.rows = response.map((x) => ({
       ...x,
-      InvoiceDate: new Date(x.InvoiceDate) // string → Date
+      InvoiceDate: new Date(x.InvoiceDate), // string → Date
     }));
   }
 
-  displayedColumns: string[] = [
-    'InvoiceId',
-    'InvoiceDate',
-    'DoctorName',
-    'PatientName',
-    'DoctorFee', 
-    'Discount',
-    'Total',
-    'actions'
-  ];
-
   downloadInvoice(id: string) {
-    let thisApiUrl = `api/invoice/${id}/print`;
-    this.api.downloadPdf<any[]>(thisApiUrl).subscribe({
+    this.downloadError = '';
+    const thisApiUrl = `api/invoice/${id}/print`;
+    this.api.downloadPdf(thisApiUrl).subscribe({
       next: (res) => {
-          const dispo = res.headers.get('Content-Disposition');
-          const match = /filename="?([^"]+)"?/.exec(dispo || '');
-          const fileName = match ? match[1] : `Invoice-${id}.pdf`;
-
-          const blob = new Blob([res.body!], { type: 'application/pdf' });
-          const url = URL.createObjectURL(blob);
-
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = fileName;
-          a.click();
-
-          URL.revokeObjectURL(url);
+        const blob = res.body;
+        if (
+          !blob?.size ||
+          blob.type.split(';')[0].toLowerCase() !== 'application/pdf'
+        ) {
+          this.downloadError =
+            'The server did not return a PDF. Please try again.';
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Invoice-${id}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
       },
-      error: (err) => console.error('Error loading invoices', err)
+      error: () => {
+        this.downloadError =
+          'Unable to download the invoice. Please try again.';
+      },
     });
-
-    this.dataSource.data = this.dataSource.data.filter(x => x.id !== id);
   }
-
-
-  
-
 }

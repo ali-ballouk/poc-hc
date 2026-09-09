@@ -1,14 +1,20 @@
-<div class="flex gap-4 p-4">
-  <div class="w-1/3">
-    <label class="block mb-1">Banke</label>
-    <input [(ngModel)]="banke"
-           placeholder="Banke"
-            class="border p-2 w-full" />
+<div class="row g-3">
+  <div class="col-md-6">
+    <label for="transfer-bank" class="form-label">Bank</label
+    ><input
+      id="transfer-bank"
+      type="text"
+      class="form-control"
+      [(ngModel)]="banke"
+    />
   </div>
-  <div class="w-2/3">
-    <label class="block mb-1">Reference Number</label>
-    <input [(ngModel)]="referenceNumber"
-           placeholder="Reference Number"
-            class="border p-2 w-full" />
+  <div class="col-md-6">
+    <label for="transfer-reference" class="form-label">Reference number</label
+    ><input
+      id="transfer-reference"
+      type="text"
+      class="form-control"
+      [(ngModel)]="referenceNumber"
+    />
   </div>
 </div>

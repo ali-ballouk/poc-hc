@@ -1,0 +1,37 @@
+name: Verify clinic application
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      sql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: CI-only-Clinic-Sql-9284!
+        ports: ['1433:1433']
+    env:
+      POSHC_TEST_SQL: Server=localhost,1433;User ID=sa;Password=CI-only-Clinic-Sql-9284!;TrustServerCertificate=True;
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: dotnet restore Pos-HC/PosHC.sln
+      - name: Wait for SQL Server
+        run: |
+          for attempt in {1..30}; do
+            if docker exec ${{ job.services.sql.id }} /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'CI-only-Clinic-Sql-9284!' -C -Q 'SELECT 1'; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - run: dotnet test Pos-HC/PosHC.sln --no-restore
+      - run: npm ci
+        working-directory: Pos-HC/PosHCExternal.web/ClientApp
+      - run: npx ng build
+        working-directory: Pos-HC/PosHCExternal.web/ClientApp
+      - run: npx ng test --watch=false --browsers=ChromeHeadless
+        working-directory: Pos-HC/PosHCExternal.web/ClientApp

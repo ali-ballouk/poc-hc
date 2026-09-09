@@ -1,17 +1,41 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-/*Override Angular Material dialog styles to use min-width instead of max-width*/
-
-.pos-hs .cdk-overlay-pane.mat-mdc-dialog-panel {
-  max-width: unset;
-  min-width: var(--mat-dialog-container-min-width, 280px);
+html,
+body {
+  min-height: 100%;
 }
-
-.pos-hs .mat-mdc-dialog-title:before {
-  display: none;
+body {
+  margin: 0;
+  background: var(--bs-tertiary-bg);
+}
+.app-content {
+  min-width: 0;
+  flex: 1;
+}
+.app-sidebar {
+  flex-shrink: 0;
+}
+.table th {
+  white-space: nowrap;
+}
+.table-responsive {
+  position: relative;
+  overflow-y: hidden;
+}
+.invoice-id {
+  max-width: 14rem;
+  overflow-wrap: anywhere;
+}
+app-dialog-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+@media (min-width: 992px) {
+  .app-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+  .app-sidebar {
+    width: 15rem;
+  }
 }

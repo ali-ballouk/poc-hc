@@ -5,6 +5,7 @@ using PosHC.Application.Interfaces;
 namespace PosHCExternal.web.Controllers
 {
     [ApiController]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Administrator,Cashier")]
     [Route("api/payment")]
     public class PaymentController : ControllerBase
     {

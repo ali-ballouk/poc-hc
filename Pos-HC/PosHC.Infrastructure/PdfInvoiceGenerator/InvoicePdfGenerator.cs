@@ -1,4 +1,4 @@
-﻿using PosHC.Application.DTOs;
+using PosHC.Application.DTOs;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -23,13 +23,14 @@ namespace PosHC.Infrastructure.Pdf
                     {
                         row.RelativeItem().Column(col =>
                         {
-                            col.Item().Text("Clinic / POS HC").Bold().FontSize(16);
-                            col.Item().Text("Street 123, City");
-                            col.Item().Text("Phone: +000 000 000");
+                            col.Item().Text(inv.ClinicName).Bold().FontSize(16);
+                            col.Item().Text(inv.ClinicAddress);
+                            col.Item().Text(inv.ClinicPhone);
                         });
                         row.ConstantItem(200).Column(col =>
                         {
-                            col.Item().Text($"INVOICE #{inv.Id.ToString()[..8]}").Bold();
+                            col.Item().Text($"INVOICE #{inv.Number} — {inv.Status}").Bold();
+                            col.Item().Text($"Currency: {inv.Currency}");
                             col.Item().Text($"Date: {inv.CreatedAt:yyyy-MM-dd}");
                             col.Item().Text($"Doctor: {inv.DoctorName}");
                             col.Item().Text($"Patient: {inv.PatientName}");
@@ -67,7 +68,7 @@ namespace PosHC.Infrastructure.Pdf
                             foreach (var it in inv.Items)
                             {
                                 t.Cell().Text(it.Name);
-                                t.Cell().AlignRight().Text(it.Quantity);
+                                t.Cell().AlignRight().Text(it.Quantity.ToString());
                                 t.Cell().AlignRight().Text(it.UnitPrice.ToString("0.00"));
                                 t.Cell().AlignRight().Text(it.LineTotal.ToString("0.00"));
                             }
@@ -86,6 +87,9 @@ namespace PosHC.Infrastructure.Pdf
                             t.Cell().AlignRight().Text("Discount:");
                             t.Cell().AlignRight().Text($"-{inv.Discount ?? 0:0.00}");
 
+                            t.Cell().ColumnSpan(2);
+                            t.Cell().AlignRight().Text("Tax:");
+                            t.Cell().AlignRight().Text(inv.Tax.ToString("0.00"));
                             t.Cell().ColumnSpan(2);
                             t.Cell().AlignRight().Text(txt => txt.Span("TOTAL:").SemiBold());
                             t.Cell().AlignRight().Text(txt => txt.Span(inv.Total.ToString("0.00")).SemiBold());

@@ -1,0 +1,255 @@
+<section class="grid-surface card shadow-sm" [attr.aria-label]="label">
+  <div class="column-definitions" aria-hidden="true">
+    <ng-content select="app-generic-grid-column" />
+  </div>
+  <div
+    class="card-header bg-white d-flex flex-wrap align-items-center justify-content-between gap-2"
+  >
+    <div class="input-group grid-search">
+      <label class="input-group-text" [for]="gridId + '-search'">Search</label>
+      <input
+        [id]="gridId + '-search'"
+        class="form-control"
+        type="search"
+        placeholder="Filter rows"
+        [(ngModel)]="searchTerm"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="onSearchChanged()"
+      />
+      @if (searchTerm) {
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          aria-label="Clear search"
+          (click)="clearSearch()"
+        >
+          Clear
+        </button>
+      }
+    </div>
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+      [attr.aria-controls]="gridId + '-columns'"
+      [attr.aria-expanded]="columnMenuOpen"
+      (click)="columnMenuOpen = !columnMenuOpen"
+    >
+      Columns
+    </button>
+  </div>
+  @if (columnMenuOpen) {
+    <div [id]="gridId + '-columns'" class="border-bottom bg-light-subtle">
+      <div class="d-flex flex-wrap gap-3 p-3">
+        @for (column of configuredColumns; track column.key) {
+          <label class="form-check mb-0">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [checked]="!isColumnHidden(column)"
+              (change)="setColumnHidden(column, !$any($event.target).checked)"
+            />
+            <span class="form-check-label">{{ column.header }}</span>
+          </label>
+        }
+      </div>
+    </div>
+  }
+  @if (loading) {
+    <div class="grid-loading">
+      <div
+        class="spinner-border text-primary"
+        role="status"
+        aria-label="Loading"
+      ></div>
+    </div>
+  } @else if (sortedRows.length > 0) {
+    <div class="grid-scroll">
+      <div class="grid-flex" role="table" [attr.aria-label]="label">
+        <div class="grid-row grid-header" role="row">
+          @if (selectable) {
+            <div class="grid-cell select-cell" role="columnheader">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                [checked]="allPageRowsSelected"
+                [indeterminate]="partiallySelected"
+                aria-label="Select current page"
+                (change)="togglePage($any($event.target).checked)"
+              />
+            </div>
+          }
+          @for (column of visibleColumns; track column.key) {
+            <div
+              class="grid-cell header-cell"
+              role="columnheader"
+              [style.flex]="'0 0 ' + getColumnWidth(column) + 'px'"
+              [style.min-width.px]="column.minWidthPx ?? 88"
+              [attr.aria-sort]="
+                sort?.columnKey === column.key
+                  ? sort?.direction === 'asc'
+                    ? 'ascending'
+                    : 'descending'
+                  : 'none'
+              "
+            >
+              <button
+                class="btn btn-link header-button p-0 text-decoration-none"
+                type="button"
+                [disabled]="column.sortable === false"
+                (click)="toggleSort(column)"
+              >
+                <span>{{ column.header }}</span>
+                @if (sort?.columnKey === column.key) {
+                  <span class="sort-indicator">{{
+                    sort?.direction === "asc" ? "↑" : "↓"
+                  }}</span>
+                }
+              </button>
+              <span
+                class="resize-handle"
+                role="separator"
+                tabindex="0"
+                aria-orientation="vertical"
+                [attr.aria-label]="'Resize ' + column.header"
+                [attr.aria-valuenow]="getColumnWidth(column)"
+                [attr.aria-valuemin]="column.minWidthPx ?? 88"
+                (pointerdown)="startResize(column, $event)"
+                (pointermove)="moveResize(column, $event)"
+                (pointerup)="endResize()"
+                (pointercancel)="endResize()"
+                (keydown.arrowleft)="
+                  resizeColumn(column, -10); $event.preventDefault()
+                "
+                (keydown.arrowright)="
+                  resizeColumn(column, 10); $event.preventDefault()
+                "
+              ></span>
+            </div>
+          }
+          @if (actions.length > 0) {
+            <div class="grid-cell actions-cell" role="columnheader">
+              Actions
+            </div>
+          }
+        </div>
+        @for (row of pagedRows; track rowId(row)) {
+          <div class="grid-row data-row" role="row" (click)="onRowClicked(row)">
+            @if (selectable) {
+              <div
+                class="grid-cell select-cell"
+                role="cell"
+                (click)="$event.stopPropagation()"
+              >
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [checked]="selectedIds.has(rowId(row))"
+                  aria-label="Select row"
+                  (change)="toggleRow(row, $any($event.target).checked)"
+                />
+              </div>
+            }
+            @for (column of visibleColumns; track column.key) {
+              <div
+                class="grid-cell"
+                role="cell"
+                [style.flex]="'0 0 ' + getColumnWidth(column) + 'px'"
+                [style.min-width.px]="column.minWidthPx ?? 88"
+              >
+                @if (column.cellTemplate) {
+                  <ng-container
+                    [ngTemplateOutlet]="column.cellTemplate"
+                    [ngTemplateOutletContext]="{
+                      $implicit: row,
+                      value: getCellValue(row, column),
+                    }"
+                  />
+                } @else {
+                  {{ formatCellValue(row, column) }}
+                }
+              </div>
+            }
+            @if (actions.length > 0) {
+              <div
+                class="grid-cell actions-cell"
+                role="cell"
+                (click)="$event.stopPropagation()"
+              >
+                <div
+                  class="btn-group btn-group-sm"
+                  role="group"
+                  aria-label="Row actions"
+                >
+                  @for (action of actions; track action.label) {
+                    <button
+                      class="btn"
+                      [class.btn-outline-primary]="action.color !== 'warn'"
+                      [class.btn-outline-danger]="action.color === 'warn'"
+                      type="button"
+                      [attr.aria-label]="action.label"
+                      (click)="action.handler(row)"
+                    >
+                      {{ action.label }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div
+      class="card-footer bg-white d-flex flex-wrap align-items-center justify-content-between gap-3"
+    >
+      <div class="text-body-secondary small">
+        Showing {{ pageStart }} to {{ pageEnd }} of {{ sortedRows.length }}
+      </div>
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <label class="small text-body-secondary" [for]="gridId + '-page-size'"
+          >Rows</label
+        >
+        <select
+          [id]="gridId + '-page-size'"
+          class="form-select form-select-sm grid-page-size"
+          [ngModel]="pageSize"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="onPageSizeChanged($event)"
+        >
+          @for (option of pageSizeOptions; track option) {
+            <option [ngValue]="option">{{ option }}</option>
+          }
+        </select>
+        <div
+          class="btn-group btn-group-sm"
+          role="group"
+          aria-label="Pagination"
+        >
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            [disabled]="pageIndex === 0"
+            (click)="previousPage()"
+          >
+            Previous
+          </button>
+          <button class="btn btn-outline-secondary" type="button" disabled>
+            {{ pageIndex + 1 }} / {{ pageCount }}
+          </button>
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            [disabled]="pageIndex >= pageCount - 1"
+            (click)="nextPage()"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="empty-state">
+      {{ searchTerm ? "No matching rows." : emptyMessage }}
+    </div>
+  }
+</section>

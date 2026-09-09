@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,11 +8,46 @@ namespace PosHC.Domain.Entities
 {
     public class Invoice
     {
-        public Guid Id { get; set; }
-        public Guid DoctorId { get; set; }
-        public Guid PatientId { get; set; }
-        public decimal? Discount { get; set; }
-        public decimal DoctorFee { get; set; }
+        public Guid Id
+        {
+            get; set;
+        }
+        public long Number
+        {
+            get; set;
+        }
+        public string Status { get; set; } = "Issued";
+        public string Currency { get; set; } = "USD";
+        public decimal ExchangeRate { get; set; } = 1;
+        public decimal TaxRate
+        {
+            get; set;
+        }
+        public string PatientName { get; set; } = "";
+        public string DoctorName { get; set; } = "";
+        public string ClinicName { get; set; } = "";
+        public string ClinicAddress { get; set; } = "";
+        public string ClinicPhone { get; set; } = "";
+        public Guid? RequestId
+        {
+            get; set;
+        }
+        public Guid DoctorId
+        {
+            get; set;
+        }
+        public Guid PatientId
+        {
+            get; set;
+        }
+        public decimal? Discount
+        {
+            get; set;
+        }
+        public decimal DoctorFee
+        {
+            get; set;
+        }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public Doctor Doctor { get; set; } = null!;
@@ -22,8 +57,9 @@ namespace PosHC.Domain.Entities
 
         // Not mapped: Computed total
         public decimal Subtotal => DoctorFee + Items.Sum(i => i.Quantity * i.UnitPrice);
-        public decimal Total => Subtotal - (Discount ?? 0);
+        public decimal Tax => Math.Round((Subtotal - (Discount ?? 0)) * TaxRate / 100, Currency == "LBP" ? 0 : 2, MidpointRounding.AwayFromZero);
+        public decimal Total => Subtotal - (Discount ?? 0) + Tax;
     }
 
-   
+
 }

@@ -1,10 +1,31 @@
-<pos-hs-paymenttype-selector (selectionChange)="onPaymentTypeSelected($event)" [(selectedPaymentTypeId)]="selectedPaymentTypeId"></pos-hs-paymenttype-selector>
-
-<app-dynamic-wrapper [component]="selectedComponent" #wrapper></app-dynamic-wrapper>
-<div class="flex justify-end space-x-4">
-  <button type="button" (click)="save()"  class=" py-3 px-4 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 focus:outline-none disabled:opacity-50">
-    Save
+<div class="mb-3">
+  <pos-hs-paymenttype-selector
+    (selectionChange)="onPaymentTypeSelected($event)"
+    [(selectedPaymentTypeId)]="selectedPaymentTypeId"
+  ></pos-hs-paymenttype-selector>
+</div>
+<app-dynamic-wrapper
+  [component]="selectedComponent"
+  #wrapper
+></app-dynamic-wrapper>
+@if (errorMessage) {
+  <div class="alert alert-danger mt-3" role="alert">{{ errorMessage }}</div>
+}
+<div class="d-flex justify-content-end gap-2 border-top pt-3 mt-4">
+  <button
+    type="button"
+    class="btn btn-outline-secondary"
+    (click)="close()"
+    [disabled]="saving"
+  >
+    Cancel
+  </button>
+  <button
+    type="button"
+    class="btn btn-primary"
+    (click)="save()"
+    [disabled]="!selectedComponent || saving"
+  >
+    {{ saving ? "Saving…" : "Save payment" }}
   </button>
 </div>
-
-

@@ -1,0 +1,16 @@
+<div class="modal-header">
+  <h2 class="modal-title fs-5" id="pos-dialog-title">
+    {{ data.title || "Dialog" }}
+  </h2>
+  <button
+    type="button"
+    class="btn-close"
+    (click)="close()"
+    aria-label="Close"
+  ></button>
+</div>
+<div class="modal-body">
+  <ng-container
+    *ngComponentOutlet="data.component; injector: childInjector"
+  ></ng-container>
+</div>

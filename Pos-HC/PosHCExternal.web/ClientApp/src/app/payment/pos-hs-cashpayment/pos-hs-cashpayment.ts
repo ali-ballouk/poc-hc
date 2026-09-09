@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -6,7 +6,8 @@ import { FormsModule } from '@angular/forms';
   imports: [FormsModule],
   standalone: true,
   templateUrl: './pos-hs-cashpayment.html',
-  styleUrl: './pos-hs-cashpayment.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './pos-hs-cashpayment.css',
 })
 export class PosHsCashpayment {
   cashDrawerId: string = '';
@@ -14,7 +15,7 @@ export class PosHsCashpayment {
   getData() {
     return {
       paymentType: 'cash',
-      CashDrawerId: this.cashDrawerId
+      CashDrawerId: this.cashDrawerId,
     };
   }
 }
