@@ -39,7 +39,7 @@ describe('App', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('header')?.textContent).toContain(
-      'POS HC Dashboard',
+      'ClinicSol workspace',
     );
   });
 });

@@ -1,8 +1,16 @@
-<main class="container py-5" style="max-width: 520px">
+<main class="container login-page">
   <div class="card shadow-sm">
     <div class="card-body p-4">
-      <div class="login-brand" aria-hidden="true">+</div>
-      <h1 class="h3">{{ "POS HC" | t }}</h1>
+      <h1 class="login-logo" aria-label="ClinicSol">
+        <span class="brand-lockup" dir="ltr"
+          ><img src="clinicsol-mark.svg" alt="" width="58" height="62" /><span
+            >Clinic<span class="brand-sol">Sol</span></span
+          ></span
+        >
+      </h1>
+      <p class="brand-tagline">
+        {{ "The future of clinic management starts here." | t }}
+      </p>
       <p>
         {{
           (auth.setupRequired()

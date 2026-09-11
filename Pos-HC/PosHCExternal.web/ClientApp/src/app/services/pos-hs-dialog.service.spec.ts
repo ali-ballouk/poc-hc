@@ -13,6 +13,36 @@ class TestContent {
 }
 
 describe('DialogService', () => {
+  it('returns from a nested form to its invoice without closing the invoice', () => {
+    const service = TestBed.inject(DialogService);
+    const parent = service.openComponent(TestContent, 'Invoice', {
+      message: 'Parent invoice',
+    });
+    const parentElement = document.querySelector<HTMLElement>('.modal')!;
+    const trigger =
+      parentElement.querySelector<HTMLButtonElement>('.test-close')!;
+    trigger.focus();
+    let parentClosed = false;
+    parent.afterClosed().subscribe(() => (parentClosed = true));
+    const child = service.openComponent(
+      TestContent,
+      'Payment',
+      { message: 'Payment form' },
+      { nested: true },
+    );
+    expect(document.querySelectorAll('.modal.show').length).toBe(1);
+    expect(parentElement.style.display).toBe('none');
+    expect(parentClosed).toBeFalse();
+    child.close({ saved: true });
+    expect(document.querySelectorAll('.modal').length).toBe(1);
+    expect(parentElement.classList.contains('show')).toBeTrue();
+    expect(document.activeElement).toBe(trigger);
+    expect(document.body.classList.contains('modal-open')).toBeTrue();
+    parent.close();
+    expect(parentClosed).toBeTrue();
+    expect(document.querySelector('.modal-backdrop')).toBeNull();
+    expect(document.body.classList.contains('modal-open')).toBeFalse();
+  });
   it('renders dynamic content, returns its result, cleans up and restores focus', () => {
     const service = TestBed.inject(DialogService);
     const trigger = document.createElement('button');

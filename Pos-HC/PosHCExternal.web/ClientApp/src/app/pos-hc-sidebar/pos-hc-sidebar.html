@@ -1,22 +1,46 @@
-<div class="app-layout">
+<div class="app-layout" [class.sidebar-collapsed]="sidebarCollapsed">
   <aside class="app-sidebar bg-white border-end">
     <div
       class="d-flex align-items-center justify-content-between p-3 border-bottom"
     >
       <a
-        class="fs-4 fw-bold text-primary text-decoration-none"
+        class="sidebar-brand text-decoration-none"
+        aria-label="ClinicSol"
         routerLink="/pointofsale"
-        >{{ "POS HC" | t }}</a
+        ><span class="brand-lockup" dir="ltr"
+          ><img src="clinicsol-mark.svg" alt="" width="40" height="43" /><span
+            >Clinic<span class="brand-sol">Sol</span></span
+          ></span
+        ></a
       >
       <button
         type="button"
-        class="btn btn-outline-primary d-lg-none"
+        class="sidebar-toggle d-none d-lg-inline-flex"
+        (click)="sidebarCollapsed = !sidebarCollapsed"
+        aria-controls="main-navigation"
+        [attr.aria-expanded]="!sidebarCollapsed"
+        [attr.aria-label]="
+          (sidebarCollapsed ? 'Expand navigation' : 'Collapse navigation') | t
+        "
+        [attr.title]="
+          (sidebarCollapsed ? 'Expand navigation' : 'Collapse navigation') | t
+        "
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path [attr.d]="sidebarCollapsed ? icons.expand : icons.collapse" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="sidebar-toggle d-lg-none"
         (click)="navigationOpen = !navigationOpen"
         aria-controls="main-navigation"
         [attr.aria-expanded]="navigationOpen"
         [attr.aria-label]="'Toggle navigation' | t"
       >
-        {{ "Menu" | t }}
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path [attr.d]="navigationOpen ? icons.close : icons.menu" />
+        </svg>
       </button>
     </div>
     <nav
@@ -30,18 +54,36 @@
           <a
             class="nav-link"
             routerLink="/pointofsale"
+            [attr.aria-label]="'Point of sale' | t"
+            [attr.title]="'Point of sale' | t"
             routerLinkActive="active"
             ariaCurrentWhenActive="page"
             (click)="navigationOpen = false"
-            >{{ "Point of sale" | t }}</a
+            ><svg
+              class="nav-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path [attr.d]="icons.pointOfSale" /></svg
+            ><span>{{ "Point of sale" | t }}</span></a
           >
           <a
             class="nav-link"
-            routerLink="/invoices"
+            routerLink="/billing"
+            [attr.aria-label]="'Invoices' | t"
+            [attr.title]="'Invoices' | t"
             routerLinkActive="active"
             ariaCurrentWhenActive="page"
             (click)="navigationOpen = false"
-            >{{ "Invoices" | t }}</a
+            ><svg
+              class="nav-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path [attr.d]="icons.invoices" /></svg
+            ><span>{{ "Invoices" | t }}</span></a
           >
         }
         @for (module of modules; track module.key) {
@@ -49,29 +91,60 @@
             <a
               class="nav-link"
               [routerLink]="'/manage/' + module.key"
+              [attr.aria-label]="module.title | t"
+              [attr.title]="module.title | t"
               routerLinkActive="active"
               (click)="navigationOpen = false"
-              >{{ module.title | t }}</a
+              ><svg
+                class="nav-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path [attr.d]="module.icon" /></svg
+              ><span>{{ module.title | t }}</span></a
             >
           }
         }
         @if (auth.can("Administrator")) {
-          <a class="nav-link" routerLink="/reports" routerLinkActive="active">{{
-            "Reports and export" | t
-          }}</a>
+          <a
+            class="nav-link"
+            routerLink="/reports"
+            [attr.aria-label]="'Reports and export' | t"
+            [attr.title]="'Reports and export' | t"
+            routerLinkActive="active"
+            ><svg
+              class="nav-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path [attr.d]="icons.reports" /></svg
+            ><span>{{ "Reports and export" | t }}</span></a
+          >
           <a
             class="nav-link"
             routerLink="/settings"
+            [attr.aria-label]="'Clinic settings' | t"
+            [attr.title]="'Clinic settings' | t"
             routerLinkActive="active"
-            >{{ "Clinic settings" | t }}</a
+            ><svg
+              class="nav-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path [attr.d]="icons.settings" /></svg
+            ><span>{{ "Clinic settings" | t }}</span></a
           >
         }
       </div>
     </nav>
+    <div class="sidebar-footer">{{ "Better care. A healthier life." | t }}</div>
   </aside>
   <div class="app-content">
     <header class="bg-white border-bottom px-4 py-3">
-      <span class="fw-semibold">{{ "POS HC Dashboard" | t }}</span>
+      <span class="fw-semibold">{{ "ClinicSol workspace" | t }}</span>
       <span class="float-end"
         >{{ auth.user()?.Username }}
         <button

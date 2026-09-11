@@ -1,0 +1,98 @@
+@if (error) {
+  <div class="alert alert-danger" role="alert">{{ error | t }}</div>
+}
+@if (loading) {
+  <p role="status">{{ "Loading invoice…" | t }}</p>
+}
+@if (!loading && !detail && error) {
+  <button type="button" class="btn btn-outline-primary" (click)="load()">
+    {{ "Retry" | t }}
+  </button>
+}
+@if (detail; as d) {
+  <section class="invoice-detail">
+    <div class="invoice-detail-body">
+      <h2 class="h4">
+        {{ "Invoice #" | t }} {{ d.Summary.Invoice.Number }} ·
+        {{ d.Summary.Invoice.Currency }}
+      </h2>
+      <p>
+        {{ d.Summary.Invoice.PatientName }} ·
+        {{ d.Summary.Invoice.DoctorName }} · {{ d.Summary.PaymentStatus | t }}
+      </p>
+      <p>
+        {{ "Total:" | t }}
+        <strong>{{ d.Summary.Invoice.Total | localNumber: "1.0-2" }}</strong>
+        {{ "· Collected:" | t }} {{ d.Summary.Paid | localNumber: "1.0-2" }}
+        {{ "· Credits:" | t }} {{ d.Summary.Credits | localNumber: "1.0-2" }}
+        {{ "· Balance:" | t }}
+        <strong>{{ d.Summary.Balance | localNumber: "1.0-2" }}</strong>
+      </p>
+      <div class="d-flex flex-wrap gap-2 mb-4">
+        <button
+          class="btn btn-outline-primary"
+          (click)="
+            download(
+              'api/invoice/' + d.Summary.Invoice.Id + '/print',
+              'Invoice-' + d.Summary.Invoice.Number + '.pdf'
+            )
+          "
+        >
+          {{ "Download invoice" | t }}
+        </button>
+        @if (auth.can("Administrator", "Cashier")) {
+          @if (d.Summary.Invoice.Status === "Draft") {
+            <button class="btn btn-primary" (click)="status('Issued')">
+              {{ "Issue invoice" | t }}
+            </button>
+          }
+          @if (d.Summary.Invoice.Status === "Issued" && d.Summary.Balance > 0) {
+            <button class="btn btn-success" (click)="collect()">
+              {{ "Record payment" | t }}
+            </button>
+          }
+          @if (
+            d.Summary.Invoice.Status !== "Void" &&
+            d.Summary.Paid === 0 &&
+            d.Summary.Credits === 0
+          ) {
+            <button class="btn btn-outline-danger" (click)="status('Void')">
+              {{ "Void invoice" | t }}
+            </button>
+          }
+          @if (d.Summary.Balance < 0) {
+            <button class="btn btn-outline-danger" (click)="adjust('refunds')">
+              {{ "Record refund" | t }}
+            </button>
+          }
+        }
+        @if (
+          auth.can("Administrator") && d.Summary.Invoice.Status === "Issued"
+        ) {
+          <button class="btn btn-outline-danger" (click)="adjust('credits')">
+            {{ "Credit note" | t }}
+          </button>
+        }
+      </div>
+      <h3 class="h5">{{ "Invoice items" | t }}</h3>
+      <app-generic-grid
+        [data]="d.Summary.Invoice.Items"
+        [columns]="itemColumns"
+        [selectable]="false"
+      ></app-generic-grid>
+      <h3 class="h5 mt-4">{{ "Payments and refunds" | t }}</h3>
+      <app-generic-grid
+        [data]="d.Payments"
+        [columns]="paymentColumns"
+        [actions]="paymentActions"
+        [selectable]="false"
+      ></app-generic-grid>
+      <h3 class="h5 mt-4">{{ "Credit notes" | t }}</h3>
+      <app-generic-grid
+        [data]="d.CreditNotes"
+        [columns]="creditColumns"
+        [selectable]="false"
+      ></app-generic-grid>
+    </div>
+  </section>
+}

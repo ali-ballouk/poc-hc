@@ -10,6 +10,7 @@ import { NgComponentOutlet } from '@angular/common';
 import { DIALOG_DATA, DialogRef } from '../../services/dialog-ref';
 
 export interface DialogShellData {
+  titleId?: string;
   title?: string;
   component: Type<any>;
   data?: any;

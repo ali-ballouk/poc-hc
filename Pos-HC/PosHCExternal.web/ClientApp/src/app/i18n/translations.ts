@@ -1,5 +1,13 @@
 /** English UI labels are stable keys; record values are preserved. */
-const entries = `POS HC|POS HC
+const entries = `Expand navigation|توسيع القائمة
+Collapse navigation|طي القائمة
+Invoice details|تفاصيل الفاتورة
+Loading invoice…|جارٍ تحميل الفاتورة…
+Retry|إعادة المحاولة
+ClinicSol workspace|مساحة عمل ClinicSol
+Better care. A healthier life.|رعاية أفضل لحياة أصح
+The future of clinic management starts here.|مستقبل إدارة العيادات يبدأ هنا
+POS HC|ClinicSol
 POS HC Dashboard|إدارة العيادة
 Connecting to clinic…|جارٍ الاتصال بالعيادة…
 Point of sale|نقطة البيع

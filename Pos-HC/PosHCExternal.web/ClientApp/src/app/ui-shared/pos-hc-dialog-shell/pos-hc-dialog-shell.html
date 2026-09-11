@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h2 class="modal-title fs-5" id="pos-dialog-title">
+  <h2 class="modal-title fs-5" [id]="data.titleId || 'pos-dialog-title'">
     {{ data.title || "Dialog" | t }}
   </h2>
   <button
