@@ -29,6 +29,7 @@
   white-space: nowrap;
 }
 .dropdown-menu {
+  position: absolute;
   inset: 100% 0 auto;
   min-width: 100%;
   max-height: min(400px, 60vh);
@@ -97,10 +98,6 @@
 }
 .generic-selector-wrapper > button {
   min-height: 2.375rem;
-}
-/* Keep options within Bootstrap's scrollable modal rather than clipping an overlay. */
-:host-context(.modal) .dropdown-menu {
-  position: static;
 }
 @media (max-width: 768px) {
   .multi-panel-layout {
