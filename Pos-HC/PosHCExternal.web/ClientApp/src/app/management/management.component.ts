@@ -12,10 +12,15 @@ import { Subscription } from 'rxjs';
 import { BaseAPI } from '../services/base.api';
 import { DialogService } from '../services/pos-hs-dialog.service';
 import { GenericGridComponent } from '../ui-shared/components/generic-grid/generic-grid.component';
-import { GridAction } from '../ui-shared/components/generic-grid/generic-grid.models';
+import {
+  GridAction,
+  GridPageChange,
+  GridPageResult,
+} from '../ui-shared/components/generic-grid/generic-grid.models';
 import { AuthService } from './auth.service';
 import { modules, ModuleDefinition, amount } from './module-definitions';
 import { RecordFormComponent } from './record-form.component';
+import { PatientVisitHistoryComponent } from './patient-visit-history.component';
 @Component({
   standalone: true,
   imports: [TranslatePipe, FormsModule, GenericGridComponent],
@@ -33,6 +38,8 @@ export class ManagementComponent implements OnInit, OnDestroy {
   rows: any[] = [];
   actions: GridAction<any>[] = [];
   page = 1;
+  pageSize = 20;
+  readonly pageSizeOptions = [10, 20, 50, 100];
   total = 0;
   search = '';
   loading = false;
@@ -40,12 +47,17 @@ export class ManagementComponent implements OnInit, OnDestroy {
   message = '';
   subscription?: Subscription;
   request?: Subscription;
+  lookups = new Subscription();
   rowId = (row: any) => row.Id;
   ngOnInit() {
     this.subscription = this.route.paramMap.subscribe((params) => {
+      this.request?.unsubscribe();
+      this.lookups.unsubscribe();
       this.key = params.get('module') || 'patients';
       this.definition = modules[this.key] || modules['patients'];
       this.page = 1;
+      this.total = 0;
+      this.rows = [];
       this.search = '';
       this.message = '';
       if (!this.auth.can(...this.definition.roles)) {
@@ -60,12 +72,27 @@ export class ManagementComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.subscription?.unsubscribe();
     this.request?.unsubscribe();
+    this.lookups.unsubscribe();
   }
   canWrite() {
     return this.auth.can(...this.definition.writers);
   }
   configureActions() {
     this.actions = [];
+    if (this.key === 'patients') {
+      this.actions.push({
+        label: 'Visit history',
+        handler: (row) =>
+          this.dialog.openComponent(
+            PatientVisitHistoryComponent,
+            'Patient visit history',
+            {
+              patientId: row.Id,
+              patientName: `${row.FirstName} ${row.LastName}`,
+            },
+          ),
+      });
+    }
     if (this.canWrite() && !this.definition.createOnly)
       this.actions.push({ label: 'Edit', handler: (row) => this.edit(row) });
     if (
@@ -111,47 +138,63 @@ export class ManagementComponent implements OnInit, OnDestroy {
   }
   load() {
     this.request?.unsubscribe();
+    this.lookups.unsubscribe();
+    this.lookups = new Subscription();
     this.loading = true;
     this.error = '';
     const key = this.key;
     this.request = this.api
-      .get<any>(
-        'api/clinic/' +
-          key +
-          '?page=' +
-          this.page +
-          '&search=' +
-          encodeURIComponent(this.search),
-      )
+      .get<
+        GridPageResult<any>
+      >('api/clinic/' + key + '?page=' + this.page + '&pageSize=' + this.pageSize + '&search=' + encodeURIComponent(this.search))
       .subscribe({
         next: (result) => {
           this.rows = result.Items;
           this.total = result.Total;
+          this.page = result.Page;
+          this.pageSize = result.PageSize;
           this.loading = false;
           if (key === 'appointments' || key === 'availability') {
-            this.api.get<any[]>('api/doctor/lookup').subscribe((ds) => {
-              this.rows = this.rows.map((r) => ({
-                ...r,
-                DoctorName:
-                  ds.find((d) => d.Id === r.DoctorId)?.FullName || r.DoctorId,
-              }));
-            });
+            this.lookups.add(
+              this.api.get<any[]>('api/doctor/lookup').subscribe({
+                next: (ds) => {
+                  this.rows = this.rows.map((r) => ({
+                    ...r,
+                    DoctorName:
+                      ds.find((d) => d.Id === r.DoctorId)?.FullName ||
+                      r.DoctorId,
+                  }));
+                },
+                error: () => (this.error = 'Unable to load records.'),
+              }),
+            );
             if (key === 'appointments')
-              this.api.get<any[]>('api/patient/lookup').subscribe((ps) => {
-                this.rows = this.rows.map((r) => ({
-                  ...r,
-                  PatientName:
-                    ps.find((p) => p.Id === r.PatientId)?.FullName ||
-                    r.PatientId,
-                }));
-              });
+              this.lookups.add(
+                this.api.get<any[]>('api/patient/lookup').subscribe({
+                  next: (ps) => {
+                    this.rows = this.rows.map((r) => ({
+                      ...r,
+                      PatientName:
+                        ps.find((p) => p.Id === r.PatientId)?.FullName ||
+                        r.PatientId,
+                    }));
+                  },
+                  error: () => (this.error = 'Unable to load records.'),
+                }),
+              );
           }
         },
         error: (e) => {
           this.loading = false;
+          this.rows = [];
           this.error = e.error?.detail || 'Unable to load records.';
         },
       });
+  }
+  onPageChange(event: GridPageChange) {
+    this.page = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.load();
   }
   edit(row?: any) {
     this.dialog

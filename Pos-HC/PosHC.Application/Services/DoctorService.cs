@@ -51,13 +51,14 @@ namespace PosHC.Application.Services
         }
 
 
-        public Task<PagedResult<DoctorAvailability>> GetAvailabilityAsync(int page, CancellationToken cancellationToken)
+        public Task<PagedResult<DoctorAvailability>> GetAvailabilityAsync(int page, CancellationToken cancellationToken, int pageSize = 50)
         {
-            return PagedQuery.ReadAsync<DoctorAvailability>(_store, null, page, cancellationToken);
+            return PagedQuery.ReadAsync<DoctorAvailability>(_store, null, page, cancellationToken, pageSize);
         }
 
         public async Task<DoctorAvailability> SaveAvailabilityAsync(DoctorAvailability input, CancellationToken cancellationToken)
         {
+            input.DoctorId = await ClinicDoctor.ResolveAsync(_store, input.DoctorId, cancellationToken);
             Check(input.StartsAt.Kind == DateTimeKind.Utc && input.EndsAt.Kind == DateTimeKind.Utc && input.EndsAt > input.StartsAt,
                 "Provide a valid availability period with timezone.");
             Check(await _store.Find<Doctor>(doctor => doctor.Id == input.DoctorId && doctor.IsActive, cancellationToken) != null,
@@ -86,6 +87,12 @@ namespace PosHC.Application.Services
         }
         public async Task<Doctor> SaveAsync(Guid id, Doctor input, CancellationToken ct)
         {
+            if (!input.IsActive)
+            {
+                var settings = await _store.Find<ClinicSettings>(s => s.Id == 1, ct);
+                Check(settings?.SingleDoctorMode != true || settings.DefaultDoctorId != id,
+                    "Change the single-doctor setting before deactivating this doctor.");
+            }
             var doctor = id == Guid.Empty ? new Doctor { Id = Guid.NewGuid() } : await _store.Find<Doctor>(x => x.Id == id, ct) ?? throw new BusinessException("Doctor not found.", 404);
             doctor.FirstName = Required(input.FirstName, "First name");
             doctor.LastName = Required(input.LastName, "Last name");
@@ -104,7 +111,7 @@ namespace PosHC.Application.Services
             return doctor;
         }
 
-        public Task<PagedResult<Doctor>> GetPageAsync(string search, int page, CancellationToken cancellationToken) => PagedQuery.ReadAsync<Doctor>(_store, item => item.FirstName.Contains(search) || item.LastName.Contains(search), page, cancellationToken);
+        public Task<PagedResult<Doctor>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50) => PagedQuery.ReadAsync<Doctor>(_store, item => item.FirstName.Contains(search) || item.LastName.Contains(search), page, cancellationToken, pageSize);
 
     }
 }

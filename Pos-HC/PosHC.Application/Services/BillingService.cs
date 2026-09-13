@@ -37,9 +37,10 @@ public class BillingService(IClinicStore store, IClinicSettingsService settingsS
             return await Invoice(existing.Id, ct);
         }
 
-        var doctor = await store.Find<Doctor>(x => x.Id == input.DoctorId && x.IsActive, ct) ?? throw new BusinessException("Select an active doctor.");
-        var patient = await store.Find<Patient>(x => x.Id == input.PatientId && x.IsActive, ct) ?? throw new BusinessException("Select an active patient.");
         var settings = await settingsService.GetAsync(ct);
+        var doctorId = ClinicDoctor.Resolve(settings, input.DoctorId);
+        var doctor = await store.Find<Doctor>(x => x.Id == doctorId && x.IsActive, ct) ?? throw new BusinessException("Select an active doctor.");
+        var patient = await store.Find<Patient>(x => x.Id == input.PatientId && x.IsActive, ct) ?? throw new BusinessException("Select an active patient.");
         Money(0, input.Currency);
         Check(input.Currency != "LBP" || settings.ExchangeRateConfirmed, "Configure and confirm the LBP/USD exchange rate in clinic settings first.");
         var rate = input.Currency == "LBP" ? settings.LbpPerUsd : 1;
@@ -64,6 +65,8 @@ public class BillingService(IClinicStore store, IClinicSettingsService settingsS
             CreatedAt = DateTime.UtcNow,
             RequestId = input.RequestId
         };
+        if (!string.IsNullOrWhiteSpace(input.VisitDescription) || !string.IsNullOrWhiteSpace(input.Diagnosis))
+            VisitNotes.Apply(invoice, new VisitNotesInput(input.VisitDescription, input.Diagnosis), staff);
         Check(input.Items != null && input.Items.Count <= 200, "An invoice may contain at most 200 items.");
         foreach (var item in input.Items!)
         {

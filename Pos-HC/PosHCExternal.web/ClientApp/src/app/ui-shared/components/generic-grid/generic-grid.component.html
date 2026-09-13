@@ -5,30 +5,32 @@
   <div
     class="card-header bg-white d-flex flex-wrap align-items-center justify-content-between gap-2"
   >
-    <div class="input-group grid-search">
-      <label class="input-group-text" [for]="gridId + '-search'">{{
-        "Search" | t
-      }}</label>
-      <input
-        [id]="gridId + '-search'"
-        class="form-control"
-        type="search"
-        [placeholder]="'Filter rows' | t"
-        [(ngModel)]="searchTerm"
-        [ngModelOptions]="{ standalone: true }"
-        (ngModelChange)="onSearchChanged()"
-      />
-      @if (searchTerm) {
-        <button
-          class="btn btn-outline-secondary"
-          type="button"
-          [attr.aria-label]="'Clear search' | t"
-          (click)="clearSearch()"
-        >
-          {{ "Clear" | t }}
-        </button>
-      }
-    </div>
+    @if (!serverPaging) {
+      <div class="input-group grid-search">
+        <label class="input-group-text" [for]="gridId + '-search'">{{
+          "Search" | t
+        }}</label>
+        <input
+          [id]="gridId + '-search'"
+          class="form-control"
+          type="search"
+          [placeholder]="'Filter rows' | t"
+          [(ngModel)]="searchTerm"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="onSearchChanged()"
+        />
+        @if (searchTerm) {
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            [attr.aria-label]="'Clear search' | t"
+            (click)="clearSearch()"
+          >
+            {{ "Clear" | t }}
+          </button>
+        }
+      </div>
+    }
     <button
       class="btn btn-outline-secondary btn-sm"
       type="button"
@@ -87,7 +89,7 @@
               [style.flex]="'0 0 ' + getColumnWidth(column) + 'px'"
               [style.min-width.px]="column.minWidthPx ?? 88"
               [attr.aria-sort]="
-                sort?.columnKey === column.key
+                !serverPaging && sort?.columnKey === column.key
                   ? sort?.direction === 'asc'
                     ? 'ascending'
                     : 'descending'
@@ -97,7 +99,7 @@
               <button
                 class="btn btn-link header-button p-0 text-decoration-none"
                 type="button"
-                [disabled]="column.sortable === false"
+                [disabled]="serverPaging || column.sortable === false"
                 (click)="toggleSort(column)"
               >
                 <span>{{ column.header | t }}</span>
@@ -201,60 +203,59 @@
         }
       </div>
     </div>
-    <div
-      class="card-footer bg-white d-flex flex-wrap align-items-center justify-content-between gap-3"
-    >
-      <div class="text-body-secondary small">
-        {{ "Showing" | t }} {{ pageStart }} {{ "to" | t }} {{ pageEnd }}
-        {{ "of" | t }} {{ sortedRows.length }}
-      </div>
-      <div class="d-flex flex-wrap align-items-center gap-2">
-        <label
-          class="small text-body-secondary"
-          [for]="gridId + '-page-size'"
-          >{{ "Rows" | t }}</label
-        >
-        <select
-          [id]="gridId + '-page-size'"
-          class="form-select form-select-sm grid-page-size"
-          [ngModel]="pageSize"
-          [ngModelOptions]="{ standalone: true }"
-          (ngModelChange)="onPageSizeChanged($event)"
-        >
-          @for (option of pageSizeOptions; track option) {
-            <option [ngValue]="option">{{ option }}</option>
-          }
-        </select>
-        <div
-          class="btn-group btn-group-sm"
-          role="group"
-          [attr.aria-label]="'Pagination' | t"
-        >
-          <button
-            class="btn btn-outline-secondary"
-            type="button"
-            [disabled]="pageIndex === 0"
-            (click)="previousPage()"
-          >
-            {{ "Previous" | t }}
-          </button>
-          <button class="btn btn-outline-secondary" type="button" disabled>
-            {{ pageIndex + 1 }} / {{ pageCount }}
-          </button>
-          <button
-            class="btn btn-outline-secondary"
-            type="button"
-            [disabled]="pageIndex >= pageCount - 1"
-            (click)="nextPage()"
-          >
-            {{ "Next" | t }}
-          </button>
-        </div>
-      </div>
-    </div>
   } @else {
     <div class="empty-state">
       {{ (searchTerm ? "No matching rows." : emptyMessage) | t }}
     </div>
   }
+  <div
+    class="card-footer bg-white d-flex flex-wrap align-items-center justify-content-between gap-3"
+  >
+    <div class="text-body-secondary small">
+      {{ "Showing" | t }} {{ pageStart }} {{ "to" | t }} {{ pageEnd }}
+      {{ "of" | t }} {{ recordCount }}
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <label class="small text-body-secondary" [for]="gridId + '-page-size'">{{
+        "Rows" | t
+      }}</label>
+      <select
+        [id]="gridId + '-page-size'"
+        class="form-select form-select-sm grid-page-size"
+        [disabled]="loading"
+        [ngModel]="pageSize"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="onPageSizeChanged($event)"
+      >
+        @for (option of pageSizeOptions; track option) {
+          <option [ngValue]="option">{{ option }}</option>
+        }
+      </select>
+      <div
+        class="btn-group btn-group-sm"
+        role="group"
+        [attr.aria-label]="'Pagination' | t"
+      >
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          [disabled]="loading || pageIndex === 0"
+          (click)="previousPage()"
+        >
+          {{ "Previous" | t }}
+        </button>
+        <button class="btn btn-outline-secondary" type="button" disabled>
+          {{ pageIndex + 1 }} / {{ pageCount }}
+        </button>
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          [disabled]="loading || pageIndex >= pageCount - 1"
+          (click)="nextPage()"
+        >
+          {{ "Next" | t }}
+        </button>
+      </div>
+    </div>
+  </div>
 </section>

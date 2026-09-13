@@ -14,6 +14,7 @@ public static class DependencyInjection
          options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
         builder.Services.AddScoped<IPOSHCRepository, POSHCRepository>();
         builder.Services.AddScoped<IClinicStore, ClinicStore>();
+        builder.Services.AddScoped<IPatientVisitReader, PatientVisitReader>();
         builder.Services.AddScoped<IClinicReports, ClinicReports>();
         builder.Services.AddScoped<IPasswordCodec, PasswordCodec>();
 
@@ -23,6 +24,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IDoctorService, DoctorService>();
         services.AddScoped<BillingService>();
+        services.AddScoped<PatientVisitService>();
         services.AddScoped<IStaffService, StaffService>();
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<IClinicSettingsService, ClinicSettingsService>();

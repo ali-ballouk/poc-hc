@@ -24,6 +24,7 @@ import {
   GridAction,
   GridColumn,
   GridSort,
+  GridPageChange,
   SortDirection,
 } from './generic-grid.models';
 
@@ -59,6 +60,10 @@ export class GenericGridComponent<T extends object = any>
   private resizing?: { key: string; pointerId: number; x: number };
   @Input() pageSizeOptions: readonly number[] = [5, 10, 20];
   @Input() pageSize = 10;
+  @Input() serverPaging = false;
+  @Input() totalRecords = 0;
+  @Input() pageIndex = 0;
+  @Output() pageChange = new EventEmitter<GridPageChange>();
   @Input() defaultSort?: GridSort<T>;
   @Input() selectable = true;
   @Input() rowId: (row: T) => string | number = (row) =>
@@ -74,7 +79,6 @@ export class GenericGridComponent<T extends object = any>
   private projectedColumnsChanges?: Subscription;
 
   searchTerm = '';
-  pageIndex = 0;
   sort?: GridSort<T>;
   selectedIds = new Set<string | number>();
   resizedWidths = new Map<string, number>();
@@ -82,10 +86,13 @@ export class GenericGridComponent<T extends object = any>
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['defaultSort'])
       this.sort = this.defaultSort ? { ...this.defaultSort } : undefined;
-    if (changes['pageSize']) this.onPageSizeChanged(this.pageSize);
+    if (changes['pageSize']) {
+      this.pageSize = this.normalizePageSize(this.pageSize);
+      if (!this.serverPaging) this.pageIndex = 0;
+    }
 
     if (changes['data']) {
-      this.pageIndex = 0;
+      if (!this.serverPaging) this.pageIndex = 0;
       this.pruneSelection();
     }
   }
@@ -93,7 +100,7 @@ export class GenericGridComponent<T extends object = any>
   ngAfterContentInit(): void {
     this.projectedColumnsChanges = this.projectedColumns?.changes.subscribe(
       () => {
-        this.pageIndex = 0;
+        if (!this.serverPaging) this.pageIndex = 0;
         this.changeDetector.markForCheck();
       },
     );
@@ -115,6 +122,7 @@ export class GenericGridComponent<T extends object = any>
   }
 
   get filteredRows(): readonly T[] {
+    if (this.serverPaging) return this.data;
     const term = this.searchTerm.trim().toLocaleLowerCase();
     const filterableColumns = this.configuredColumns.filter(
       (column) => column.filterable !== false,
@@ -134,6 +142,7 @@ export class GenericGridComponent<T extends object = any>
   }
 
   get sortedRows(): readonly T[] {
+    if (this.serverPaging) return this.data;
     const rows = [...this.filteredRows];
 
     if (!this.sort) {
@@ -156,24 +165,29 @@ export class GenericGridComponent<T extends object = any>
   }
 
   get pagedRows(): readonly T[] {
+    if (this.serverPaging) return this.data;
     const start = this.pageIndex * this.pageSize;
     return this.sortedRows.slice(start, start + this.pageSize);
   }
 
   get pageCount(): number {
-    return Math.max(1, Math.ceil(this.sortedRows.length / this.pageSize));
+    return Math.max(1, Math.ceil(this.recordCount / this.pageSize));
+  }
+
+  get recordCount(): number {
+    return this.serverPaging ? this.totalRecords : this.sortedRows.length;
   }
 
   get pageStart(): number {
-    return this.sortedRows.length === 0
-      ? 0
-      : this.pageIndex * this.pageSize + 1;
+    return this.pagedRows.length === 0 ? 0 : this.pageIndex * this.pageSize + 1;
   }
 
   get pageEnd(): number {
     return Math.min(
-      this.sortedRows.length,
-      (this.pageIndex + 1) * this.pageSize,
+      this.recordCount,
+      this.pagedRows.length === 0
+        ? 0
+        : this.pageIndex * this.pageSize + this.pagedRows.length,
     );
   }
 
@@ -205,7 +219,7 @@ export class GenericGridComponent<T extends object = any>
   }
 
   toggleSort(column: GridColumn<T>): void {
-    if (column.sortable === false) {
+    if (this.serverPaging || column.sortable === false) {
       return;
     }
 
@@ -224,18 +238,37 @@ export class GenericGridComponent<T extends object = any>
   }
 
   onPageSizeChanged(value: string | number): void {
-    const size = Number(value);
-    this.pageSize =
-      Number.isFinite(size) && size > 0 ? Math.max(1, Math.floor(size)) : 10;
+    if (this.loading) return;
+    this.pageSize = this.normalizePageSize(value);
     this.pageIndex = 0;
+    this.emitPageChange();
+  }
+
+  private normalizePageSize(value: string | number): number {
+    const size = Number(value);
+    return Number.isFinite(size) && size > 0
+      ? Math.max(1, Math.floor(size))
+      : 10;
+  }
+
+  private emitPageChange(): void {
+    if (this.serverPaging)
+      this.pageChange.emit({
+        pageIndex: this.pageIndex,
+        pageSize: this.pageSize,
+      });
   }
 
   previousPage(): void {
+    if (this.loading || this.pageIndex === 0) return;
     this.pageIndex = Math.max(0, this.pageIndex - 1);
+    this.emitPageChange();
   }
 
   nextPage(): void {
+    if (this.loading || this.pageIndex >= this.pageCount - 1) return;
     this.pageIndex = Math.min(this.pageCount - 1, this.pageIndex + 1);
+    this.emitPageChange();
   }
 
   toggleRow(row: T, selected: boolean): void {

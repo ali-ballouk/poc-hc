@@ -16,6 +16,7 @@ import { BaseAPI } from '../services/base.api';
 export class SettingsComponent implements OnInit {
   api = inject(BaseAPI);
   settings: any;
+  doctors: any[] = [];
   error = '';
   message = '';
   busy = false;
@@ -28,12 +29,21 @@ export class SettingsComponent implements OnInit {
     { key: 'TaxRegistrationNumber', label: 'Tax registration number' },
   ];
   ngOnInit() {
+    this.api.get<any[]>('api/doctor/lookup').subscribe({
+      next: (doctors) => (this.doctors = doctors),
+      error: () => (this.error = 'Unable to load doctors.'),
+    });
     this.api.get('api/clinic/settings').subscribe({
       next: (r) => (this.settings = r),
       error: () => (this.error = 'Unable to load settings.'),
     });
   }
   save() {
+    if (this.busy) return;
+    if (this.settings.SingleDoctorMode && !this.settings.DefaultDoctorId) {
+      this.error = 'Choose an active doctor for single-doctor mode.';
+      return;
+    }
     this.busy = true;
     this.error = '';
     this.message = '';

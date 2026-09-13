@@ -10,10 +10,13 @@ namespace PosHCExternal.web.Controllers;
 public class BillingController(BillingService billing, IClinicStore store, IReceiptPdfGenerator receipts) : ControllerBase
 {
     [HttpGet("invoices")]
-    public async Task<object> Invoices(string search = "", Guid? patientId = null, int page = 1, CancellationToken ct = default)
+    public async Task<object> Invoices(string search = "", Guid? patientId = null, int page = 1, CancellationToken ct = default, int pageSize = 50)
     {
         System.Linq.Expressions.Expression<Func<Invoice, bool>> filter = x => (!patientId.HasValue || x.PatientId == patientId) && (x.PatientName.Contains(search) || x.DoctorName.Contains(search) || x.Number.ToString().Contains(search));
-        var rows = await store.List(filter, 50, (Math.Clamp(page, 1, 100000) - 1) * 50, ct);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+        var total = await store.Count(filter, ct);
+        page = Math.Clamp(page, 1, Math.Max(1, (int)Math.Ceiling(total / (double)pageSize)));
+        var rows = await store.List(filter, pageSize, (page - 1) * pageSize, ct);
         var items = new List<object>();
         foreach (var row in rows)
         {
@@ -37,8 +40,9 @@ public class BillingController(BillingService billing, IClinicStore store, IRece
         return new
         {
             Items = items,
-            Total = await store.Count(filter, ct),
-            PageSize = 50
+            Total = total,
+            PageSize = pageSize,
+            Page = page
         };
     }
     [HttpGet("invoices/{id:guid}")]

@@ -15,6 +15,8 @@ This release targets one clinic per installation in Lebanon. It preserves the Do
 
 ## Installation and upgrade
 
+Development startup now checks the schema version before serving requests. When an upgrade is pending, it creates and verifies a backup of an existing database and applies the versioned upgrades, including the single-doctor settings and visit-note columns. The development connection therefore needs backup/schema permissions. An up-to-date database does not trigger another backup. Production upgrades remain explicit through `--migrate`; rebuilding files alone does not upgrade an existing production database.
+
 Use .NET 8 and a supported Node version from ClientApp/package.json (Node 24 recommended). Configure `ConnectionStrings__DefaultConnection` in the service environment. Do not commit production credentials. The database identity needs schema permissions only during installation/upgrade; normal operation should use a restricted identity.
 
 Stop the API, then run from the repository root:
@@ -25,7 +27,7 @@ dotnet run --no-build --project Pos-HC/PosHCExternal.web -- --migrate
 dotnet run --no-build --project Pos-HC/PosHCExternal.web --launch-profile http
 ```
 
-For an existing database, `--migrate` creates a COPY_ONLY backup in the SQL Server default backup directory and runs RESTORE VERIFYONLY before the versioned upgrade. Existing records are retained. Legacy invoices are treated as USD, matching the previous UI, and prior on-account entries become zero-value deferrals. Review imported legacy balances before customer use. New empty databases receive the current schema and payment types. Migrations are explicit, not silently applied at every startup.
+For an existing database, `--migrate` creates a COPY_ONLY backup in the SQL Server default backup directory and runs RESTORE VERIFYONLY before the versioned upgrade. Existing records are retained. Legacy invoices are treated as USD, matching the previous UI, and prior on-account entries become zero-value deferrals. Review imported legacy balances before customer use. New empty databases receive the current schema and payment types. Production migrations are explicit. Development startup applies pending upgrades after a verified backup.
 
 In development, the first-start setup token is written to `Pos-HC/PosHCExternal.web/.local/setup-token.txt`. Open the frontend, enter that token and create your own administrator username and password. No default login is installed. In production, provide a random `Setup__Token` of at least 32 characters through secure configuration. Setup closes after the first user is created.
 

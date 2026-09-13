@@ -1,6 +1,17 @@
 import { InjectionToken, TemplateRef } from '@angular/core';
 
 export type SortDirection = 'asc' | 'desc';
+export interface GridPageChange {
+  pageIndex: number;
+  pageSize: number;
+}
+
+export interface GridPageResult<T> {
+  Items: T[];
+  Total: number;
+  PageSize: number;
+  Page: number;
+}
 export type GridColumnType =
   | 'text'
   | 'number'

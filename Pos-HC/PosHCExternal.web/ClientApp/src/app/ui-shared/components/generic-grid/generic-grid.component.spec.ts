@@ -2,6 +2,52 @@ import { TestBed } from '@angular/core/testing';
 import { GenericGridComponent } from './generic-grid.component';
 
 describe('GenericGridComponent', () => {
+  it('uses backend totals and does not slice, filter or reset a returned page', () => {
+    const fixture = TestBed.createComponent(GenericGridComponent<any>);
+    fixture.componentRef.setInput('serverPaging', true);
+    fixture.componentRef.setInput('pageSize', 2);
+    fixture.componentRef.setInput('pageIndex', 1);
+    fixture.componentRef.setInput('totalRecords', 5);
+    fixture.componentRef.setInput('data', [{ id: 3 }, { id: 4 }]);
+    fixture.detectChanges();
+    const grid = fixture.componentInstance;
+    const changed = jasmine.createSpy('pageChange');
+    grid.pageChange.subscribe(changed);
+    grid.searchTerm = 'not a local match';
+    expect(grid.pagedRows.map((row) => row.id)).toEqual([3, 4]);
+    expect(grid.pageStart).toBe(3);
+    expect(grid.pageEnd).toBe(4);
+    expect(grid.pageCount).toBe(3);
+    grid.nextPage();
+    expect(changed).toHaveBeenCalledOnceWith({ pageIndex: 2, pageSize: 2 });
+    fixture.componentRef.setInput('data', [{ id: 5 }]);
+    fixture.detectChanges();
+    expect(grid.pageIndex).toBe(2);
+    expect(grid.pageEnd).toBe(5);
+    expect(grid.pagedRows).toEqual([{ id: 5 }]);
+    grid.nextPage();
+    expect(changed).toHaveBeenCalledTimes(1);
+    grid.onPageSizeChanged(10);
+    expect(changed).toHaveBeenCalledWith({ pageIndex: 0, pageSize: 10 });
+  });
+
+  it('keeps pagination available on empty results and prevents changes while loading', () => {
+    const fixture = TestBed.createComponent(GenericGridComponent<any>);
+    fixture.componentRef.setInput('serverPaging', true);
+    fixture.componentRef.setInput('data', []);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.card-footer')).not.toBeNull();
+    expect(fixture.componentInstance.pageStart).toBe(0);
+    expect(fixture.componentInstance.pageEnd).toBe(0);
+    const changed = jasmine.createSpy('pageChange');
+    fixture.componentInstance.pageChange.subscribe(changed);
+    fixture.componentRef.setInput('totalRecords', 100);
+    fixture.componentRef.setInput('loading', true);
+    fixture.detectChanges();
+    fixture.componentInstance.nextPage();
+    fixture.componentInstance.onPageSizeChanged(50);
+    expect(changed).not.toHaveBeenCalled();
+  });
   function createGrid() {
     const fixture = TestBed.createComponent(GenericGridComponent<any>);
     fixture.componentRef.setInput('data', [

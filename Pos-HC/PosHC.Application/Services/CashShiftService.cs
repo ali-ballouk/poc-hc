@@ -69,12 +69,12 @@ public class CashShiftService(IClinicStore store, IAuditService auditService, IC
         return shift.OpeningAmount + payments.Sum(payment => payment.Amount) + movements.Sum(movement => movement.Amount);
     }
 
-    public async Task<PagedResult<CashShiftSummary>> GetPageAsync(int page, CancellationToken cancellationToken)
+    public async Task<PagedResult<CashShiftSummary>> GetPageAsync(int page, CancellationToken cancellationToken, int pageSize = 50)
     {
         var isAdministrator = staff.Role == "Administrator";
         var userId = staff.Id;
         var shifts = await PagedQuery.ReadAsync<CashShift>(store,
-            shift => isAdministrator || shift.UserId == userId, page, cancellationToken);
+            shift => isAdministrator || shift.UserId == userId, page, cancellationToken, pageSize);
         var summaries = new List<CashShiftSummary>();
 
         foreach (var shift in shifts.Items)
@@ -85,7 +85,7 @@ public class CashShiftService(IClinicStore store, IAuditService auditService, IC
                 expectedAmount, shift.CountedAmount - shift.ExpectedAmount));
         }
 
-        return new PagedResult<CashShiftSummary>(summaries, shifts.Total, shifts.PageSize);
+        return new PagedResult<CashShiftSummary>(summaries, shifts.Total, shifts.PageSize, shifts.Page);
     }
 
     public async Task<List<CashMovement>> GetMovementsAsync(Guid id, CancellationToken cancellationToken)

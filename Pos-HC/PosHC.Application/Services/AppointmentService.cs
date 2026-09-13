@@ -9,17 +9,18 @@ public class AppointmentService(IClinicStore store, IAuditService auditService) 
 {
     private static readonly string[] AllowedStatuses = ["Booked", "CheckedIn", "InProgress", "Completed", "Cancelled", "NoShow"];
 
-    public Task<PagedResult<Appointment>> GetPageAsync(DateTime? from, DateTime? to, int page, CancellationToken cancellationToken)
+    public Task<PagedResult<Appointment>> GetPageAsync(DateTime? from, DateTime? to, int page, CancellationToken cancellationToken, int pageSize = 50)
     {
         return PagedQuery.ReadAsync<Appointment>(store,
             appointment => (!from.HasValue || appointment.StartsAt >= from) && (!to.HasValue || appointment.StartsAt < to),
-            page, cancellationToken);
+            page, cancellationToken, pageSize);
     }
 
     public Task<Appointment> SaveAsync(Guid id, Appointment input, CancellationToken cancellationToken)
     {
         return store.Transaction(async () =>
         {
+            if (id == Guid.Empty) input.DoctorId = await ClinicDoctor.ResolveAsync(store, input.DoctorId, cancellationToken);
             Check(input.StartsAt.Kind == DateTimeKind.Utc && input.EndsAt.Kind == DateTimeKind.Utc,
                 "Appointment times must include a UTC timezone.");
             Check(input.EndsAt > input.StartsAt && input.EndsAt - input.StartsAt <= TimeSpan.FromHours(8),

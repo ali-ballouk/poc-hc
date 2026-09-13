@@ -5,6 +5,15 @@ namespace PosHC.Infrastructure.Persistence;
 
 public static class SchemaUpgrade
 {
+    public static async Task<bool> IsRequired(ApplicationDbContext db, CancellationToken ct = default)
+    {
+        if (!await db.Database.CanConnectAsync(ct)) return true;
+        var exists = await db.Database.SqlQueryRaw<int>("SELECT CASE WHEN OBJECT_ID('poshc.SchemaVersion') IS NULL THEN 0 ELSE 1 END AS Value").SingleAsync(ct);
+        if (exists == 0) return true;
+        var current = await db.Database.SqlQueryRaw<int>("SELECT COALESCE(MAX(Version), 0) AS Value FROM poshc.SchemaVersion").SingleAsync(ct);
+        return current < 2;
+    }
+
     public static async Task Apply(ApplicationDbContext db, CancellationToken ct = default)
     {
         var fresh = await db.Database.EnsureCreatedAsync(ct);
@@ -38,6 +47,15 @@ public static class SchemaUpgrade
                 }
             }
             await db.Database.ExecuteSqlRawAsync("INSERT INTO poshc.SchemaVersion VALUES (1,SYSUTCDATETIME())", ct);
+        }
+        var visitsApplied = await db.Database.SqlQueryRaw<int>("SELECT Version AS Value FROM poshc.SchemaVersion WHERE Version=2").ToListAsync(ct);
+        if (visitsApplied.Count == 0)
+        {
+            var assembly = typeof(SchemaUpgrade).Assembly;
+            var resource = assembly.GetManifestResourceNames().Single(x => x.EndsWith("002_single_doctor_visit_notes.sql"));
+            using var reader = new StreamReader(assembly.GetManifestResourceStream(resource)!);
+            await db.Database.ExecuteSqlRawAsync(await reader.ReadToEndAsync(ct), ct);
+            await db.Database.ExecuteSqlRawAsync("INSERT INTO poshc.SchemaVersion VALUES (2,SYSUTCDATETIME())", ct);
         }
         await tx.CommitAsync(ct);
     }

@@ -51,6 +51,8 @@ public class ClinicSettings
         get; set;
     }
     public string TaxRegistrationNumber { get; set; } = "";
+    public bool SingleDoctorMode { get; set; }
+    public Guid? DefaultDoctorId { get; set; }
 }
 
 public class AuditEntry

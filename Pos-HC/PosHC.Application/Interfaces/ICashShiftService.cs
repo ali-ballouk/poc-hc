@@ -9,6 +9,6 @@ public interface ICashShiftService
     Task<CashShift> CloseShift(Guid id, decimal counted, CancellationToken cancellationToken);
     Task<CashMovement> MoveCash(Guid id, decimal amount, string reason, CancellationToken cancellationToken);
     Task<decimal> Expected(CashShift shift, CancellationToken cancellationToken);
-    Task<PagedResult<CashShiftSummary>> GetPageAsync(int page, CancellationToken cancellationToken);
+    Task<PagedResult<CashShiftSummary>> GetPageAsync(int page, CancellationToken cancellationToken, int pageSize = 50);
     Task<List<CashMovement>> GetMovementsAsync(Guid id, CancellationToken cancellationToken);
 }

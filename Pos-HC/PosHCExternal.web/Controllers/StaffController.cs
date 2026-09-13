@@ -10,8 +10,8 @@ namespace PosHCExternal.web.Controllers;
 public class StaffController(IStaffService staff) : ControllerBase
 {
     [HttpGet]
-    public Task<PagedResult<StaffUser>> GetPage(int page = 1, CancellationToken ct = default)
-        => staff.GetPageAsync(page, ct);
+    public Task<PagedResult<StaffUser>> GetPage(int page = 1, CancellationToken ct = default, int pageSize = 50)
+        => staff.GetPageAsync(page, ct, pageSize);
 
     [HttpPost]
     public Task<StaffUser> Create(StaffInput input, CancellationToken ct)

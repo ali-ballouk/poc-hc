@@ -23,6 +23,8 @@ export class DoctorSelectorComponent implements OnInit {
   doctors = signal<any[]>([]);
 
   @Input() selectedDoctorId: string | null = null;
+  @Input() disabled = false;
+  @Output() doctorsLoaded = new EventEmitter<any[]>();
 
   @Output() selectionChange = new EventEmitter<string | null>();
 
@@ -34,6 +36,7 @@ export class DoctorSelectorComponent implements OnInit {
     this.api.get<any[]>('api/doctor/lookup').subscribe({
       next: (res) => {
         this.doctors.set(res);
+        this.doctorsLoaded.emit(res);
       },
       error: (err) => console.error('Error loading doctors', err),
     });

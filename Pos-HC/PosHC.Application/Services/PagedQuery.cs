@@ -7,12 +7,13 @@ namespace PosHC.Application.Services;
 internal static class PagedQuery
 {
     public static async Task<PagedResult<T>> ReadAsync<T>(IClinicStore store,
-        Expression<Func<T, bool>>? filter, int page, CancellationToken cancellationToken) where T : class
+        Expression<Func<T, bool>>? filter, int page, CancellationToken cancellationToken, int pageSize = 50) where T : class
     {
-        const int pageSize = 50;
-        var skip = (Math.Clamp(page, 1, 100000) - 1) * pageSize;
-        var items = await store.List(filter, pageSize, skip, cancellationToken);
+        pageSize = Math.Clamp(pageSize, 1, 100);
         var total = await store.Count(filter, cancellationToken);
-        return new PagedResult<T>(items, total, pageSize);
+        var pageCount = Math.Max(1, (int)Math.Ceiling(total / (double)pageSize));
+        page = Math.Clamp(page, 1, pageCount);
+        var items = await store.List(filter, pageSize, (page - 1) * pageSize, cancellationToken);
+        return new PagedResult<T>(items, total, pageSize, page);
     }
 }

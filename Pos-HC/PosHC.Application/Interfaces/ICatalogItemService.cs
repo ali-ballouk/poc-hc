@@ -13,7 +13,7 @@ namespace PosHC.Application.Interfaces
 
 
         Task<CatalogItem> SaveAsync(Guid id, CatalogItem input, CancellationToken ct);
-        Task<PagedResult<CatalogItem>> GetPageAsync(string search, int page, CancellationToken cancellationToken);
+        Task<PagedResult<CatalogItem>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50);
 
     }
 }

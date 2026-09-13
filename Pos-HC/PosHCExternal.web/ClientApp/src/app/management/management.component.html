@@ -23,6 +23,12 @@
 </form>
 <app-generic-grid
   [data]="rows"
+  [serverPaging]="true"
+  [totalRecords]="total"
+  [pageIndex]="page - 1"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="pageSizeOptions"
+  (pageChange)="onPageChange($event)"
   [columns]="definition.columns"
   [actions]="actions"
   [rowId]="rowId"
@@ -30,19 +36,3 @@
   [loading]="loading"
   [label]="definition.title"
 ></app-generic-grid>
-<div class="d-flex align-items-center gap-3 mt-3">
-  <button
-    class="btn btn-outline-secondary"
-    [disabled]="page === 1 || loading"
-    (click)="page = page - 1; load()"
-  >
-    {{ "Previous 50" | t }}</button
-  ><span>{{ total }} {{ "records · Page" | t }} {{ page }}</span
-  ><button
-    class="btn btn-outline-secondary"
-    [disabled]="page * 50 >= total || loading"
-    (click)="page = page + 1; load()"
-  >
-    {{ "Next 50" | t }}
-  </button>
-</div>

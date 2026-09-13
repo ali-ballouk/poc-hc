@@ -60,14 +60,62 @@
           (selectionChange)="onPatientSelected($event)"
           [(selectedPatientId)]="selectedPatientId"
         ></pos-hs-patient-selector>
+        @if (
+          selectedPatientId &&
+          auth.can("Administrator", "Receptionist", "Doctor")
+        ) {
+          <button
+            type="button"
+            class="btn btn-link px-0 mt-1"
+            (click)="openVisitHistory()"
+          >
+            {{ "Patient visit history" | t }}
+          </button>
+        }
       </div>
       <div class="col-md-6">
         <pos-hs-doctor-selector
+          [disabled]="!!settings.SingleDoctorMode"
+          (doctorsLoaded)="onDoctorsLoaded($event)"
           (selectionChange)="onDoctorSelected($event)"
           [(selectedDoctorId)]="selectedDoctorId"
         ></pos-hs-doctor-selector>
+        @if (settings.SingleDoctorMode) {
+          <p class="small text-secondary mt-2">
+            {{ "Doctor assigned from clinic settings." | t }}
+          </p>
+        }
       </div>
     </div>
+    @if (auth.can("Administrator", "Receptionist", "Doctor")) {
+      <fieldset class="border rounded p-3 mb-4">
+        <legend class="float-none w-auto px-2 fs-6 fw-semibold">
+          {{ "Visit notes (optional)" | t }}
+        </legend>
+        <label for="visit-description" class="form-label">{{
+          "Visit description" | t
+        }}</label>
+        <textarea
+          id="visit-description"
+          name="visitDescription"
+          class="form-control mb-3"
+          rows="3"
+          maxlength="4000"
+          [(ngModel)]="visitDescription"
+        ></textarea>
+        <label for="visit-diagnosis" class="form-label">{{
+          "Diagnosis" | t
+        }}</label>
+        <textarea
+          id="visit-diagnosis"
+          name="diagnosis"
+          class="form-control"
+          rows="3"
+          maxlength="2000"
+          [(ngModel)]="diagnosis"
+        ></textarea>
+      </fieldset>
+    }
     <fieldset class="border rounded p-3 mb-4">
       <legend class="float-none w-auto px-2 fs-6 fw-semibold">
         {{ "Visit items" | t }}
@@ -134,7 +182,12 @@
       <button
         type="button"
         class="btn btn-primary"
-        [disabled]="saving"
+        [disabled]="
+          saving ||
+          !settingsLoaded ||
+          (settings.SingleDoctorMode && !selectedDoctorId) ||
+          visitForm.invalid
+        "
         (click)="submit()"
       >
         {{ (saving ? "Saving…" : "Create invoice") | t }}

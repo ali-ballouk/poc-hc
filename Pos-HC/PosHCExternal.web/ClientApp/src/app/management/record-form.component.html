@@ -7,6 +7,7 @@
       <div class="col-md-6">
         @if (field.type === "select") {
           <app-generic-selector
+            [disabled]="field.key === 'DoctorId' && !!singleDoctorId"
             [translateOptions]="!field.lookup"
             [data]="choices[field.key] || field.options || []"
             valueField="Id"
@@ -58,7 +59,10 @@
       [disabled]="busy"
     >
       {{ "Cancel" | t }}</button
-    ><button class="btn btn-primary" [disabled]="busy || form.invalid">
+    ><button
+      class="btn btn-primary"
+      [disabled]="busy || loadingDoctorMode || form.invalid"
+    >
       {{ (busy ? "Saving…" : "Save") | t }}
     </button>
   </div>

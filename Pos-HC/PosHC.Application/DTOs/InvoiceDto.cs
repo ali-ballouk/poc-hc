@@ -11,6 +11,10 @@ namespace PosHC.Application.DTOs
 
     public class CreateInvoiceDto
     {
+        [System.ComponentModel.DataAnnotations.MaxLength(4000)]
+        public string? VisitDescription { get; set; }
+        [System.ComponentModel.DataAnnotations.MaxLength(2000)]
+        public string? Diagnosis { get; set; }
         public string Currency { get; set; } = "USD";
         public bool Draft
         {

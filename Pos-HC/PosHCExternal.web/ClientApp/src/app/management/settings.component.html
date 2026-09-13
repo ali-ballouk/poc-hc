@@ -8,6 +8,44 @@
 @if (settings) {
   <form #form="ngForm" (ngSubmit)="save()" class="card">
     <div class="card-body row g-3">
+      <section class="col-12 border-bottom pb-3 mb-2">
+        <h2 class="h5">{{ "Doctor configuration" | t }}</h2>
+        <div class="form-check form-switch">
+          <input
+            id="single-doctor-mode"
+            name="singleDoctorMode"
+            type="checkbox"
+            class="form-check-input"
+            [(ngModel)]="settings.SingleDoctorMode"
+          />
+          <label for="single-doctor-mode" class="form-check-label">{{
+            "Single-doctor mode" | t
+          }}</label>
+        </div>
+        <p class="small text-secondary mt-2">
+          {{
+            "Automatically assign the configured doctor to new visits, appointments and availability. Existing records keep their original doctor."
+              | t
+          }}
+        </p>
+        @if (settings.SingleDoctorMode) {
+          <label for="default-doctor" class="form-label">{{
+            "Clinic doctor" | t
+          }}</label>
+          <select
+            id="default-doctor"
+            name="defaultDoctor"
+            class="form-select"
+            [(ngModel)]="settings.DefaultDoctorId"
+            required
+          >
+            <option [ngValue]="null">{{ "Choose doctor" | t }}</option>
+            @for (doctor of doctors; track doctor.Id) {
+              <option [ngValue]="doctor.Id">{{ doctor.FullName }}</option>
+            }
+          </select>
+        }
+      </section>
       @for (field of fields; track field.key) {
         <div class="col-md-6">
           <label class="form-label" [for]="field.key">{{

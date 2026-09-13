@@ -1,0 +1,31 @@
+@if (data.patientName) {
+  <h3 class="h5">{{ data.patientName }}</h3>
+}
+<p class="text-secondary">
+  {{
+    "Saved visits, newest first. Draft and void visits are marked by status."
+      | t
+  }}
+</p>
+@if (error) {
+  <div class="alert alert-danger" role="alert">{{ error | t }}</div>
+  <button type="button" class="btn btn-outline-primary mb-3" (click)="load()">
+    {{ "Retry" | t }}
+  </button>
+}
+<app-generic-grid
+  [data]="rows"
+  [columns]="columns"
+  [actions]="actions"
+  [rowId]="rowId"
+  [serverPaging]="true"
+  [totalRecords]="total"
+  [pageIndex]="page - 1"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="[10, 20, 50]"
+  (pageChange)="onPageChange($event)"
+  [loading]="loading"
+  [selectable]="false"
+  label="Patient visit history"
+  emptyMessage="No visits recorded for this patient."
+></app-generic-grid>

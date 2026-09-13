@@ -1,0 +1,53 @@
+<p class="fw-semibold">
+  {{ data.visit.VisitedAt | date: "medium" }} · {{ data.visit.DoctorName }}
+</p>
+<p class="small text-secondary">
+  {{ "Invoice #" | t }} {{ data.visit.Number }} · {{ data.visit.Status | t }}
+</p>
+@if (error) {
+  <div class="alert alert-danger" role="alert">{{ error | t }}</div>
+}
+<form #form="ngForm" (ngSubmit)="save()">
+  <fieldset [disabled]="busy">
+    <label for="history-description" class="form-label">{{
+      "Visit description (optional)" | t
+    }}</label>
+    <textarea
+      id="history-description"
+      name="description"
+      class="form-control mb-3"
+      rows="5"
+      maxlength="4000"
+      [(ngModel)]="description"
+    ></textarea>
+    <label for="history-diagnosis" class="form-label">{{
+      "Diagnosis (optional)" | t
+    }}</label>
+    <textarea
+      id="history-diagnosis"
+      name="diagnosis"
+      class="form-control mb-3"
+      rows="4"
+      maxlength="2000"
+      [(ngModel)]="diagnosis"
+    ></textarea>
+    @if (data.visit.UpdatedAt) {
+      <p class="small text-secondary">
+        {{ "Last updated" | t }} {{ data.visit.UpdatedAt | date: "medium" }} ·
+        {{ data.visit.UpdatedBy }}
+      </p>
+    }
+    <div class="d-flex justify-content-end gap-2">
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="ref.close()"
+      >
+        {{ "Cancel" | t }}
+      </button>
+      <button class="btn btn-primary" [disabled]="form.invalid || busy">
+        {{ (busy ? "Saving…" : "Save visit notes") | t }}
+      </button>
+    </div>
+  </fieldset>
+</form>

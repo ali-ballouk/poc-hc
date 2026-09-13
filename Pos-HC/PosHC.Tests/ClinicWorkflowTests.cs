@@ -310,6 +310,14 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         })).EnsureSuccessStatusCode();
         await Csrf();
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/clinic/patients")).StatusCode);
+        var visit = await Services(db).Billing.Create(await Input(db), default);
+        var visitPath = $"/api/clinic/patients/{visit.PatientId}/visits";
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(visitPath)).StatusCode);
+        var noteResponse = await client.PutAsJsonAsync(visitPath + "/" + visit.Id, new VisitNotesInput("Follow-up", "Optional diagnosis"));
+        noteResponse.EnsureSuccessStatusCode();
+        Assert.Equal("Optional diagnosis", (await noteResponse.Content.ReadFromJsonAsync<PatientVisitDto>())!.Diagnosis);
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PutAsJsonAsync(visitPath + "/" + visit.Id, new VisitNotesInput(null, new string('x', 2001)))).StatusCode);
+        (await client.PutAsJsonAsync(visitPath + "/" + visit.Id, new VisitNotesInput())).EnsureSuccessStatusCode();
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/clinic/staff")).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync("/api/billing/payments", new
         {

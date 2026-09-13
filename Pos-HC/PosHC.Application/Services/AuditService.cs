@@ -24,10 +24,10 @@ public class AuditService(IClinicStore store, ICurrentStaff staff) : IAuditServi
         await store.Save(cancellationToken);
     }
 
-    public Task<PagedResult<AuditEntry>> GetPageAsync(string search, int page, CancellationToken cancellationToken)
+    public Task<PagedResult<AuditEntry>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50)
     {
         return PagedQuery.ReadAsync<AuditEntry>(store,
             entry => entry.Actor.Contains(search) || entry.Entity.Contains(search) || entry.Action.Contains(search),
-            page, cancellationToken);
+            page, cancellationToken, pageSize);
     }
 }

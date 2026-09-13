@@ -10,7 +10,7 @@ namespace PosHC.Application.Interfaces
         PatientLookupDto GetPatient(Guid patientId);
 
         Task<Patient> SaveAsync(Guid id, Patient input, CancellationToken ct);
-        Task<PagedResult<Patient>> GetPageAsync(string search, int page, CancellationToken cancellationToken);
+        Task<PagedResult<Patient>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50);
 
     }
 }

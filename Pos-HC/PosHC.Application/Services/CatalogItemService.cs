@@ -61,7 +61,7 @@ namespace PosHC.Application.Services
             return catalogItem;
         }
 
-        public Task<PagedResult<CatalogItem>> GetPageAsync(string search, int page, CancellationToken cancellationToken) => PagedQuery.ReadAsync<CatalogItem>(_store, item => item.Name.Contains(search), page, cancellationToken);
+        public Task<PagedResult<CatalogItem>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50) => PagedQuery.ReadAsync<CatalogItem>(_store, item => item.Name.Contains(search), page, cancellationToken, pageSize);
 
     }
 }

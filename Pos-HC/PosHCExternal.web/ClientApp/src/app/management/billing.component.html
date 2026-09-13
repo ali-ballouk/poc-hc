@@ -13,6 +13,12 @@
 </form>
 <app-generic-grid
   [data]="rows"
+  [serverPaging]="true"
+  [totalRecords]="total"
+  [pageIndex]="page - 1"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="pageSizeOptions"
+  (pageChange)="onPageChange($event)"
   [columns]="columns"
   [actions]="actions"
   [rowId]="rowId"
@@ -20,19 +26,3 @@
   [loading]="loading"
   [label]="'Invoices' | t"
 ></app-generic-grid>
-<div class="d-flex gap-3 align-items-center my-3">
-  <button
-    class="btn btn-outline-secondary"
-    [disabled]="page === 1"
-    (click)="page = page - 1; load()"
-  >
-    {{ "Previous 50" | t }}</button
-  ><span>{{ total }} {{ "invoices · Page" | t }} {{ page }}</span
-  ><button
-    class="btn btn-outline-secondary"
-    [disabled]="page * 50 >= total"
-    (click)="page = page + 1; load()"
-  >
-    {{ "Next 50" | t }}
-  </button>
-</div>

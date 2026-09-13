@@ -11,8 +11,8 @@ namespace PosHCExternal.web.Controllers;
 public class DoctorManagementController(IDoctorService doctors) : ControllerBase
 {
     [HttpGet, Authorize(Roles = "Administrator,Receptionist,Cashier,Doctor")]
-    public Task<PagedResult<Doctor>> GetPage(string search = "", int page = 1, CancellationToken ct = default)
-        => doctors.GetPageAsync(search, page, ct);
+    public Task<PagedResult<Doctor>> GetPage(string search = "", int page = 1, CancellationToken ct = default, int pageSize = 50)
+        => doctors.GetPageAsync(search, page, ct, pageSize);
 
     [HttpPost, Authorize(Roles = "Administrator")]
     public Task<Doctor> Create(Doctor input, CancellationToken ct)
@@ -23,8 +23,8 @@ public class DoctorManagementController(IDoctorService doctors) : ControllerBase
         => doctors.SaveAsync(id, input, ct);
 
     [HttpGet("/api/clinic/availability"), Authorize(Roles = "Administrator,Receptionist,Doctor")]
-    public Task<PagedResult<DoctorAvailability>> GetAvailability(int page = 1, CancellationToken ct = default)
-        => doctors.GetAvailabilityAsync(page, ct);
+    public Task<PagedResult<DoctorAvailability>> GetAvailability(int page = 1, CancellationToken ct = default, int pageSize = 50)
+        => doctors.GetAvailabilityAsync(page, ct, pageSize);
 
     [HttpPost("/api/clinic/availability"), Authorize(Roles = "Administrator,Receptionist")]
     public Task<DoctorAvailability> AddAvailability(DoctorAvailability input, CancellationToken ct)

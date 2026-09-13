@@ -16,6 +16,11 @@ public class ClinicSettingsService(IClinicStore store, IAuditService auditServic
     {
         Check(input.LbpPerUsd > 0 && input.LbpPerUsd < 100_000_000, "Enter the agreed LBP per USD exchange rate.");
         Check(input.TaxRate >= 0 && input.TaxRate <= 100, "Tax rate must be between 0 and 100.");
+        if (input.SingleDoctorMode)
+        {
+            Check(input.DefaultDoctorId.HasValue && await store.Find<Doctor>(doctor => doctor.Id == input.DefaultDoctorId && doctor.IsActive, cancellationToken) != null,
+                "Choose an active doctor for single-doctor mode.");
+        }
 
         var settings = await GetAsync(cancellationToken);
         settings.Name = Required(input.Name, "Clinic name");
@@ -25,8 +30,10 @@ public class ClinicSettingsService(IClinicStore store, IAuditService auditServic
         settings.ExchangeRateConfirmed = true;
         settings.TaxRate = input.TaxRate;
         settings.TaxRegistrationNumber = input.TaxRegistrationNumber ?? "";
+        settings.SingleDoctorMode = input.SingleDoctorMode;
+        settings.DefaultDoctorId = input.SingleDoctorMode ? input.DefaultDoctorId : null;
 
-        auditService.Record("Update", "ClinicSettings", settings.Id, $"LBP/USD={settings.LbpPerUsd}; tax={settings.TaxRate}");
+        auditService.Record("Update", "ClinicSettings", settings.Id, $"LBP/USD={settings.LbpPerUsd}; tax={settings.TaxRate}; singleDoctor={settings.SingleDoctorMode}; doctor={settings.DefaultDoctorId}");
         await store.Save(cancellationToken);
         return settings;
     }

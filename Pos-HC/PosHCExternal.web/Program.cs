@@ -56,26 +56,28 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 var app = builder.Build();
-if (args.Contains("--backup") || args.Contains("--migrate"))
+var maintenanceCommand = args.Contains("--backup") || args.Contains("--migrate");
+if (maintenanceCommand || app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    if (await db.Database.CanConnectAsync())
+    var upgradeRequired = maintenanceCommand || await SchemaUpgrade.IsRequired(db);
+    if (upgradeRequired && await db.Database.CanConnectAsync())
     {
         var backup = await DatabaseMaintenance.Backup(db);
         Console.WriteLine($"Verified database backup: {backup}");
     }
-    else if (!args.Contains("--migrate"))
+    else if (args.Contains("--backup") && !args.Contains("--migrate"))
     {
         throw new InvalidOperationException("Database is unavailable.");
     }
 
-    if (args.Contains("--migrate"))
+    if (args.Contains("--migrate") || (!maintenanceCommand && upgradeRequired))
     {
         await SchemaUpgrade.Apply(db);
         Console.WriteLine("Schema upgrade complete.");
     }
-    return;
+    if (maintenanceCommand) return;
 }
 if (app.Environment.IsDevelopment() && string.IsNullOrEmpty(builder.Configuration["Setup:Token"]))
 {

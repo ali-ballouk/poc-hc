@@ -15,6 +15,7 @@ import { VisitItemsComponent } from '../visit-item/visit-item-component/visit-it
 import { BaseAPI } from '../services/base.api';
 import { DialogService } from '../services/pos-hs-dialog.service';
 import { PosHsPayment } from '../payment/pos-hs-payment/pos-hc-payment';
+import { PatientVisitHistoryComponent } from '../management/patient-visit-history.component';
 interface Invoice {
   DoctorId: string;
   PatientId: string;
@@ -42,6 +43,10 @@ export class PosHcEditor {
   currency = 'USD';
   draft = false;
   settings: any = { LbpPerUsd: 1, TaxRate: 0 };
+  settingsLoaded = false;
+  private doctors: any[] = [];
+  visitDescription = '';
+  diagnosis = '';
   saving = false;
   error = '';
   requestId = crypto.randomUUID();
@@ -65,13 +70,38 @@ export class PosHcEditor {
   ) {}
   ngOnInit() {
     this.api.get('api/clinic/settings').subscribe({
-      next: (r) => (this.settings = r),
+      next: (r) => {
+        this.settings = r;
+        this.settingsLoaded = true;
+        this.applyClinicDoctor();
+      },
       error: () => (this.error = 'Unable to load clinic settings.'),
     });
   }
   onDoctorSelected(value: any) {
     this.doctorFee = this.doctorSelector.getSelectedDoctorFee();
     this.selectedDoctorId = value;
+  }
+
+  onDoctorsLoaded(doctors: any[]) {
+    this.doctors = doctors;
+    this.applyClinicDoctor();
+  }
+  private applyClinicDoctor() {
+    if (!this.settings.SingleDoctorMode) return;
+    const doctor = this.doctors.find(
+      (d) => d.Id === this.settings.DefaultDoctorId,
+    );
+    this.selectedDoctorId = doctor?.Id ?? null;
+    this.doctorFee = doctor?.Fee ?? 0;
+  }
+  openVisitHistory() {
+    if (!this.selectedPatientId) return;
+    this.dialog.openComponent(
+      PatientVisitHistoryComponent,
+      'Patient visit history',
+      { patientId: this.selectedPatientId },
+    );
   }
 
   onPatientSelected(value: any) {
@@ -119,6 +149,10 @@ export class PosHcEditor {
 
   submit() {
     if (this.saving || this.invoiceResult) return;
+    if (!this.settingsLoaded) {
+      this.error = 'Unable to load clinic settings.';
+      return;
+    }
     if (!this.selectedDoctorId || !this.selectedPatientId) {
       this.error = 'Select a patient and doctor.';
       return;
@@ -131,6 +165,8 @@ export class PosHcEditor {
       RequestId: this.requestId,
       DoctorId: this.selectedDoctorId,
       PatientId: this.selectedPatientId,
+      VisitDescription: this.visitDescription.trim() || null,
+      Diagnosis: this.diagnosis.trim() || null,
       Discount: this.discount,
       Items: this.visitItemsComponent.getVisitItems(),
     };
@@ -138,7 +174,6 @@ export class PosHcEditor {
       next: (res) => {
         this.saving = false;
         this.invoiceResult = res;
-        console.log('Submitted successfully', res);
       },
       error: (err) => {
         this.saving = false;
@@ -163,6 +198,9 @@ export class PosHcEditor {
     this.selectedPatientId = '';
     this.selectedDoctorId = '';
     this.doctorFee = 0;
+    this.applyClinicDoctor();
+    this.visitDescription = '';
+    this.diagnosis = '';
     this.discount = 0;
     this.visitItemsComponent.clearItems();
     this.invoiceResult = null;

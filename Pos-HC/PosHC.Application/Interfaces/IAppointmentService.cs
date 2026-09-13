@@ -6,5 +6,5 @@ namespace PosHC.Application.Interfaces;
 public interface IAppointmentService
 {
     Task<Appointment> SaveAsync(Guid id, Appointment input, CancellationToken cancellationToken);
-    Task<PagedResult<Appointment>> GetPageAsync(DateTime? from, DateTime? to, int page, CancellationToken cancellationToken);
+    Task<PagedResult<Appointment>> GetPageAsync(DateTime? from, DateTime? to, int page, CancellationToken cancellationToken, int pageSize = 50);
 }

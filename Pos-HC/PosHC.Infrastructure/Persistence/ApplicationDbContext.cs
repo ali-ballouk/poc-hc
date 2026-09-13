@@ -13,6 +13,8 @@ namespace PosHC.Infrastructure.Persistence
 
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ClinicSettings>().Property(x => x.Id).ValueGeneratedNever();
+            modelBuilder.Entity<ClinicSettings>().HasOne<Doctor>().WithMany().HasForeignKey(x => x.DefaultDoctorId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Invoice>().HasIndex(x => new { x.PatientId, x.CreatedAt, x.Id });
             modelBuilder.Entity<StaffUser>().HasIndex(x => x.Username).IsUnique();
             modelBuilder.Entity<Invoice>().HasIndex(x => x.Number).IsUnique();
             modelBuilder.Entity<Invoice>().HasIndex(x => x.RequestId).IsUnique().HasFilter("[RequestId] IS NOT NULL");

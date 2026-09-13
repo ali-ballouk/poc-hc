@@ -1,5 +1,33 @@
 /** English UI labels are stable keys; record values are preserved. */
-const entries = `Expand navigation|توسيع القائمة
+const entries = `Doctor configuration|إعداد الطبيب
+Single-doctor mode|وضع الطبيب الواحد
+Clinic doctor|طبيب العيادة
+Automatically assign the configured doctor to new visits, appointments and availability. Existing records keep their original doctor.|تعيين طبيب العيادة تلقائياً للزيارات والمواعيد وأوقات التوفر الجديدة. تبقى السجلات السابقة مرتبطة بطبيبها الأصلي.
+Doctor assigned from clinic settings.|تم تعيين الطبيب من إعدادات العيادة.
+Choose an active doctor for single-doctor mode.|اختر طبيباً نشطاً لوضع الطبيب الواحد.
+Single-doctor mode is enabled. Refresh and use the configured doctor.|وضع الطبيب الواحد مفعّل. حدّث الصفحة واستخدم طبيب العيادة المحدد.
+Change the single-doctor setting before deactivating this doctor.|غيّر إعداد الطبيب الواحد قبل تعطيل هذا الطبيب.
+Unable to load doctors.|تعذّر تحميل الأطباء.
+Visit history|سجل الزيارات
+Patient visit history|سجل زيارات المريض
+Visit date|تاريخ الزيارة
+Visit notes (optional)|ملاحظات الزيارة (اختياري)
+Visit description|وصف الزيارة
+Visit description (optional)|وصف الزيارة (اختياري)
+Diagnosis|التشخيص
+Diagnosis (optional)|التشخيص (اختياري)
+View / edit notes|عرض / تعديل الملاحظات
+Save visit notes|حفظ ملاحظات الزيارة
+Last updated|آخر تحديث
+Saved visits, newest first. Draft and void visits are marked by status.|الزيارات المحفوظة من الأحدث إلى الأقدم. تظهر الزيارات المسودة والملغاة بحسب حالتها.
+No visits recorded for this patient.|لا توجد زيارات مسجلة لهذا المريض.
+Unable to load patient visits.|تعذّر تحميل زيارات المريض.
+Unable to save visit notes.|تعذّر حفظ ملاحظات الزيارة.
+Visit description must be at most 4000 characters.|يجب ألا يتجاوز وصف الزيارة 4000 حرف.
+Diagnosis must be at most 2000 characters.|يجب ألا يتجاوز التشخيص 2000 حرف.
+You do not have permission to edit visit notes.|ليس لديك صلاحية تعديل ملاحظات الزيارة.
+Patient visit not found.|لم يتم العثور على زيارة المريض.
+Expand navigation|توسيع القائمة
 Collapse navigation|طي القائمة
 Invoice details|تفاصيل الفاتورة
 Loading invoice…|جارٍ تحميل الفاتورة…

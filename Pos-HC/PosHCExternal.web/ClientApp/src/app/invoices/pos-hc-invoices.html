@@ -14,13 +14,13 @@
   <app-generic-grid-column
     key="InvoiceId"
     [header]="'Invoice' | t"
-    [widthPx]="310"
+    [widthPx]="150"
   ></app-generic-grid-column>
   <app-generic-grid-column
     key="InvoiceDate"
     [header]="'Date' | t"
     type="date"
-    [widthPx]="190"
+    [widthPx]="150"
   >
     <ng-template let-invoice>{{
       invoice.InvoiceDate | date: "yyyy-MM-dd HH:mm"
@@ -38,18 +38,18 @@
     key="DoctorFee"
     [header]="'Doctor fee' | t"
     type="currency"
-    [widthPx]="130"
+    [widthPx]="100"
   ></app-generic-grid-column>
   <app-generic-grid-column
     key="Discount"
     [header]="'Discount' | t"
     type="currency"
-    [widthPx]="120"
+    [widthPx]="100"
   ></app-generic-grid-column>
   <app-generic-grid-column
     key="Total"
     [header]="'Total' | t"
     type="currency"
-    [widthPx]="120"
+    [widthPx]="50"
   ></app-generic-grid-column>
 </app-generic-grid>

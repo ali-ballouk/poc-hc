@@ -27,6 +27,8 @@ export class RecordFormComponent implements OnInit {
   value: Record<string, any> = {};
   choices: Record<string, any[]> = {};
   busy = false;
+  loadingDoctorMode = false;
+  singleDoctorId: string | null = null;
   error = '';
   constructor(
     @Inject(DIALOG_DATA) public data: RecordFormData,
@@ -48,6 +50,25 @@ export class RecordFormComponent implements OnInit {
     }
   }
   ngOnInit() {
+    if (
+      this.data.fields.some((field) => field.key === 'DoctorId') &&
+      this.data.method !== 'put' &&
+      !this.data.value?.['Id']
+    ) {
+      this.loadingDoctorMode = true;
+      this.api.get<any>('api/clinic/settings').subscribe({
+        next: (settings) => {
+          if (settings.SingleDoctorMode) {
+            this.singleDoctorId = settings.DefaultDoctorId;
+            this.value['DoctorId'] = settings.DefaultDoctorId;
+          }
+          this.loadingDoctorMode = false;
+        },
+        error: () => {
+          this.error = 'Unable to load clinic settings.';
+        },
+      });
+    }
     for (const field of this.data.fields)
       if (field.lookup)
         this.api.get<any[]>(field.lookup).subscribe({
@@ -62,7 +83,7 @@ export class RecordFormComponent implements OnInit {
         });
   }
   save() {
-    if (this.busy) return;
+    if (this.busy || this.loadingDoctorMode) return;
     this.error = '';
     for (const field of this.data.fields)
       if (

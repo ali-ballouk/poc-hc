@@ -11,8 +11,8 @@ namespace PosHCExternal.web.Controllers;
 public class CatalogManagementController(ICatalogItemService catalog) : ControllerBase
 {
     [HttpGet, Authorize(Roles = "Administrator,Receptionist,Cashier,Doctor")]
-    public Task<PagedResult<CatalogItem>> GetPage(string search = "", int page = 1, CancellationToken ct = default)
-        => catalog.GetPageAsync(search, page, ct);
+    public Task<PagedResult<CatalogItem>> GetPage(string search = "", int page = 1, CancellationToken ct = default, int pageSize = 50)
+        => catalog.GetPageAsync(search, page, ct, pageSize);
 
     [HttpPost, Authorize(Roles = "Administrator")]
     public Task<CatalogItem> Create(CatalogItem input, CancellationToken ct)
