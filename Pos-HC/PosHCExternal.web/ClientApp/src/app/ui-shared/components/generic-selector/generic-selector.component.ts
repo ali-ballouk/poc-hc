@@ -48,6 +48,7 @@ export class GenericSelectorComponent<T extends object = any>
 
   @Output() selectionChanged = new EventEmitter<T | T[] | null>();
   @ViewChild('trigger') trigger?: ElementRef<HTMLButtonElement>;
+  @ViewChild('dropdown') dropdown?: ElementRef<HTMLElement>;
   @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
   @ViewChild('dropdownMenu') dropdownMenu?: ElementRef<HTMLElement>;
 
@@ -55,6 +56,69 @@ export class GenericSelectorComponent<T extends object = any>
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly selectorState = inject(SelectorStateService);
   private readonly destroy$ = new Subject<void>();
+  private stopPositionTracking?: () => void;
+  menuTop = 0;
+  menuLeft = 'auto';
+  menuRight = 'auto';
+  menuWidth = 0;
+  menuMaxHeight = 400;
+
+  updateDropdownPosition = (): void => {
+    if (!this.isOpen || !this.dropdown || !this.trigger) return;
+    const view = this.elementRef.nativeElement.ownerDocument.defaultView;
+    if (!view) return;
+    const anchor = this.dropdown.nativeElement.getBoundingClientRect();
+    const button = this.trigger.nativeElement.getBoundingClientRect();
+    // Fixed coordinates are viewport-relative: rect already includes page/modal scroll.
+    // Adding window.scrollY here would count the document scroll twice.
+    const rtl =
+      view.getComputedStyle(this.dropdown.nativeElement).direction === 'rtl';
+    this.menuTop = button.bottom + 2;
+    this.menuWidth = anchor.width;
+    this.menuLeft = rtl ? 'auto' : `${anchor.left}px`;
+    const viewportWidth =
+      view.document.documentElement.clientWidth || view.innerWidth;
+    this.menuRight = rtl ? `${viewportWidth - anchor.right}px` : 'auto';
+    this.menuMaxHeight = Math.max(
+      0,
+      Math.min(
+        400,
+        view.innerHeight * 0.6,
+        view.innerHeight - this.menuTop - 8,
+      ),
+    );
+    this.changeDetector.markForCheck();
+  };
+
+  private trackDropdownPosition(): void {
+    this.stopPositionTracking?.();
+    const view = this.elementRef.nativeElement.ownerDocument.defaultView;
+    if (!view || !this.dropdown || !this.trigger) return;
+    // Capture also catches scroll events from the modal body and other containers.
+    view.addEventListener('scroll', this.updateDropdownPosition, true);
+    view.addEventListener('resize', this.updateDropdownPosition);
+    const resize = new ResizeObserver(this.updateDropdownPosition);
+    resize.observe(this.dropdown.nativeElement);
+    resize.observe(this.trigger.nativeElement);
+    const direction = new MutationObserver(this.updateDropdownPosition);
+    for (
+      let ancestor: HTMLElement | null = this.dropdown.nativeElement;
+      ancestor;
+      ancestor = ancestor.parentElement
+    ) {
+      direction.observe(ancestor, {
+        attributes: true,
+        attributeFilter: ['dir', 'class', 'style'],
+      });
+    }
+    this.stopPositionTracking = () => {
+      view.removeEventListener('scroll', this.updateDropdownPosition, true);
+      view.removeEventListener('resize', this.updateDropdownPosition);
+      resize.disconnect();
+      direction.disconnect();
+    };
+    this.updateDropdownPosition();
+  }
 
   isOpen = false;
   selectedItems = new Set<string>();
@@ -92,6 +156,7 @@ export class GenericSelectorComponent<T extends object = any>
   }
 
   ngOnDestroy(): void {
+    this.stopPositionTracking?.();
     this.selectorState.closeOpenSelector(this.inputId);
     this.destroy$.next();
     this.destroy$.complete();
@@ -198,13 +263,19 @@ export class GenericSelectorComponent<T extends object = any>
     this.isOpen = true;
     this.buildOptionsList();
     this.selectorState.setOpenSelector(this.inputId);
+    this.trackDropdownPosition();
     this.changeDetector.markForCheck();
     queueMicrotask(() => {
-      if (this.isOpen) this.searchInput?.nativeElement.focus();
+      if (this.isOpen) {
+        this.searchInput?.nativeElement.focus({ preventScroll: true });
+        this.updateDropdownPosition();
+      }
     });
   }
 
   closeDropdown(restoreFocus = false): void {
+    this.stopPositionTracking?.();
+    this.stopPositionTracking = undefined;
     this.isOpen = false;
     this.searchTerm = '';
     this.buildOptionsList();

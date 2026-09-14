@@ -29,13 +29,13 @@
   white-space: nowrap;
 }
 .dropdown-menu {
-  position: absolute;
-  inset: 100% 0 auto;
-  min-width: 100%;
-  max-height: min(400px, 60vh);
+  position: fixed;
+  bottom: auto;
+  min-width: 0;
+  z-index: 1080;
   overflow-y: auto;
   box-shadow: var(--bs-box-shadow);
-  margin-top: 0.125rem;
+  margin: 0;
 }
 .dropdown-header {
   padding: 0.5rem 0.75rem;

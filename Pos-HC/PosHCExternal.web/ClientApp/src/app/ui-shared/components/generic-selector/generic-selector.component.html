@@ -2,7 +2,7 @@
   <label class="form-label" [for]="inputId">{{ label | t }}</label>
 }
 <div class="generic-selector-wrapper">
-  <div class="dropdown" [class.show]="isOpen">
+  <div #dropdown class="dropdown" [class.show]="isOpen">
     <button
       #trigger
       [id]="inputId"
@@ -28,6 +28,11 @@
     <div
       #dropdownMenu
       class="dropdown-menu"
+      [style.top.px]="menuTop"
+      [style.left]="menuLeft"
+      [style.right]="menuRight"
+      [style.width.px]="menuWidth"
+      [style.max-height.px]="menuMaxHeight"
       [class.show]="isOpen"
       (click)="$event.stopPropagation()"
     >
