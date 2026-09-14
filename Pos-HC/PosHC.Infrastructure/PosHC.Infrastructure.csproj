@@ -9,6 +9,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Persistence/Upgrades/*.sql" />
     <EmbeddedResource Include="PdfInvoiceGenerator/Fonts/*.ttf" />
+    <EmbeddedResource Include="../PosHCExternal.web/ClientApp/public/clinicsol-mark.svg" LogicalName="ClinicSol.Logo.svg" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 

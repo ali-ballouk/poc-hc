@@ -12,6 +12,23 @@ namespace PosHC.Tests;
 public class ClinicFeatureTests(ClinicDatabase fixture) : IClassFixture<ClinicDatabase>
 {
     [Fact]
+    public async Task Invoice_print_uses_current_clinic_name_without_rewriting_invoice_snapshot()
+    {
+        await using var db = fixture.Open();
+        var (patient, doctor) = await Seed(db);
+        var services = Services(db);
+        var invoice = await services.Billing.Create(new CreateInvoiceDto { PatientId = patient.Id, DoctorId = doctor.Id }, default);
+        invoice.ClinicName = "POS HC";
+        await db.SaveChangesAsync();
+        var settings = await services.Settings.GetAsync(default);
+        settings.Name = "Current Clinic / العيادة الحالية";
+        await services.Settings.SaveAsync(settings, default);
+        var reader = new PosHC.Application.Invoices.Queries.InvoiceForPrintService(new POSHCRepository(db), services.Settings);
+        var printed = await reader.GetInvoice(invoice.Id, default);
+        Assert.Equal(settings.Name, printed!.ClinicName);
+        Assert.Equal("POS HC", invoice.ClinicName);
+    }
+    [Fact]
     public async Task Sql_sort_orders_all_matches_before_paging_and_resolves_doctor_names()
     {
         await using var db = fixture.Open();

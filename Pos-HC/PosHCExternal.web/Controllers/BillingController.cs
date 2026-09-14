@@ -7,7 +7,7 @@ using PosHC.Domain.Entities;
 
 namespace PosHCExternal.web.Controllers;
 [ApiController, Route("api/billing"), Authorize(Roles = "Administrator,Cashier,Receptionist")]
-public class BillingController(BillingService billing, IClinicStore store, IReceiptPdfGenerator receipts) : ControllerBase
+public class BillingController(BillingService billing, IClinicStore store, IReceiptPdfGenerator receipts, IClinicSettingsService clinicSettings) : ControllerBase
 {
     [HttpGet("invoices")]
     public async Task<object> Invoices(string search = "", Guid? patientId = null, int page = 1, CancellationToken ct = default, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
@@ -60,7 +60,8 @@ public class BillingController(BillingService billing, IClinicStore store, IRece
             return NotFound();
         }
 
-        return File(receipts.Generate(payment, await billing.Invoice(payment.InvoiceId, ct), language), "application/pdf", $"Receipt-{id}.pdf");
+        var clinic = await clinicSettings.GetAsync(ct);
+        return File(receipts.Generate(payment, await billing.Invoice(payment.InvoiceId, ct), language, clinic.Name), "application/pdf", $"Receipt-{id}.pdf");
     }
     [HttpPost("invoices/{id:guid}/status"), Authorize(Roles = "Administrator,Cashier")]
     public Task<Invoice> Status(Guid id, StatusInput input, CancellationToken ct) => billing.ChangeStatus(id, input.Status, input.Reason, ct);

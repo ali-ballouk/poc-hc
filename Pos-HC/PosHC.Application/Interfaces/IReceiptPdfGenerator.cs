@@ -2,5 +2,5 @@ using PosHC.Domain.Entities;
 namespace PosHC.Application.Interfaces;
 public interface IReceiptPdfGenerator
 {
-    byte[] Generate(Payment payment, Invoice invoice, string language = "en");
+    byte[] Generate(Payment payment, Invoice invoice, string language = "en", string? clinicName = null);
 }

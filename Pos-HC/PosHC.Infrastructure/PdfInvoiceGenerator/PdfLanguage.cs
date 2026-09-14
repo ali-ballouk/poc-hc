@@ -30,7 +30,7 @@ internal sealed class PdfLanguage
     };
     public void Configure(PageDescriptor page)
     {
-        page.DefaultTextStyle(x => x.FontFamily("Lato", "Noto Sans Arabic").FontSize(10).FontColor("#233D46"));
+        page.DefaultTextStyle(x => x.FontFamily("Lato", "Noto Sans Arabic").FontSize(10).FontColor(PdfBrand.Text));
         if (Arabic) page.ContentFromRightToLeft();
     }
 }

@@ -19,12 +19,14 @@ namespace PosHC.Infrastructure.Pdf
                     page.Margin(30);
                     l.Configure(page);
 
-                    // Header
-                    page.Header().BorderBottom(2).BorderColor("#087F82").PaddingBottom(18).Row(row =>
+                    // Only the compact brand repeats. Variable clinic details belong in
+                    // pageable content; a tall repeated header leaves no room for a page.
+                    page.Header().Element(header => PdfBrand.Header(header, l));
+                    void ClinicDetails(IContainer container) => container.BorderBottom(2).BorderColor(PdfBrand.Primary).PaddingBottom(18).Row(row =>
                     {
                         row.RelativeItem().Column(col =>
                         {
-                            col.Item().Text(inv.ClinicName).Bold().FontSize(20).FontColor("#087F82");
+                            col.Item().Text(inv.ClinicName).Bold().FontSize(20).FontColor(PdfBrand.Navy);
                             col.Item().Text(inv.ClinicAddress);
                             col.Item().Text("\u2066" + inv.ClinicPhone + "\u2069");
                         });
@@ -41,7 +43,8 @@ namespace PosHC.Infrastructure.Pdf
                     // Body
                     page.Content().PaddingTop(20).Column(col =>
                     {
-                        col.Item().Table(t =>
+                        col.Item().Element(ClinicDetails);
+                        col.Item().PaddingTop(20).Table(t =>
                         {
                             t.ColumnsDefinition(c =>
                             {
@@ -60,7 +63,7 @@ namespace PosHC.Infrastructure.Pdf
                                 h.Cell().Element(H).Text(l.Text("Line Total", "إجمالي البند"));
 
                                 static IContainer H(IContainer x) =>
-                                    x.Background("#087F82").DefaultTextStyle(s => s.SemiBold().FontColor("#FFFFFF"))
+                                    x.Background(PdfBrand.Primary).DefaultTextStyle(s => s.SemiBold().FontColor("#FFFFFF"))
                                      .Padding(8);
                             });
 
@@ -91,13 +94,13 @@ namespace PosHC.Infrastructure.Pdf
                             t.Cell().PaddingVertical(6).Text(l.Text("Tax:", "الضريبة:"));
                             t.Cell().PaddingVertical(6).Text(l.Number(inv.Tax));
                             t.Cell().ColumnSpan(2);
-                            t.Cell().Background("#E2F3EF").PaddingVertical(8).Text(l.Text("TOTAL:", "الإجمالي:")).SemiBold();
-                            t.Cell().Background("#E2F3EF").PaddingVertical(8).Text(l.Number(inv.Total)).SemiBold();
+                            t.Cell().Background(PdfBrand.Background).PaddingVertical(8).Text(l.Text("TOTAL:", "الإجمالي:")).SemiBold();
+                            t.Cell().Background(PdfBrand.Background).PaddingVertical(8).Text(l.Number(inv.Total)).SemiBold();
                         });
                     });
 
                     // Footer
-                    page.Footer().AlignCenter().Text(text => { text.Span(l.Text("Page ", "صفحة ")); text.CurrentPageNumber(); text.Span(" / "); text.TotalPages(); });
+                    page.Footer().Element(footer => PdfBrand.Footer(footer, l, true));
                 });
             });
 
