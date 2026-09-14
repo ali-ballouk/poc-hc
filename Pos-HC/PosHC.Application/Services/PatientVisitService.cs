@@ -6,11 +6,11 @@ namespace PosHC.Application.Services;
 
 public class PatientVisitService(IClinicStore store, IPatientVisitReader reader, IAuditService audit, ICurrentStaff staff)
 {
-    public async Task<PagedResult<PatientVisitDto>> GetPageAsync(Guid patientId, int page, int pageSize, CancellationToken ct)
+    public async Task<PagedResult<PatientVisitDto>> GetPageAsync(Guid patientId, int page, int pageSize, CancellationToken ct, string? sortBy = null, string? sortDirection = null)
     {
         if (await store.Find<Patient>(p => p.Id == patientId, ct) == null)
             throw new BusinessException("Patient not found.", 404);
-        return await reader.ReadAsync(patientId, page, pageSize, ct);
+        return await reader.ReadAsync(patientId, page, pageSize, ct, sortBy, sortDirection);
     }
 
     public Task<PatientVisitDto> UpdateAsync(Guid patientId, Guid visitId, VisitNotesInput input, CancellationToken ct)

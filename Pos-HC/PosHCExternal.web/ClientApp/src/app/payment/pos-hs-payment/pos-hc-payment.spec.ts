@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
@@ -7,118 +7,108 @@ import {
 import { DIALOG_DATA, DialogRef } from '../../services/dialog-ref';
 import { PosHsPayment } from './pos-hc-payment';
 
-describe('PosHsPayment', () => {
-  let component: PosHsPayment;
-  let fixture: ComponentFixture<PosHsPayment>;
+describe('Shared cash payment', () => {
   let http: HttpTestingController;
   let close: jasmine.Spy;
-
-  beforeEach(async () => {
+  beforeEach(() => {
     close = jasmine.createSpy('close');
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [PosHsPayment],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: DIALOG_DATA, useValue: { invoiceId: 'test-invoice' } },
+        { provide: DIALOG_DATA, useValue: { invoiceId: 'invoice-1' } },
         { provide: DialogRef, useValue: { close } },
       ],
-    }).compileComponents();
-    fixture = TestBed.createComponent(PosHsPayment);
-    component = fixture.componentInstance;
+    });
     http = TestBed.inject(HttpTestingController);
-    fixture.detectChanges();
-    http.expectOne('/api/paymenttype/lookup').flush([
-      { Id: 1, Name: 'Cash' },
-      { Id: 2, Name: 'Card' },
-      { Id: 3, Name: 'Transfer' },
-      { Id: 4, Name: 'On account' },
-    ]);
-    fixture.detectChanges();
   });
   afterEach(() => http.verify());
-
-  function choose(type: number) {
-    const selector = fixture.nativeElement.querySelector(
-      'app-generic-selector',
-    );
-    if (type === 0) {
-      selector.querySelector('button[title="Clear selection"]').click();
-    } else {
-      selector.querySelector('.dropdown-toggle').click();
-      fixture.detectChanges();
-      selector.querySelectorAll('[role="option"]')[type - 1].click();
-    }
+  function setup(currency = 'USD', status = 'Issued', balance = 65) {
+    const fixture = TestBed.createComponent(PosHsPayment);
     fixture.detectChanges();
-  }
-
-  function enter(id: string, value: string) {
-    const input = fixture.nativeElement.querySelector(
-      '#' + id,
-    ) as HTMLInputElement;
-    input.value = value;
-    input.dispatchEvent(new Event('input'));
+    expect(fixture.componentInstance.canSave).toBeFalse();
+    http.expectOne('/api/billing/invoices/invoice-1').flush({
+      Summary: {
+        Invoice: {
+          Id: 'invoice-1',
+          Number: 1001,
+          PatientName: 'Demo',
+          Currency: currency,
+          Status: status,
+        },
+        Balance: balance,
+      },
+    });
     fixture.detectChanges();
+    return fixture;
   }
-
-  it('renders all payment forms through the generic selector', () => {
-    for (const [type, id] of [
-      [1, 'cash-drawer'],
-      [2, 'card-expiry'],
-      [3, 'transfer-bank'],
-      [4, 'account-id'],
-    ] as const) {
-      choose(type);
-      expect(fixture.nativeElement.querySelector('#' + id)).not.toBeNull();
-    }
-    choose(0);
-    expect(component.wrapper.getData()).toBeNull();
+  it('loads the current balance and shows cash without a method selector', () => {
+    const fixture = setup();
+    expect(fixture.componentInstance.amount).toBe(65);
+    expect(fixture.nativeElement.textContent).toContain('Cash');
+    expect(
+      fixture.nativeElement.querySelector('app-generic-selector'),
+    ).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('#cash-payment-amount'),
+    ).not.toBeNull();
   });
-
-  it('waits for a successful payment response before closing', () => {
-    choose(1);
-    enter('cash-drawer', 'drawer-1');
+  it('records a partial cash payment once and closes only after success', () => {
+    const component = setup().componentInstance;
+    component.amount = 30;
     component.save();
-    const request = http.expectOne('/api/payment');
+    const request = http.expectOne('/api/billing/payments');
     expect(request.request.body).toEqual({
       RequestId: component.requestId,
-      InvoiceId: 'test-invoice',
+      InvoiceId: 'invoice-1',
+      Amount: 30,
       PaymentTypeId: 1,
-      Settings: { paymentType: 'cash', CashDrawerId: 'drawer-1' },
+      Settings: { paymentType: 'cash', CashDrawerId: 'current' },
     });
-    expect(close).not.toHaveBeenCalled();
     component.save();
-    http.expectNone('/api/payment');
+    http.expectNone('/api/billing/payments');
+    expect(close).not.toHaveBeenCalled();
     request.flush({});
     expect(close).toHaveBeenCalledOnceWith({ success: true });
   });
-
-  it('keeps entered payment data when saving fails', () => {
-    choose(2);
-    enter('card-last-four', '1234');
-    enter('card-token', 'test-token');
-    enter('card-expiry', '2028-12');
+  it('preserves the amount and retry key after a failure', () => {
+    const fixture = setup();
+    const component = fixture.componentInstance;
+    component.amount = 20;
     component.save();
-    const request = http.expectOne('/api/payment');
-    expect(request.request.body.Settings).toEqual({
-      paymentType: 'card',
-      CardNumber: '1234',
-      Expiry: '2028-12',
-      Token: 'test-token',
-    });
-    request.flush({}, { status: 500, statusText: 'Server error' });
+    const first = http.expectOne('/api/billing/payments');
+    first.flush(
+      { detail: 'Open a cash shift for this currency first.' },
+      { status: 400, statusText: 'Bad Request' },
+    );
     fixture.detectChanges();
     expect(close).not.toHaveBeenCalled();
+    expect(component.amount).toBe(20);
     expect(
-      fixture.nativeElement.querySelector('[role="alert"]').textContent,
-    ).toContain('could not be saved');
-    expect(
-      (
-        fixture.nativeElement.querySelector(
-          '#card-last-four',
-        ) as HTMLInputElement
-      ).value,
-    ).toBe('1234');
-    expect(component.saving).toBeFalse();
+      fixture.nativeElement.querySelector('[role="alert"]'),
+    ).not.toBeNull();
+    component.save();
+    const retry = http.expectOne('/api/billing/payments');
+    expect(retry.request.body.RequestId).toBe(first.request.body.RequestId);
+    retry.flush({});
+  });
+  it('rejects zero, excess, nonfinite and invalid currency precision amounts', () => {
+    const component = setup('LBP').componentInstance;
+    for (const amount of [0, -1, 66, 1.5, NaN, Infinity]) {
+      component.amount = amount;
+      expect(component.canSave).toBeFalse();
+      component.save();
+    }
+    http.expectNone('/api/billing/payments');
+    component.amount = 10;
+    expect(component.canSave).toBeTrue();
+  });
+  it('does not collect against a draft or a paid invoice', () => {
+    const component = setup('USD', 'Draft').componentInstance;
+    expect(component.canSave).toBeFalse();
+    component.summary!.Invoice.Status = 'Issued';
+    component.summary!.Balance = 0;
+    expect(component.canSave).toBeFalse();
   });
 });

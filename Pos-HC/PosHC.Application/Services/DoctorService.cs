@@ -51,9 +51,9 @@ namespace PosHC.Application.Services
         }
 
 
-        public Task<PagedResult<DoctorAvailability>> GetAvailabilityAsync(int page, CancellationToken cancellationToken, int pageSize = 50)
+        public Task<PagedResult<DoctorAvailability>> GetAvailabilityAsync(int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
         {
-            return PagedQuery.ReadAsync<DoctorAvailability>(_store, null, page, cancellationToken, pageSize);
+            return PagedQuery.ReadAsync<DoctorAvailability>(_store, null, page, cancellationToken, pageSize, sortBy, sortDirection);
         }
 
         public async Task<DoctorAvailability> SaveAvailabilityAsync(DoctorAvailability input, CancellationToken cancellationToken)
@@ -111,7 +111,7 @@ namespace PosHC.Application.Services
             return doctor;
         }
 
-        public Task<PagedResult<Doctor>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50) => PagedQuery.ReadAsync<Doctor>(_store, item => item.FirstName.Contains(search) || item.LastName.Contains(search), page, cancellationToken, pageSize);
+        public Task<PagedResult<Doctor>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null) => PagedQuery.ReadAsync<Doctor>(_store, item => item.FirstName.Contains(search) || item.LastName.Contains(search), page, cancellationToken, pageSize, sortBy, sortDirection);
 
     }
 }

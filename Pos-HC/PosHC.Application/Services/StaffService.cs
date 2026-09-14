@@ -9,9 +9,9 @@ namespace PosHC.Application.Services;
 
 public class StaffService(IClinicStore store, IPasswordCodec passwords, IAuditService auditService, ICurrentStaff staff) : IStaffService
 {
-    public Task<PagedResult<StaffUser>> GetPageAsync(int page, CancellationToken cancellationToken, int pageSize = 50)
+    public Task<PagedResult<StaffUser>> GetPageAsync(int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
     {
-        return PagedQuery.ReadAsync<StaffUser>(store, null, page, cancellationToken, pageSize);
+        return PagedQuery.ReadAsync<StaffUser>(store, null, page, cancellationToken, pageSize, sortBy, sortDirection);
     }
     public static readonly string[] Roles = ["Administrator", "Receptionist", "Cashier", "Doctor"];
     private static void ValidatePassword(string password) => Check(password.Length >= 12 && password.Length <= 128, "Password must contain 12–128 characters.");

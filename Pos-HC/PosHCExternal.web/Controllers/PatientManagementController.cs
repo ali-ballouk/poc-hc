@@ -11,8 +11,8 @@ namespace PosHCExternal.web.Controllers;
 public class PatientManagementController(IPatientService patients) : ControllerBase
 {
     [HttpGet, Authorize(Roles = "Administrator,Receptionist,Doctor")]
-    public Task<PagedResult<Patient>> GetPage(string search = "", int page = 1, CancellationToken ct = default, int pageSize = 50)
-        => patients.GetPageAsync(search, page, ct, pageSize);
+    public Task<PagedResult<Patient>> GetPage(string search = "", int page = 1, CancellationToken ct = default, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
+        => patients.GetPageAsync(search, page, ct, pageSize, sortBy, sortDirection);
 
     [HttpPost, Authorize(Roles = "Administrator,Receptionist")]
     public Task<Patient> Create(Patient input, CancellationToken ct)

@@ -10,8 +10,8 @@ namespace PosHCExternal.web.Controllers;
 public class PatientVisitsController(PatientVisitService visits) : ControllerBase
 {
     [HttpGet]
-    public Task<PagedResult<PatientVisitDto>> GetPage(Guid patientId, int page = 1, int pageSize = 20, CancellationToken ct = default)
-        => visits.GetPageAsync(patientId, page, pageSize, ct);
+    public Task<PagedResult<PatientVisitDto>> GetPage(Guid patientId, int page = 1, int pageSize = 20, CancellationToken ct = default, string? sortBy = null, string? sortDirection = null)
+        => visits.GetPageAsync(patientId, page, pageSize, ct, sortBy, sortDirection);
 
     [HttpPut("{visitId:guid}")]
     public Task<PatientVisitDto> Update(Guid patientId, Guid visitId, VisitNotesInput input, CancellationToken ct)

@@ -6,7 +6,7 @@ namespace PosHC.Application.Interfaces;
 public interface IClinicStore
 {
     Task<T?> Find<T>(Expression<Func<T, bool>> predicate, CancellationToken ct = default) where T : class;
-    Task<List<T>> List<T>(Expression<Func<T, bool>>? predicate = null, int limit = 500, int skip = 0, CancellationToken ct = default) where T : class;
+    Task<List<T>> List<T>(Expression<Func<T, bool>>? predicate = null, int limit = 500, int skip = 0, CancellationToken ct = default, string? sortBy = null, string? sortDirection = null) where T : class;
     Task<int> Count<T>(Expression<Func<T, bool>>? predicate = null, CancellationToken ct = default) where T : class;
     void Add<T>(T entity) where T : class;
     Task Save(CancellationToken ct = default);

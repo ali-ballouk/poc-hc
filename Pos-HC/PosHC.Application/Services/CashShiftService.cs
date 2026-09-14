@@ -69,15 +69,18 @@ public class CashShiftService(IClinicStore store, IAuditService auditService, IC
         return shift.OpeningAmount + payments.Sum(payment => payment.Amount) + movements.Sum(movement => movement.Amount);
     }
 
-    public async Task<PagedResult<CashShiftSummary>> GetPageAsync(int page, CancellationToken cancellationToken, int pageSize = 50)
+    public async Task<PagedResult<CashShiftSummary>> GetPageAsync(int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
     {
         var isAdministrator = staff.Role == "Administrator";
         var userId = staff.Id;
+        var calculatedSort = sortBy is "ExpectedAmount" or "Variance";
         var shifts = await PagedQuery.ReadAsync<CashShift>(store,
-            shift => isAdministrator || shift.UserId == userId, page, cancellationToken, pageSize);
+            shift => isAdministrator || shift.UserId == userId, page, cancellationToken, pageSize,
+            calculatedSort ? null : sortBy, sortDirection);
+        var source = calculatedSort ? await store.List<CashShift>(shift => isAdministrator || shift.UserId == userId, int.MaxValue, ct: cancellationToken) : shifts.Items;
         var summaries = new List<CashShiftSummary>();
 
-        foreach (var shift in shifts.Items)
+        foreach (var shift in source)
         {
             var expectedAmount = shift.ExpectedAmount ?? await Expected(shift, cancellationToken);
             summaries.Add(new CashShiftSummary(shift.Id, shift.UserId, shift.Currency,
@@ -85,6 +88,9 @@ public class CashShiftService(IClinicStore store, IAuditService auditService, IC
                 expectedAmount, shift.CountedAmount - shift.ExpectedAmount));
         }
 
+        if (calculatedSort)
+            summaries = GridOrdering.Apply(summaries.AsQueryable(), sortBy, sortDirection)
+                .Skip((shifts.Page - 1) * shifts.PageSize).Take(shifts.PageSize).ToList();
         return new PagedResult<CashShiftSummary>(summaries, shifts.Total, shifts.PageSize, shifts.Page);
     }
 

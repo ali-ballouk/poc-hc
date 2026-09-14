@@ -5,7 +5,7 @@ namespace PosHC.Application.Interfaces;
 
 public interface IStaffService
 {
-    Task<PagedResult<StaffUser>> GetPageAsync(int page, CancellationToken cancellationToken, int pageSize = 50);
+    Task<PagedResult<StaffUser>> GetPageAsync(int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null);
     Task<StaffUser> Save(Guid id, StaffInput input, CancellationToken ct, bool initialSetup = false);
     Task<StaffUser> Login(string username, string password, CancellationToken ct);
     Task<string> IssueReset(Guid id, CancellationToken ct);

@@ -64,6 +64,7 @@ export class GenericGridComponent<T extends object = any>
   @Input() totalRecords = 0;
   @Input() pageIndex = 0;
   @Output() pageChange = new EventEmitter<GridPageChange>();
+  @Output() sortChange = new EventEmitter<GridSort<T>>();
   @Input() defaultSort?: GridSort<T>;
   @Input() selectable = true;
   @Input() rowId: (row: T) => string | number = (row) =>
@@ -219,7 +220,7 @@ export class GenericGridComponent<T extends object = any>
   }
 
   toggleSort(column: GridColumn<T>): void {
-    if (this.serverPaging || column.sortable === false) {
+    if (this.loading || column.sortable === false) {
       return;
     }
 
@@ -227,6 +228,8 @@ export class GenericGridComponent<T extends object = any>
     const nextDirection: SortDirection =
       isSameColumn && this.sort?.direction === 'asc' ? 'desc' : 'asc';
     this.sort = { columnKey: column.key, direction: nextDirection };
+    this.pageIndex = 0;
+    this.sortChange.emit(this.sort);
   }
 
   setColumnHidden(column: GridColumn<T>, hidden: boolean): void {

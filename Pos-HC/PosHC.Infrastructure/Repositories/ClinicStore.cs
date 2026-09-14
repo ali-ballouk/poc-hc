@@ -9,7 +9,7 @@ namespace PosHC.Infrastructure.Repositories;
 public class ClinicStore(ApplicationDbContext db) : IClinicStore
 {
     public Task<T?> Find<T>(Expression<Func<T, bool>> predicate, CancellationToken ct = default) where T : class => db.Set<T>().FirstOrDefaultAsync(predicate, ct);
-    public Task<List<T>> List<T>(Expression<Func<T, bool>>? predicate = null, int limit = 500, int skip = 0, CancellationToken ct = default) where T : class
+    public Task<List<T>> List<T>(Expression<Func<T, bool>>? predicate = null, int limit = 500, int skip = 0, CancellationToken ct = default, string? sortBy = null, string? sortDirection = null) where T : class
     {
         var query = db.Set<T>().AsQueryable();
         if (predicate != null)
@@ -17,7 +17,18 @@ public class ClinicStore(ApplicationDbContext db) : IClinicStore
             query = query.Where(predicate);
         }
 
-        return query.OrderBy(x => EF.Property<object>(x, "Id")).Skip(skip).Take(limit).ToListAsync(ct);
+        if ((sortBy is "DoctorName" or "PatientName" && typeof(T) == typeof(PosHC.Domain.Entities.Appointment)) ||
+            (sortBy == "DoctorName" && typeof(T) == typeof(PosHC.Domain.Entities.DoctorAvailability)))
+        {
+            if (sortDirection is not null && sortDirection != "asc" && sortDirection != "desc")
+                throw new BusinessException("Sort direction must be asc or desc.");
+            Expression<Func<T, string?>> name = sortBy == "DoctorName"
+                ? row => db.Set<PosHC.Domain.Entities.Doctor>().Where(d => d.Id == EF.Property<Guid>(row, "DoctorId")).Select(d => d.FirstName + " " + d.LastName).FirstOrDefault()
+                : row => db.Set<PosHC.Domain.Entities.Patient>().Where(p => p.Id == EF.Property<Guid>(row, "PatientId")).Select(p => p.FirstName + " " + p.LastName).FirstOrDefault();
+            return (sortDirection == "desc" ? query.OrderByDescending(name) : query.OrderBy(name))
+                .ThenBy(row => EF.Property<Guid>(row, "Id")).Skip(skip).Take(limit).ToListAsync(ct);
+        }
+        return PosHC.Application.Services.GridOrdering.Apply(query, sortBy, sortDirection).Skip(skip).Take(limit).ToListAsync(ct);
     }
     public Task<int> Count<T>(Expression<Func<T, bool>>? predicate = null, CancellationToken ct = default) where T : class => predicate == null ? db.Set<T>().CountAsync(ct) : db.Set<T>().CountAsync(predicate, ct);
     public void Add<T>(T entity) where T : class => db.Add(entity);

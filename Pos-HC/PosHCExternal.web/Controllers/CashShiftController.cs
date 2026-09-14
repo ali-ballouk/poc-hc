@@ -10,8 +10,8 @@ namespace PosHCExternal.web.Controllers;
 public class CashShiftController(ICashShiftService shifts) : ControllerBase
 {
     [HttpGet]
-    public Task<PagedResult<CashShiftSummary>> GetPage(int page = 1, CancellationToken ct = default, int pageSize = 50)
-        => shifts.GetPageAsync(page, ct, pageSize);
+    public Task<PagedResult<CashShiftSummary>> GetPage(int page = 1, CancellationToken ct = default, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
+        => shifts.GetPageAsync(page, ct, pageSize, sortBy, sortDirection);
 
     [HttpPost]
     public Task<CashShift> Open(OpenShiftInput input, CancellationToken ct)

@@ -19,6 +19,7 @@ import {
 } from '../ui-shared/components/generic-grid/generic-grid.models';
 import { RecordFormComponent } from './record-form.component';
 import { Field, amount } from './module-definitions';
+import { PosHsPayment } from '../payment/pos-hs-payment/pos-hc-payment';
 import { AuthService } from './auth.service';
 const cols = (...keys: string[]): GridColumn<any>[] =>
   keys.map((key) => ({ key, header: key.replace(/([a-z])([A-Z])/g, '$1 $2') }));
@@ -122,51 +123,21 @@ export class InvoiceDetailComponent implements OnInit {
     );
   }
   collect() {
-    this.form(
-      'Record payment taken from patient',
-      [
-        amount,
-        {
-          key: 'PaymentTypeId',
-          label: 'Method',
-          type: 'select',
-          required: true,
-          options: [
-            { Id: 1, Name: 'Cash' },
-            { Id: 2, Name: 'External card terminal' },
-            { Id: 3, Name: 'Bank transfer' },
-          ],
-        },
-        { key: 'Reference', label: 'Terminal or transfer reference' },
-        { key: 'Last4', label: 'Last four card digits (card only)' },
-        { key: 'Bank', label: 'Bank name (transfer only)' },
-      ],
-      'api/billing/payments',
-      {
-        Amount: this.detail.Summary.Balance,
-        PaymentTypeId: 1,
-        InvoiceId: this.detail.Summary.Invoice.Id,
-        RequestId: crypto.randomUUID(),
-      },
-      (v: any) => ({
-        ...v,
-        Settings:
-          v.PaymentTypeId === 1
-            ? { paymentType: 'cash', CashDrawerId: 'current' }
-            : v.PaymentTypeId === 2
-              ? {
-                  paymentType: 'card',
-                  CardNumber: v.Last4,
-                  Expiry: 'external',
-                  Token: v.Reference,
-                }
-              : {
-                  paymentType: 'transfer',
-                  Banke: v.Bank,
-                  ReferenceNumber: v.Reference,
-                },
-      }),
-    );
+    this.dialog
+      .openComponent(
+        PosHsPayment,
+        'Record payment taken from patient',
+        { invoiceId: this.data.invoiceId },
+        { nested: true },
+      )
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.success) {
+          this.load();
+          this.data.onChanged?.();
+        }
+      });
   }
   adjust(kind: string) {
     this.form(
@@ -178,21 +149,6 @@ export class InvoiceDetailComponent implements OnInit {
           label: 'Reason / external refund reference',
           required: true,
         },
-        ...(kind === 'refunds'
-          ? [
-              {
-                key: 'PaymentTypeId',
-                label: 'Refund method',
-                type: 'select',
-                required: true,
-                options: [
-                  { Id: 1, Name: 'Cash' },
-                  { Id: 2, Name: 'External card terminal' },
-                  { Id: 3, Name: 'Bank transfer' },
-                ],
-              },
-            ]
-          : []),
       ],
       'api/billing/invoices/' + this.detail.Summary.Invoice.Id + '/' + kind,
       {

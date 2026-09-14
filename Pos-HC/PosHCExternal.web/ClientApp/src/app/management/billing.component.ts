@@ -17,6 +17,7 @@ import {
   GridColumn,
   GridAction,
   GridPageChange,
+  GridSort,
   GridPageResult,
 } from '../ui-shared/components/generic-grid/generic-grid.models';
 import { InvoiceDetailComponent } from './invoice-detail.component';
@@ -33,6 +34,7 @@ export class BillingComponent implements OnInit, OnDestroy {
   dialog = inject(DialogService);
   route = inject(ActivatedRoute);
   rows: any[] = [];
+  sort?: GridSort<any>;
   page = 1;
   pageSize = 20;
   readonly pageSizeOptions = [10, 20, 50, 100];
@@ -70,7 +72,7 @@ export class BillingComponent implements OnInit, OnDestroy {
     this.request = this.api
       .get<
         GridPageResult<any>
-      >('api/billing/invoices?page=' + this.page + '&pageSize=' + this.pageSize + '&search=' + encodeURIComponent(this.search) + (this.patientId ? '&patientId=' + this.patientId : ''))
+      >('api/billing/invoices?page=' + this.page + '&pageSize=' + this.pageSize + '&search=' + encodeURIComponent(this.search) + this.sortQuery() + (this.patientId ? '&patientId=' + this.patientId : ''))
       .subscribe({
         next: (r) => {
           this.rows = r.Items;
@@ -85,6 +87,19 @@ export class BillingComponent implements OnInit, OnDestroy {
           this.error = e.error?.detail || 'Unable to load invoices.';
         },
       });
+  }
+  sortQuery() {
+    return this.sort
+      ? '&sortBy=' +
+          encodeURIComponent(String(this.sort.columnKey)) +
+          '&sortDirection=' +
+          this.sort.direction
+      : '';
+  }
+  onSortChange(sort: GridSort<any>) {
+    this.sort = sort;
+    this.page = 1;
+    this.load();
   }
   onPageChange(event: GridPageChange) {
     this.page = event.pageIndex + 1;

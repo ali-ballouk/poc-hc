@@ -2,6 +2,40 @@ import { TestBed } from '@angular/core/testing';
 import { GenericGridComponent } from './generic-grid.component';
 
 describe('GenericGridComponent', () => {
+  it('emits server sorting from header clicks without locally reordering the page', () => {
+    const fixture = TestBed.createComponent(GenericGridComponent<any>);
+    fixture.componentRef.setInput('serverPaging', true);
+    fixture.componentRef.setInput('columns', [
+      { key: 'amount', header: 'Amount' },
+    ]);
+    fixture.componentRef.setInput('data', [{ amount: 30 }, { amount: 10 }]);
+    fixture.componentRef.setInput('pageIndex', 2);
+    fixture.detectChanges();
+    const grid = fixture.componentInstance;
+    const changed = jasmine.createSpy('sortChange');
+    grid.sortChange.subscribe(changed);
+    const header = fixture.nativeElement.querySelector(
+      '.header-button',
+    ) as HTMLButtonElement;
+    expect(header.disabled).toBeFalse();
+    header.click();
+    fixture.detectChanges();
+    expect(changed).toHaveBeenCalledWith({
+      columnKey: 'amount',
+      direction: 'asc',
+    });
+    expect(grid.pageIndex).toBe(0);
+    expect(grid.pagedRows.map((row) => row.amount)).toEqual([30, 10]);
+    header.click();
+    fixture.detectChanges();
+    expect(changed).toHaveBeenCalledWith({
+      columnKey: 'amount',
+      direction: 'desc',
+    });
+    expect(
+      fixture.nativeElement.querySelector('[aria-sort="descending"]'),
+    ).not.toBeNull();
+  });
   it('uses backend totals and does not slice, filter or reset a returned page', () => {
     const fixture = TestBed.createComponent(GenericGridComponent<any>);
     fixture.componentRef.setInput('serverPaging', true);

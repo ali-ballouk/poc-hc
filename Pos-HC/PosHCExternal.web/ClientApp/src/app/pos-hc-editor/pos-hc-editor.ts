@@ -187,7 +187,7 @@ export class PosHcEditor {
       invoiceId: this.invoiceResult.InvoiceId,
     };
     this.dialog
-      .openComponent(PosHsPayment, 'Payment', params)
+      .openComponent(PosHsPayment, 'Record payment taken from patient', params)
       .afterClosed()
       .subscribe((result) => {
         if (result?.success) this.clear();

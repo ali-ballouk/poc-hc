@@ -337,6 +337,11 @@ Data grid|جدول البيانات
 The server did not return a PDF. Please try again.|لم يُرجع الخادم ملف PDF. حاول مجدداً.
 Unable to download the invoice. Please try again.|تعذر تنزيل الفاتورة. حاول مجدداً.
 Submitted successfully|تم الحفظ بنجاح
+No payment is due on this invoice.|لا توجد دفعة مستحقة على هذه الفاتورة.
+Only cash payments are supported.|الدفع النقدي هو الطريقة الوحيدة المدعومة.
+Only cash refunds are supported.|الاسترداد النقدي هو الطريقة الوحيدة المدعومة.
+Issue the invoice before recording a payment.|أصدر الفاتورة قبل تسجيل دفعة.
+Open a cash shift for this currency first.|افتح وردية صندوق بهذه العملة أولاً.
 Payment could not be saved. Please try again.|تعذر حفظ الدفعة. حاول مجدداً.
 No invoices to display.|لا توجد فواتير لعرضها.`;
 

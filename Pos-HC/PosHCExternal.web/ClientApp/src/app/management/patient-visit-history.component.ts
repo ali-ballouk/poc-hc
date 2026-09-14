@@ -15,6 +15,7 @@ import {
   GridAction,
   GridColumn,
   GridPageChange,
+  GridSort,
   GridPageResult,
 } from '../ui-shared/components/generic-grid/generic-grid.models';
 import { PatientVisit } from './patient-visit.models';
@@ -36,6 +37,7 @@ export class PatientVisitHistoryComponent implements OnInit, OnDestroy {
   private request?: Subscription;
   private dialogs = new Subscription();
   rows: PatientVisit[] = [];
+  sort?: GridSort<any>;
   page = 1;
   pageSize = 20;
   total = 0;
@@ -67,7 +69,7 @@ export class PatientVisitHistoryComponent implements OnInit, OnDestroy {
     this.request = this.api
       .get<
         GridPageResult<PatientVisit>
-      >(`api/clinic/patients/${this.data.patientId}/visits?page=${this.page}&pageSize=${this.pageSize}`)
+      >(`api/clinic/patients/${this.data.patientId}/visits?page=${this.page}&pageSize=${this.pageSize}${this.sortQuery()}`)
       .subscribe({
         next: (result) => {
           this.rows = result.Items;
@@ -82,6 +84,19 @@ export class PatientVisitHistoryComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
       });
+  }
+  sortQuery() {
+    return this.sort
+      ? '&sortBy=' +
+          encodeURIComponent(String(this.sort.columnKey)) +
+          '&sortDirection=' +
+          this.sort.direction
+      : '';
+  }
+  onSortChange(sort: GridSort<any>) {
+    this.sort = sort;
+    this.page = 1;
+    this.load();
   }
   onPageChange(event: GridPageChange) {
     this.page = event.pageIndex + 1;

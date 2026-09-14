@@ -5,8 +5,32 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { PosHcEditor } from './pos-hc-editor';
+import { PosHsPayment } from '../payment/pos-hs-payment/pos-hc-payment';
+import { DialogService } from '../services/pos-hs-dialog.service';
+import { of } from 'rxjs';
 
 describe('PosHcEditor shared selectors', () => {
+  it('opens the same cash payment dialog after invoice creation and preserves the invoice on cancel', () => {
+    const open = jasmine
+      .createSpy('openComponent')
+      .and.returnValue({ afterClosed: () => of(undefined) });
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: DialogService, useValue: { openComponent: open } },
+      ],
+    });
+    const editor = TestBed.createComponent(PosHcEditor).componentInstance;
+    editor.invoiceResult = { InvoiceId: 'created-invoice' };
+    editor.pay();
+    expect(open).toHaveBeenCalledWith(
+      PosHsPayment,
+      'Record payment taken from patient',
+      { invoiceId: 'created-invoice' },
+    );
+    expect(editor.invoiceResult.InvoiceId).toBe('created-invoice');
+  });
   it('updates the doctor fee, supports the shared grid within a form and clears every selector', async () => {
     await TestBed.configureTestingModule({
       imports: [PosHcEditor],

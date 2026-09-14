@@ -11,6 +11,25 @@ namespace PosHC.Tests;
 
 public class ClinicFeatureTests(ClinicDatabase fixture) : IClassFixture<ClinicDatabase>
 {
+    [Fact]
+    public async Task Sql_sort_orders_all_matches_before_paging_and_resolves_doctor_names()
+    {
+        await using var db = fixture.Open();
+        var marker = Guid.NewGuid().ToString();
+        var doctors = new[] { "Zulu", "Alpha", "Mike" }.Select(name => new Doctor { FirstName = name, LastName = marker }).ToArray();
+        db.AddRange(doctors);
+        var availability = doctors.Select(d => new DoctorAvailability { DoctorId = d.Id, StartsAt = DateTime.UtcNow, EndsAt = DateTime.UtcNow.AddHours(1) }).ToArray();
+        db.AddRange(availability);
+        await db.SaveChangesAsync();
+        var store = new ClinicStore(db);
+        var first = await store.List<Doctor>(d => d.LastName == marker, 1, 0, default, "FirstName", "asc");
+        var second = await store.List<Doctor>(d => d.LastName == marker, 1, 1, default, "FirstName", "asc");
+        Assert.Equal("Alpha", first.Single().FirstName);
+        Assert.Equal("Mike", second.Single().FirstName);
+        var ids = availability.Select(a => a.Id).ToArray();
+        var byName = await store.List<DoctorAvailability>(a => ids.Contains(a.Id), 1, 0, default, "DoctorName", "desc");
+        Assert.Equal(doctors[0].Id, byName.Single().DoctorId);
+    }
     private sealed class Staff(Guid id, string role = "Administrator") : ICurrentStaff
     {
         public Guid Id => id;

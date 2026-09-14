@@ -10,6 +10,6 @@ namespace PosHCExternal.web.Controllers;
 public class AuditController(IAuditService audit) : ControllerBase
 {
     [HttpGet]
-    public Task<PagedResult<AuditEntry>> GetPage(string search = "", int page = 1, CancellationToken ct = default, int pageSize = 50)
-        => audit.GetPageAsync(search, page, ct, pageSize);
+    public Task<PagedResult<AuditEntry>> GetPage(string search = "", int page = 1, CancellationToken ct = default, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
+        => audit.GetPageAsync(search, page, ct, pageSize, sortBy, sortDirection);
 }

@@ -41,6 +41,36 @@ describe('Backend grid paging', () => {
   });
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
+  it('sends header sort to the API and preserves it when paging', () => {
+    const fixture = TestBed.createComponent(BillingComponent);
+    const http = TestBed.inject(HttpTestingController);
+    fixture.detectChanges();
+    http
+      .expectOne(
+        '/api/billing/invoices?page=1&pageSize=20&search=&patientId=patient-1',
+      )
+      .flush({ Items: [{ Id: 'first' }], Total: 105, Page: 1, PageSize: 20 });
+    fixture.detectChanges();
+    const grid = fixture.debugElement.query(By.directive(GenericGridComponent))
+      .componentInstance as GenericGridComponent;
+    grid.toggleSort(grid.columns[0]);
+    http
+      .expectOne(
+        '/api/billing/invoices?page=1&pageSize=20&search=&sortBy=Number&sortDirection=asc&patientId=patient-1',
+      )
+      .flush({ Items: [{ Id: 'sorted' }], Total: 105, Page: 1, PageSize: 20 });
+    fixture.detectChanges();
+    grid.nextPage();
+    http
+      .expectOne(
+        '/api/billing/invoices?page=2&pageSize=20&search=&sortBy=Number&sortDirection=asc&patientId=patient-1',
+      )
+      .flush({ Items: [], Total: 105, Page: 2, PageSize: 20 });
+    http.verify();
+    expect(fixture.componentInstance.sort).toEqual({ columnKey: 'Number', direction: 'asc' });
+    expect(fixture.componentInstance.page).toBe(2);
+  });
+
   it('requests invoice pages and page sizes while preserving the patient filter', () => {
     const fixture = TestBed.createComponent(BillingComponent);
     const http = TestBed.inject(HttpTestingController);

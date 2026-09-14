@@ -114,25 +114,7 @@ public class BillingService(IClinicStore store, IClinicSettingsService settingsS
         Check(balance.Invoice.Status == "Issued", "Issue the invoice before recording a payment.");
         Check(await store.Find<PaymentType>(x => x.Id == input.PaymentTypeId, ct) != null, "Payment type not found.");
         string reference = input.Reference?.Trim() ?? "";
-        switch (input.Settings)
-        {
-            case CashPaymentSettings when input.PaymentTypeId == 1:
-                break;
-            case CardPaymentSettings card when input.PaymentTypeId == 2:
-                Check(card.CardNumber != null && card.CardNumber.Length == 4 && card.CardNumber.All(char.IsDigit), "Record only the last four card digits, after taking payment on your terminal.");
-                reference = Required(string.IsNullOrWhiteSpace(reference) ? card.Token : reference, "Terminal receipt reference");
-                break;
-            case TransferPaymentSettings transfer when input.PaymentTypeId == 3:
-                reference = Required(transfer.ReferenceNumber, "Bank transfer reference");
-                Required(transfer.Banke, "Bank");
-                break;
-            case OnAccountPaymentSettings when input.PaymentTypeId == 4:
-                // Deferring payment does not create cash or settle the invoice.
-                auditService.Record("DeferPayment", "Invoice", input.InvoiceId);
-                return new Payment { InvoiceId = input.InvoiceId, PaymentTypeId = 4, Amount = 0, Currency = balance.Invoice.Currency, Kind = "Deferred", Settings = "{}" };
-            default:
-                throw new BusinessException("Payment type and payment details do not match.");
-        }
+        Check(input.PaymentTypeId == 1 && input.Settings is CashPaymentSettings, "Only cash payments are supported.");
         var amount = input.Amount ?? balance.Balance;
         Money(amount, balance.Invoice.Currency);
         Check(amount > 0 && amount <= balance.Balance, "Payment must be greater than zero and no more than the outstanding balance.");
@@ -187,7 +169,7 @@ public class BillingService(IClinicStore store, IClinicSettingsService settingsS
         var balance = await Balance(id, ct);
         Money(amount, balance.Invoice.Currency);
         Check(amount > 0 && amount <= -balance.Balance, "Create a credit note first. Refund cannot exceed the amount due back to the patient.");
-        Check(method is 1 or 2 or 3, "Select cash, card or bank transfer for the refund.");
+        Check(method == 1, "Only cash refunds are supported.");
         Guid? shiftId = null;
         if (method == 1)
         {

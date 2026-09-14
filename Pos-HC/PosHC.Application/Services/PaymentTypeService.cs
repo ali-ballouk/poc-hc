@@ -23,7 +23,7 @@ namespace PosHC.Application.Services
         public async Task<List<PaymentType>> GetAllPaymentTypes(CancellationToken cancellationToken = default)
         {
             var paymentTypes = await _poshsRepository.GetAllPaymentTypeAsync(cancellationToken);
-            return paymentTypes;
+            return paymentTypes.Where(type => type.Id == 1).ToList();
         }
         PaymentTypeLookupDto PaymentTypeLookupDtoMapper(PaymentType payment)
         {

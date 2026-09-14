@@ -9,6 +9,23 @@ namespace PosHC.Tests;
 public class PagingTests
 {
     [Fact]
+    public async Task Sort_is_forwarded_and_applied_before_paging()
+    {
+        var store = new PagingStore();
+        var controller = new AuditController(new AuditService(store, null!));
+        var result = await controller.GetPage("", 1, default, 10, "Actor", "desc");
+        Assert.All(result.Items, row => Assert.Equal("other", row.Actor));
+        Assert.Equal(126, result.Total);
+    }
+
+    [Theory]
+    [InlineData("PasswordHash", "asc")]
+    [InlineData("UnknownColumn", "asc")]
+    [InlineData("Username", "invalid")]
+    public void Rejects_unsupported_sort_fields_and_directions(string field, string direction)
+        => Assert.Throws<BusinessException>(() => GridOrdering.Apply(new List<StaffUser>().AsQueryable(), field, direction));
+
+    [Fact]
     public async Task Controller_forwards_page_size_and_counts_all_matching_records()
     {
         var store = new PagingStore();
@@ -57,11 +74,11 @@ public class PagingTests
         public int LastLimit { get; private set; }
         private IEnumerable<T> Query<T>(Expression<Func<T, bool>>? predicate) where T : class
             => rows.OfType<T>().Where(predicate?.Compile() ?? (_ => true));
-        public Task<List<T>> List<T>(Expression<Func<T, bool>>? predicate = null, int limit = 500, int skip = 0, CancellationToken ct = default) where T : class
+        public Task<List<T>> List<T>(Expression<Func<T, bool>>? predicate = null, int limit = 500, int skip = 0, CancellationToken ct = default, string? sortBy = null, string? sortDirection = null) where T : class
         {
             LastSkip = skip;
             LastLimit = limit;
-            return Task.FromResult(Query(predicate).Skip(skip).Take(limit).ToList());
+            return Task.FromResult(GridOrdering.Apply(Query(predicate).AsQueryable(), sortBy, sortDirection).Skip(skip).Take(limit).ToList());
         }
         public Task<int> Count<T>(Expression<Func<T, bool>>? predicate = null, CancellationToken ct = default) where T : class => Task.FromResult(Query(predicate).Count());
         public Task<T?> Find<T>(Expression<Func<T, bool>> predicate, CancellationToken ct = default) where T : class => Task.FromResult(Query(predicate).FirstOrDefault());

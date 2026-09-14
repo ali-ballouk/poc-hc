@@ -9,10 +9,10 @@ namespace PosHC.Application.Interfaces
         Task<List<DoctorLookupDto>> GetAllDoctorInfo(CancellationToken cancellationToken = default);
         DoctorLookupDto GetDoctor(Guid doctorId);
         Task<DoctorAvailability> SaveAvailabilityAsync(DoctorAvailability input, CancellationToken cancellationToken);
-        Task<PagedResult<DoctorAvailability>> GetAvailabilityAsync(int page, CancellationToken cancellationToken, int pageSize = 50);
+        Task<PagedResult<DoctorAvailability>> GetAvailabilityAsync(int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null);
 
         Task<Doctor> SaveAsync(Guid id, Doctor input, CancellationToken ct);
-        Task<PagedResult<Doctor>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50);
+        Task<PagedResult<Doctor>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null);
 
     }
 }

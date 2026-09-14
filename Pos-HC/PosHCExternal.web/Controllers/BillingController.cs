@@ -10,19 +10,20 @@ namespace PosHCExternal.web.Controllers;
 public class BillingController(BillingService billing, IClinicStore store, IReceiptPdfGenerator receipts) : ControllerBase
 {
     [HttpGet("invoices")]
-    public async Task<object> Invoices(string search = "", Guid? patientId = null, int page = 1, CancellationToken ct = default, int pageSize = 50)
+    public async Task<object> Invoices(string search = "", Guid? patientId = null, int page = 1, CancellationToken ct = default, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
     {
         System.Linq.Expressions.Expression<Func<Invoice, bool>> filter = x => (!patientId.HasValue || x.PatientId == patientId) && (x.PatientName.Contains(search) || x.DoctorName.Contains(search) || x.Number.ToString().Contains(search));
         pageSize = Math.Clamp(pageSize, 1, 100);
         var total = await store.Count(filter, ct);
         page = Math.Clamp(page, 1, Math.Max(1, (int)Math.Ceiling(total / (double)pageSize)));
-        var rows = await store.List(filter, pageSize, (page - 1) * pageSize, ct);
-        var items = new List<object>();
+        var calculatedSort = sortBy is "Paid" or "Credits" or "Balance" or "PaymentStatus";
+        var rows = await store.List(filter, calculatedSort ? int.MaxValue : pageSize,
+            calculatedSort ? 0 : (page - 1) * pageSize, ct, calculatedSort ? null : sortBy, sortDirection);
+        var items = new List<InvoiceListRow>();
         foreach (var row in rows)
         {
             var b = await billing.Balance(row.Id, ct);
-            items.Add(new
-            {
+            items.Add(new InvoiceListRow(
                 row.Id,
                 row.Number,
                 row.CreatedAt,
@@ -35,16 +36,19 @@ public class BillingController(BillingService billing, IClinicStore store, IRece
                 b.Credits,
                 b.Balance,
                 b.PaymentStatus
-            });
+            ));
         }
         return new
         {
-            Items = items,
+            Items = calculatedSort ? GridOrdering.Apply(items.AsQueryable(), sortBy, sortDirection).Skip((page - 1) * pageSize).Take(pageSize).ToList() : items,
             Total = total,
             PageSize = pageSize,
             Page = page
         };
     }
+    public record InvoiceListRow(Guid Id, long Number, DateTime CreatedAt, string PatientName,
+        string DoctorName, string Currency, string Status, decimal Total, decimal Paid,
+        decimal Credits, decimal Balance, string PaymentStatus);
     [HttpGet("invoices/{id:guid}")]
     public async Task<object> Details(Guid id, CancellationToken ct) => new { Summary = await billing.Balance(id, ct), Payments = await store.List<Payment>(x => x.InvoiceId == id, int.MaxValue, ct: ct), CreditNotes = await store.List<CreditNote>(x => x.InvoiceId == id, int.MaxValue, ct: ct) };
     [HttpGet("payments/{id:guid}/receipt")]

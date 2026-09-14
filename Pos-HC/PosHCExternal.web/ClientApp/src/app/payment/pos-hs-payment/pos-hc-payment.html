@@ -1,15 +1,54 @@
-<div class="mb-3">
-  <pos-hs-paymenttype-selector
-    (selectionChange)="onPaymentTypeSelected($event)"
-    [(selectedPaymentTypeId)]="selectedPaymentTypeId"
-  ></pos-hs-paymenttype-selector>
-</div>
-<app-dynamic-wrapper
-  [component]="selectedComponent"
-  #wrapper
-></app-dynamic-wrapper>
+@if (loading) {
+  <p role="status">{{ "Loading…" | t }}</p>
+}
+@if (summary; as s) {
+  <p>
+    {{ "Invoice #" | t }} {{ s.Invoice.Number | localNumber }} ·
+    {{ s.Invoice.PatientName }}
+  </p>
+  <p>
+    {{ "Balance" | t }}:
+    <strong>{{ s.Balance | localNumber }} {{ s.Invoice.Currency }}</strong>
+  </p>
+  <p>
+    {{ "Method" | t }}: <strong>{{ "Cash" | t }}</strong>
+  </p>
+  <p class="text-secondary">
+    {{ "Open a cash shift for this currency first." | t }}
+  </p>
+  @if (s.Invoice.Status !== "Issued") {
+    <p class="alert alert-warning">
+      {{ "Issue the invoice before recording a payment." | t }}
+    </p>
+  } @else if (s.Balance <= 0) {
+    <p class="alert alert-info">
+      {{ "No payment is due on this invoice." | t }}
+    </p>
+  }
+  <label for="cash-payment-amount" class="form-label"
+    >{{ "Amount" | t }} ({{ s.Invoice.Currency }}) *</label
+  >
+  <input
+    id="cash-payment-amount"
+    type="number"
+    class="form-control"
+    [(ngModel)]="amount"
+    [min]="step"
+    [max]="s.Balance"
+    [step]="step"
+    [disabled]="
+      saving || loading || s.Invoice.Status !== 'Issued' || s.Balance <= 0
+    "
+    required
+  />
+}
 @if (errorMessage) {
   <div class="alert alert-danger mt-3" role="alert">{{ errorMessage | t }}</div>
+  @if (!summary && !loading) {
+    <button type="button" class="btn btn-outline-secondary" (click)="load()">
+      {{ "Retry" | t }}
+    </button>
+  }
 }
 <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-4">
   <button
@@ -24,7 +63,7 @@
     type="button"
     class="btn btn-primary"
     (click)="save()"
-    [disabled]="!selectedComponent || saving"
+    [disabled]="!canSave"
   >
     {{ (saving ? "Saving…" : "Save payment") | t }}
   </button>

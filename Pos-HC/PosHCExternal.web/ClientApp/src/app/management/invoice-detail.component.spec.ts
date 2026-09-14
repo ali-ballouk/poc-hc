@@ -6,6 +6,7 @@ import {
 } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { PosHsPayment } from '../payment/pos-hs-payment/pos-hc-payment';
 import { InvoiceDetailComponent } from './invoice-detail.component';
 import { BillingComponent } from './billing.component';
 import { AuthService } from './auth.service';
@@ -35,7 +36,7 @@ describe('Invoice detail modal', () => {
   beforeEach(() => {
     open = jasmine
       .createSpy('openComponent')
-      .and.returnValue({ afterClosed: () => of({ saved: true }) });
+      .and.returnValue({ afterClosed: () => of({ success: true }) });
     changed = jasmine.createSpy('onChanged');
     TestBed.configureTestingModule({
       imports: [InvoiceDetailComponent, BillingComponent],
@@ -70,6 +71,8 @@ describe('Invoice detail modal', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('INV-1');
     fixture.componentInstance.collect();
+    expect(open.calls.mostRecent().args[0]).toBe(PosHsPayment);
+    expect(open.calls.mostRecent().args[2]).toEqual({ invoiceId: 'invoice-1' });
     expect(open.calls.mostRecent().args[3]).toEqual({ nested: true });
     http.expectOne('/api/billing/invoices/invoice-1').flush(invoice);
     expect(changed).toHaveBeenCalledTimes(1);

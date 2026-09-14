@@ -29,8 +29,18 @@ Run `npm test` for shared component and app integration tests.
 Billing and clinic management lists use `serverPaging`. Pass the current API page
 as `data`; the grid renders it without filtering, sorting, or slicing it locally.
 The existing search form submits a backend search and resets the page to 1.
-Local sort buttons are disabled in this mode because these endpoints do not
-support sorting across the full result set.
+Header clicks emit `sortChange` with `{ columnKey, direction }` and reset the
+page index to zero. Bind `[defaultSort]="sort"` and handle `(sortChange)` in the
+page component: retain the sort, reset the API page to 1, and reload with
+`sortBy` and `sortDirection=asc|desc`. Keep those parameters on subsequent page,
+page-size and search requests. The grid never reorders a server page locally.
+
+The API orders stored fields in SQL before pagination, with Id as a stable
+tie-breaker. Appointment/availability names are resolved in the server query.
+Calculated billing balances and cash shift totals are calculated and sorted
+on the server before slicing the page; those sorts currently read all matching
+records and can be more expensive on large result sets. Unsupported fields,
+private JSON-ignored properties and invalid directions return a validation error.
 
 ```html
 <app-generic-grid [data]="rows" [columns]="columns" [serverPaging]="true" [totalRecords]="total" [pageIndex]="page - 1" [pageSize]="pageSize" [pageSizeOptions]="[10, 20, 50, 100]" [loading]="loading" (pageChange)="onPageChange($event)"></app-generic-grid>

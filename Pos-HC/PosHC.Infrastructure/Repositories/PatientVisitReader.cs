@@ -7,13 +7,13 @@ namespace PosHC.Infrastructure.Repositories;
 
 public class PatientVisitReader(ApplicationDbContext db) : IPatientVisitReader
 {
-    public async Task<PagedResult<PatientVisitDto>> ReadAsync(Guid patientId, int page, int pageSize, CancellationToken ct)
+    public async Task<PagedResult<PatientVisitDto>> ReadAsync(Guid patientId, int page, int pageSize, CancellationToken ct, string? sortBy = null, string? sortDirection = null)
     {
         var query = db.Invoice.AsNoTracking().Where(i => i.PatientId == patientId);
         var total = await query.CountAsync(ct);
         pageSize = Math.Clamp(pageSize, 1, 100);
         page = Math.Clamp(page, 1, Math.Max(1, (int)Math.Ceiling(total / (double)pageSize)));
-        var rows = await query.OrderByDescending(i => i.CreatedAt).ThenByDescending(i => i.Id)
+        var rows = await PosHC.Application.Services.GridOrdering.Apply(query, sortBy == "VisitedAt" ? "CreatedAt" : sortBy, sortDirection ?? (sortBy == null ? "desc" : "asc"), "CreatedAt")
             .Skip((page - 1) * pageSize).Take(pageSize)
             .Select(i => new PatientVisitDto(i.Id, i.Number, i.CreatedAt, i.DoctorName, i.Status,
                 i.VisitDescription, i.Diagnosis, i.VisitNotesUpdatedAt, i.VisitNotesUpdatedBy)).ToListAsync(ct);

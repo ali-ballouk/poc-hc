@@ -9,11 +9,11 @@ public class AppointmentService(IClinicStore store, IAuditService auditService) 
 {
     private static readonly string[] AllowedStatuses = ["Booked", "CheckedIn", "InProgress", "Completed", "Cancelled", "NoShow"];
 
-    public Task<PagedResult<Appointment>> GetPageAsync(DateTime? from, DateTime? to, int page, CancellationToken cancellationToken, int pageSize = 50)
+    public Task<PagedResult<Appointment>> GetPageAsync(DateTime? from, DateTime? to, int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
     {
         return PagedQuery.ReadAsync<Appointment>(store,
             appointment => (!from.HasValue || appointment.StartsAt >= from) && (!to.HasValue || appointment.StartsAt < to),
-            page, cancellationToken, pageSize);
+            page, cancellationToken, pageSize, sortBy, sortDirection);
     }
 
     public Task<Appointment> SaveAsync(Guid id, Appointment input, CancellationToken cancellationToken)

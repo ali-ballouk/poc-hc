@@ -15,6 +15,7 @@ import { GenericGridComponent } from '../ui-shared/components/generic-grid/gener
 import {
   GridAction,
   GridPageChange,
+  GridSort,
   GridPageResult,
 } from '../ui-shared/components/generic-grid/generic-grid.models';
 import { AuthService } from './auth.service';
@@ -37,6 +38,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
   definition: ModuleDefinition = modules['patients'];
   rows: any[] = [];
   actions: GridAction<any>[] = [];
+  sort?: GridSort<any>;
   page = 1;
   pageSize = 20;
   readonly pageSizeOptions = [10, 20, 50, 100];
@@ -65,6 +67,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
         this.error = 'You do not have permission to access this module.';
         return;
       }
+      this.sort = undefined;
       this.configureActions();
       this.load();
     });
@@ -146,7 +149,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
     this.request = this.api
       .get<
         GridPageResult<any>
-      >('api/clinic/' + key + '?page=' + this.page + '&pageSize=' + this.pageSize + '&search=' + encodeURIComponent(this.search))
+      >('api/clinic/' + key + '?page=' + this.page + '&pageSize=' + this.pageSize + '&search=' + encodeURIComponent(this.search) + this.sortQuery())
       .subscribe({
         next: (result) => {
           this.rows = result.Items;
@@ -190,6 +193,19 @@ export class ManagementComponent implements OnInit, OnDestroy {
           this.error = e.error?.detail || 'Unable to load records.';
         },
       });
+  }
+  sortQuery() {
+    return this.sort
+      ? '&sortBy=' +
+          encodeURIComponent(String(this.sort.columnKey)) +
+          '&sortDirection=' +
+          this.sort.direction
+      : '';
+  }
+  onSortChange(sort: GridSort<any>) {
+    this.sort = sort;
+    this.page = 1;
+    this.load();
   }
   onPageChange(event: GridPageChange) {
     this.page = event.pageIndex + 1;

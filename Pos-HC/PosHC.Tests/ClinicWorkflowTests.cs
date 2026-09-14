@@ -79,9 +79,40 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         var item = new CatalogItem { Id = Guid.NewGuid(), Name = "Consultation", UnitPrice = 40, Type = ItemType.Service };
         db.AddRange(patient, doctor, item);
         await db.SaveChangesAsync();
+        if (!await db.Set<CashShift>().AnyAsync(s => s.UserId == fixture.StaffId && s.Currency == currency && s.ClosedAt == null))
+            await Services(db).Shifts.OpenShift(currency, 0, default);
         return new CreateInvoiceDto { PatientId = patient.Id, DoctorId = doctor.Id, Currency = currency, RequestId = Guid.NewGuid(), Items = [new() { CatalogItemId = item.Id, Quantity = 2 }] };
     }
-    private static PaymentRequestDto Transfer(Guid id, decimal amount, Guid? request = null) => new() { InvoiceId = id, Amount = amount, PaymentTypeId = 3, RequestId = request ?? Guid.NewGuid(), Settings = new TransferPaymentSettings { Banke = "Test bank", ReferenceNumber = "TEST" } };
+    private static PaymentRequestDto Cash(Guid id, decimal amount, Guid? request = null) => new() { InvoiceId = id, Amount = amount, PaymentTypeId = 1, RequestId = request ?? Guid.NewGuid(), Settings = new CashPaymentSettings { CashDrawerId = "current" } };
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    public async Task Non_cash_payments_are_rejected_by_shared_service_and_legacy_entry(int method)
+    {
+        await using var db = fixture.Open();
+        var billing = Services(db).Billing;
+        var invoice = await billing.Create(await Input(db), default);
+        var input = new PaymentRequestDto { InvoiceId = invoice.Id, Amount = 10, PaymentTypeId = method,
+            Settings = method == 2 ? new CardPaymentSettings { CardNumber = "1234", Token = "terminal", Expiry = "external" }
+                : new TransferPaymentSettings { Banke = "Bank", ReferenceNumber = "transfer" } };
+        await Assert.ThrowsAsync<BusinessException>(() => billing.Collect(input, default));
+        await Assert.ThrowsAsync<BusinessException>(() => new PaymentService(billing).SavePayment(input));
+        Assert.Empty(await db.Payment.Where(p => p.InvoiceId == invoice.Id).ToListAsync());
+    }
+
+    [Fact]
+    public async Task Cash_payment_requires_an_open_shift_and_lookup_only_offers_cash()
+    {
+        await using var db = fixture.Open();
+        var services = Services(db);
+        var invoice = await services.Billing.Create(await Input(db), default);
+        var shift = await db.Set<CashShift>().SingleAsync(s => s.UserId == fixture.StaffId && s.Currency == "USD" && s.ClosedAt == null);
+        await services.Shifts.CloseShift(shift.Id, await services.Shifts.Expected(shift, default), default);
+        var error = await Assert.ThrowsAsync<BusinessException>(() => services.Billing.Collect(Cash(invoice.Id, 10), default));
+        Assert.Contains("Open a cash shift", error.Message);
+        var types = await new PaymentTypeService(new POSHCRepository(db)).GetPaymentTypeLookupDtos();
+        Assert.Equal(1, Assert.Single(types).Id);
+    }
     [Fact]
     public async Task Invoice_snapshots_exchange_rate_and_duplicate_request_returns_same_total()
     {
@@ -119,27 +150,27 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         await using var db = fixture.Open();
         var billing = Services(db).Billing;
         var invoice = await billing.Create(await Input(db), default);
-        var input = Transfer(invoice.Id, 40);
+        var input = Cash(invoice.Id, 40);
         var first = await billing.Collect(input, default);
         var repeated = await billing.Collect(input, default);
         Assert.Equal(first.Id, repeated.Id);
         Assert.Equal(60, (await billing.Balance(invoice.Id, default)).Balance);
-        await Assert.ThrowsAsync<BusinessException>(() => billing.Collect(Transfer(invoice.Id, 61), default));
-        await billing.Collect(Transfer(invoice.Id, 60), default);
+        await Assert.ThrowsAsync<BusinessException>(() => billing.Collect(Cash(invoice.Id, 61), default));
+        await billing.Collect(Cash(invoice.Id, 60), default);
         Assert.Equal("Paid", (await billing.Balance(invoice.Id, default)).PaymentStatus);
     }
     [Fact]
-    public async Task Deferred_payment_does_not_settle_an_invoice()
+    public async Task Deferred_payment_is_rejected_without_settling_an_invoice()
     {
         await using var db = fixture.Open();
         var billing = Services(db).Billing;
         var invoice = await billing.Create(await Input(db), default);
-        await billing.Collect(new()
+        await Assert.ThrowsAsync<BusinessException>(() => billing.Collect(new()
         {
             InvoiceId = invoice.Id,
             PaymentTypeId = 4,
             Settings = new OnAccountPaymentSettings { AccountId = "test" }
-        }, default);
+        }, default));
         Assert.Equal(100, (await billing.Balance(invoice.Id, default)).Balance);
         Assert.Equal(0, await db.Payment.CountAsync(x => x.InvoiceId == invoice.Id));
     }
@@ -149,12 +180,12 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         await using var db = fixture.Open();
         var billing = Services(db).Billing;
         var invoice = await billing.Create(await Input(db), default);
-        await billing.Collect(Transfer(invoice.Id, 100), default);
-        await Assert.ThrowsAsync<BusinessException>(() => billing.Refund(invoice.Id, 10, 3, "Test", Guid.NewGuid(), default));
+        await billing.Collect(Cash(invoice.Id, 100), default);
+        await Assert.ThrowsAsync<BusinessException>(() => billing.Refund(invoice.Id, 10, 1, "Test", Guid.NewGuid(), default));
         await billing.Credit(invoice.Id, 30, "Correction", Guid.NewGuid(), default);
-        await billing.Refund(invoice.Id, 30, 3, "External transfer refund", Guid.NewGuid(), default);
+        await billing.Refund(invoice.Id, 30, 1, "Cash refund", Guid.NewGuid(), default);
         Assert.Equal(0, (await billing.Balance(invoice.Id, default)).Balance);
-        await Assert.ThrowsAsync<BusinessException>(() => billing.Refund(invoice.Id, 1, 3, "Test", Guid.NewGuid(), default));
+        await Assert.ThrowsAsync<BusinessException>(() => billing.Refund(invoice.Id, 1, 1, "Test", Guid.NewGuid(), default));
     }
     [Fact]
     public async Task Cash_shift_reconciles_opening_collections_and_movements()
@@ -163,6 +194,8 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         var services = Services(db);
         var billing = services.Billing;
         var clinic = services.Shifts;
+        var existing = await db.Set<CashShift>().SingleOrDefaultAsync(s => s.UserId == fixture.StaffId && s.Currency == "USD" && s.ClosedAt == null);
+        if (existing != null) await clinic.CloseShift(existing.Id, await clinic.Expected(existing, default), default);
         var shift = await clinic.OpenShift("USD", 50, default);
         var invoice = await billing.Create(await Input(db), default);
         await billing.Collect(new()
@@ -208,7 +241,7 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         await using var db = fixture.Open();
         var billing = Services(db).Billing;
         var invoice = await billing.Create(await Input(db), default);
-        var payment = await billing.Collect(Transfer(invoice.Id, 100), default);
+        var payment = await billing.Collect(Cash(invoice.Id, 100), default);
         QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
         var bytes = new PosHC.Infrastructure.Pdf.ReceiptPdfGenerator().Generate(payment, invoice);
         Assert.StartsWith("%PDF", System.Text.Encoding.ASCII.GetString(bytes.Take(8).ToArray()));
@@ -229,7 +262,7 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
             await using var db = fixture.Open();
             try
             {
-                await Services(db).Billing.Collect(Transfer(id, 80), default);
+                await Services(db).Billing.Collect(Cash(id, 80), default);
             }
             catch (BusinessException) { }
             catch (SqlException ex) when (ex.Number == 1205) { }

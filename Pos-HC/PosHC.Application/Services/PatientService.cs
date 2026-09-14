@@ -79,7 +79,7 @@ namespace PosHC.Application.Services
             return patient;
         }
 
-        public Task<PagedResult<Patient>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50) => PagedQuery.ReadAsync<Patient>(_store, item => item.FirstName.Contains(search) || item.LastName.Contains(search) || item.Phone.Contains(search), page, cancellationToken, pageSize);
+        public Task<PagedResult<Patient>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null) => PagedQuery.ReadAsync<Patient>(_store, item => item.FirstName.Contains(search) || item.LastName.Contains(search) || item.Phone.Contains(search), page, cancellationToken, pageSize, sortBy, sortDirection);
 
     }
 }
