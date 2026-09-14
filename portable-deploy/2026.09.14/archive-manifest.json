@@ -1,0 +1,55 @@
+﻿{
+    "Version":  "2026.09.14",
+    "CreatedUtc":  "2026-09-14T15:17:52.1676012Z",
+    "Archive":  "ClinicSol-2026.09.14-offline.zip",
+    "Length":  439006488,
+    "SHA256":  "C509088B8B198020847E9B100F4A7B481C92DAD98FD4FB9E506FDF0E5FFAEA7A",
+    "PackageManifestSHA256":  "180F581A4A49C976C0A6D99F3B88CCC12D4968F9E6DED9D2DDE210BA958D281D",
+    "Parts":  [
+                  {
+                      "Name":  "ClinicSol-2026.09.14-offline.zip.part001",
+                      "Length":  50331648,
+                      "SHA256":  "B03B3514BF44BC29B2F301DE9DB7E0D2E1111A8A61A991EBD63C5FE5FEB73BF2"
+                  },
+                  {
+                      "Name":  "ClinicSol-2026.09.14-offline.zip.part002",
+                      "Length":  50331648,
+                      "SHA256":  "F8C997C386AD6FB75AB107044D8F0F62AE74DA8A1D8E7B4EE0B897D90335B1AC"
+                  },
+                  {
+                      "Name":  "ClinicSol-2026.09.14-offline.zip.part003",
+                      "Length":  50331648,
+                      "SHA256":  "69D4AD49CA3151E798E672D229717BEC178F5C458A55CBF93A93D3AA5D6C8E12"
+                  },
+                  {
+                      "Name":  "ClinicSol-2026.09.14-offline.zip.part004",
+                      "Length":  50331648,
+                      "SHA256":  "FA42E8B57DEEDC8524CF0416EF7F23995DBE4557845F0E5FD4C22FA8A308B506"
+                  },
+                  {
+                      "Name":  "ClinicSol-2026.09.14-offline.zip.part005",
+                      "Length":  50331648,
+                      "SHA256":  "D97E8D1C31F6A52AFF719B8092E6F7344CA1B594E77DAC9401C13CA77F083A01"
+                  },
+                  {
+                      "Name":  "ClinicSol-2026.09.14-offline.zip.part006",
+                      "Length":  50331648,
+                      "SHA256":  "24DFE46B63106AA0FB7005C5A5883B0C465FD3372569AB76B4124215D9549911"
+                  },
+                  {
+                      "Name":  "ClinicSol-2026.09.14-offline.zip.part007",
+                      "Length":  50331648,
+                      "SHA256":  "53F7A60DD893757C5D0A2C03D12C79BB9E1D45829FCF1C1EC490F6C683C97E3C"
+                  },
+                  {
+                      "Name":  "ClinicSol-2026.09.14-offline.zip.part008",
+                      "Length":  50331648,
+                      "SHA256":  "E682C0576CAF190CE1D3E66FC47BA8F4065F3EDA60D49CB0B4BC75FB634840DA"
+                  },
+                  {
+                      "Name":  "ClinicSol-2026.09.14-offline.zip.part009",
+                      "Length":  36353304,
+                      "SHA256":  "3AB0E010112FAAED81CE3116BAA353F96D782BFC0BA3BA9CE67A84E3B73B3830"
+                  }
+              ]
+}
