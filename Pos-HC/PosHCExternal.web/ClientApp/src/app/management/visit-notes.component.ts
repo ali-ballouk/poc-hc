@@ -36,7 +36,7 @@ export class VisitNotesComponent {
     this.error = '';
     this.api
       .put<PatientVisit>(
-        `api/clinic/patients/${this.data.patientId}/visits/${this.data.visit.Id}`,
+        `api/patient/${this.data.patientId}/visits/${this.data.visit.Id}`,
         {
           VisitDescription: this.description.trim() || null,
           Diagnosis: this.diagnosis.trim() || null,

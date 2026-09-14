@@ -42,12 +42,4 @@ namespace PosHC.Domain.Entities
         public decimal LineTotal => Quantity * UnitPrice;
     }
 
-    public class InvoiceItemDto
-    {
-        public Guid CatalogItemId
-        {
-            get; set;
-        }
-        public int Quantity { get; set; } = 1;
-    }
 }

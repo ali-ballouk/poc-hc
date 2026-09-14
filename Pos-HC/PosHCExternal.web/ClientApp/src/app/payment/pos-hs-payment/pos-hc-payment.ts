@@ -49,9 +49,7 @@ export class PosHsPayment implements OnInit {
     this.loading = true;
     this.errorMessage = '';
     this.api
-      .get<{ Summary: InvoiceSummary }>(
-        'api/billing/invoices/' + this.data.invoiceId,
-      )
+      .get<{ Summary: InvoiceSummary }>('api/invoice/' + this.data.invoiceId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
@@ -87,7 +85,7 @@ export class PosHsPayment implements OnInit {
     this.saving = true;
     this.errorMessage = '';
     this.api
-      .post('api/billing/payments', {
+      .post('api/payment', {
         RequestId: this.requestId,
         InvoiceId: this.data.invoiceId,
         Amount: this.amount,

@@ -28,7 +28,7 @@ describe('Clinic module workflows', () => {
                 options: [],
               },
             ],
-            endpoint: 'api/clinic/appointments',
+            endpoint: 'api/appointments',
             value: {},
           },
         },
@@ -42,7 +42,7 @@ describe('Clinic module workflows', () => {
     fixture.componentInstance.value['PatientId'] = 'patient-1';
     fixture.componentInstance.save();
     TestBed.inject(HttpTestingController)
-      .expectOne('/api/clinic/appointments')
+      .expectOne('/api/appointments')
       .flush(
         { detail: 'Doctor is already booked' },
         { status: 400, statusText: 'Bad request' },

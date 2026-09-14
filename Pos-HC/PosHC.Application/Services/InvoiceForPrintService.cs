@@ -2,22 +2,22 @@ using PosHC.Application.DTOs;
 using PosHC.Application.Interfaces;
 using PosHC.Domain.Entities;
 
-namespace PosHC.Application.Invoices.Queries
+namespace PosHC.Application.Services
 {
-    public class InvoiceForPrintService
+    public class InvoiceForPrintService : IInvoiceForPrintService
     {
-        private readonly IPOSHCRepository _repo;
+        private readonly IPOSHCRepository _repository;
         private readonly IClinicSettingsService _settings;
 
-        public InvoiceForPrintService(IPOSHCRepository repo, IClinicSettingsService settings)
+        public InvoiceForPrintService(IPOSHCRepository repository, IClinicSettingsService settings)
         {
-            _repo = repo;
+            _repository = repository;
             _settings = settings;
         }
 
         public async Task<InvoiceGenerateDto?> GetInvoice(Guid id, CancellationToken ct)
         {
-            var inv = await _repo.GetInvoiceByIdAsync(id, ct);
+            var inv = await _repository.GetInvoiceByIdAsync(id, ct);
             if (inv is null)
             {
                 return null;

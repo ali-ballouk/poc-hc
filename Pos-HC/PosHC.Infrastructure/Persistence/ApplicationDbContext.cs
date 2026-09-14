@@ -12,6 +12,14 @@ namespace PosHC.Infrastructure.Persistence
             modelBuilder.HasDefaultSchema("poshc");
 
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<StaffUser>().Property(x => x.Username).HasMaxLength(100);
+            modelBuilder.Entity<StaffUser>().Property(x => x.DisplayName).HasMaxLength(150);
+            modelBuilder.Entity<StaffUser>().Property(x => x.Role).HasMaxLength(30);
+            modelBuilder.Entity<ClinicSettings>().Property(x => x.Name).HasMaxLength(150);
+            modelBuilder.Entity<ClinicSettings>().Property(x => x.Address).HasMaxLength(500);
+            modelBuilder.Entity<ClinicSettings>().Property(x => x.Phone).HasMaxLength(50);
+            modelBuilder.Entity<Invoice>().Property(x => x.VisitDescription).HasMaxLength(4000);
+            modelBuilder.Entity<Invoice>().Property(x => x.Diagnosis).HasMaxLength(2000);
             modelBuilder.Entity<ClinicSettings>().Property(x => x.Id).ValueGeneratedNever();
             modelBuilder.Entity<ClinicSettings>().HasOne<Doctor>().WithMany().HasForeignKey(x => x.DefaultDoctorId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Invoice>().HasIndex(x => new { x.PatientId, x.CreatedAt, x.Id });

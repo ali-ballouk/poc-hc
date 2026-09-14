@@ -24,7 +24,7 @@ namespace PosHC.Application.DTOs
         {
             get; set;
         }
-        public object Settings
+        public object? Settings
         {
             get; set;
         }

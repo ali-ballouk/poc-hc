@@ -53,7 +53,7 @@ export class PosHcInvoices implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.api.get<any[]>('api/invoice').subscribe({
+    this.api.get<any[]>('api/invoice/lookup').subscribe({
       next: (res) => {
         this.bindaData(res);
         this.loading = false;

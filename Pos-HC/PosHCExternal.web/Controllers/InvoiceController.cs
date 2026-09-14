@@ -1,53 +1,71 @@
-// Controllers/DoctorsController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PosHC.Application.DTOs;
 using PosHC.Application.Interfaces;
-using PosHC.Application.Invoices.Queries;
-using PosHC.Application.Services;
+
 namespace PosHCExternal.web.Controllers
 {
     [ApiController]
-    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Administrator,Receptionist,Cashier")]
     [Route("api/invoice")]
-    public class InvoiceControllerController : ControllerBase
+    [Authorize(Roles = "Administrator,Cashier,Receptionist")]
+    public class InvoiceController : ControllerBase
     {
-        private readonly IInvoiceService _invoiceServiceService;
+        private readonly IInvoiceService _invoiceService;
 
-        private readonly InvoiceForPrintService _invoiceForPrintService;
-        private readonly IInvoicePdfGenerator _iInvoicePdfGenerator;
-
-        public InvoiceControllerController(IInvoiceService service, InvoiceForPrintService invoiceForPrintService, IInvoicePdfGenerator invoicePdfGenerator)
+        public InvoiceController(IInvoiceService invoiceService)
         {
-            _invoiceServiceService = service;
-            _invoiceForPrintService = invoiceForPrintService;
-            _iInvoicePdfGenerator = invoicePdfGenerator;
+            _invoiceService = invoiceService;
         }
+
         [HttpGet]
-        public async Task<IActionResult> GetAllInvoice(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetPage(string search = "", Guid? patientId = null, int page = 1, CancellationToken cancellationToken = default, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
         {
-            var result = await _invoiceServiceService.GetAllInvoicesDto(cancellationToken);
+            var result = await _invoiceService.GetPageAsync(search, patientId, page, pageSize, sortBy, sortDirection, cancellationToken);
+            return Ok(result);
+        }
+        [HttpGet("lookup")]
+        public async Task<IActionResult> GetAllInvoices(CancellationToken cancellationToken)
+        {
+            var result = await _invoiceService.GetAllInvoicesDto(cancellationToken);
             return Ok(result);
         }
         [HttpPost]
-        public async Task<IActionResult> CreatInvoice(CreateInvoiceDto invoice, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateInvoice(CreateInvoiceDto input, CancellationToken cancellationToken)
         {
-            var result = await _invoiceServiceService.SaveInvoiceAsync(invoice, cancellationToken);
+            var result = await _invoiceService.SaveInvoiceAsync(input, cancellationToken);
             return Ok(result);
         }
-
-        [HttpGet("{id:guid}/print")]
-        public async Task<IActionResult> Print(Guid id, CancellationToken ct, [FromQuery] string language = "en")
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetDetails(Guid id, CancellationToken cancellationToken)
         {
-            var dto = await _invoiceForPrintService.GetInvoice(id, ct);
-            if (dto is null)
+            var result = await _invoiceService.GetDetailsAsync(id, cancellationToken);
+            return Ok(result);
+        }
+        [HttpPost("{id:guid}/status")]
+        [Authorize(Roles = "Administrator,Cashier")]
+        public async Task<IActionResult> ChangeStatus(Guid id, InvoiceStatusInput input, CancellationToken cancellationToken)
+        {
+            var result = await _invoiceService.ChangeStatusAsync(id, input, cancellationToken);
+            return Ok(result);
+        }
+        [HttpPost("{id:guid}/credits")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Credit(Guid id, AdjustmentInput input, CancellationToken cancellationToken)
+        {
+            var result = await _invoiceService.CreditAsync(id, input, cancellationToken);
+            return Ok(result);
+        }
+        [HttpGet("{id:guid}/print")]
+        public async Task<IActionResult> Print(Guid id, CancellationToken cancellationToken, [FromQuery] string language = "en")
+        {
+            var bytes = await _invoiceService.PrintAsync(id, language, cancellationToken);
+            if (bytes == null)
             {
                 return NotFound();
             }
 
-            var bytes = _iInvoicePdfGenerator.GenerateInvoicePdf(dto, language);
-            var fileName = $"Invoice-{dto.Id}.pdf";
-
-            return File(bytes, "application/pdf", fileName);
+            return File(bytes, "application/pdf", $"Invoice-{id}.pdf");
         }
+
     }
 }

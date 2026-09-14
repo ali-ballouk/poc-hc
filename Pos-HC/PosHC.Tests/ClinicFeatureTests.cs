@@ -1,3 +1,4 @@
+using PosHC.Application.Exceptions;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using PosHC.Application.DTOs;
@@ -23,7 +24,7 @@ public class ClinicFeatureTests(ClinicDatabase fixture) : IClassFixture<ClinicDa
         var settings = await services.Settings.GetAsync(default);
         settings.Name = "Current Clinic / العيادة الحالية";
         await services.Settings.SaveAsync(settings, default);
-        var reader = new PosHC.Application.Invoices.Queries.InvoiceForPrintService(new POSHCRepository(db), services.Settings);
+        var reader = new PosHC.Application.Services.InvoiceForPrintService(new POSHCRepository(db), services.Settings);
         var printed = await reader.GetInvoice(invoice.Id, default);
         Assert.Equal(settings.Name, printed!.ClinicName);
         Assert.Equal("POS HC", invoice.ClinicName);
@@ -79,10 +80,10 @@ public class ClinicFeatureTests(ClinicDatabase fixture) : IClassFixture<ClinicDa
         await using var db = fixture.Open();
         var (patient, doctor) = await Seed(db);
         var services = Services(db);
-        await Assert.ThrowsAsync<BusinessException>(() => services.Settings.SaveAsync(new ClinicSettings { SingleDoctorMode = true }, default));
+        await Assert.ThrowsAsync<BusinessException>(() => services.Settings.SaveAsync(new ClinicSettingsDetailsDto { SingleDoctorMode = true }, default));
         var input = new CreateInvoiceDto { PatientId = patient.Id, DoctorId = doctor.Id, RequestId = Guid.NewGuid() };
         var original = await services.Billing.Create(input, default);
-        await services.Settings.SaveAsync(new ClinicSettings { Name = "Solo clinic", SingleDoctorMode = true, DefaultDoctorId = doctor.Id }, default);
+        await services.Settings.SaveAsync(new ClinicSettingsDetailsDto { Name = "Solo clinic", SingleDoctorMode = true, DefaultDoctorId = doctor.Id }, default);
         var solo = new CreateInvoiceDto { PatientId = patient.Id, RequestId = Guid.NewGuid(), VisitDescription = " Follow-up ", Diagnosis = " Optional diagnosis " };
         var invoice = await services.Billing.Create(solo, default);
         Assert.Equal(doctor.Id, invoice.DoctorId);
@@ -93,7 +94,7 @@ public class ClinicFeatureTests(ClinicDatabase fixture) : IClassFixture<ClinicDa
         Assert.Null(original.VisitDescription);
         Assert.Null(original.Diagnosis);
         await Assert.ThrowsAsync<BusinessException>(() => services.Billing.Create(new CreateInvoiceDto { PatientId = patient.Id, DoctorId = Guid.NewGuid() }, default));
-        await services.Settings.SaveAsync(new ClinicSettings { Name = "Shared clinic", SingleDoctorMode = false }, default);
+        await services.Settings.SaveAsync(new ClinicSettingsDetailsDto { Name = "Shared clinic", SingleDoctorMode = false }, default);
         Assert.Null((await services.Settings.GetAsync(default)).DefaultDoctorId);
         Assert.Equal(doctor.Id, original.DoctorId);
     }
@@ -123,7 +124,7 @@ public class ClinicFeatureTests(ClinicDatabase fixture) : IClassFixture<ClinicDa
         var cleared = await services.Visits.UpdateAsync(patient.Id, second.Id, new(" ", ""), default);
         Assert.Null(cleared.VisitDescription);
         Assert.Null(cleared.Diagnosis);
-        Assert.DoesNotContain("VisitDescription", JsonSerializer.Serialize(second));
+        Assert.DoesNotContain("VisitDescription", JsonSerializer.Serialize(PosHC.Application.Mapping.ClinicDtoMapper.ToDto(second)));
     }
     [Fact]
     public async Task Notes_reject_oversized_content_and_unauthorized_editors()
@@ -143,17 +144,17 @@ public class ClinicFeatureTests(ClinicDatabase fixture) : IClassFixture<ClinicDa
     {
         await using var db = fixture.Open();
         var (patient, doctor) = await Seed(db);
-        await Services(db).Settings.SaveAsync(new ClinicSettings { Name = "Solo", SingleDoctorMode = true, DefaultDoctorId = doctor.Id }, default);
+        await Services(db).Settings.SaveAsync(new ClinicSettingsDetailsDto { Name = "Solo", SingleDoctorMode = true, DefaultDoctorId = doctor.Id }, default);
         var store = new ClinicStore(db);
         var audit = new AuditService(store, new Staff(fixture.StaffId));
         var doctors = new DoctorService(new POSHCRepository(db), store, audit);
         var start = DateTime.UtcNow.AddDays(3);
-        var availability = await doctors.SaveAvailabilityAsync(new DoctorAvailability { StartsAt = start, EndsAt = start.AddHours(2) }, default);
+        var availability = await doctors.SaveAvailabilityAsync(new DoctorAvailabilityDetailsDto { StartsAt = start, EndsAt = start.AddHours(2) }, default);
         var appointment = await new AppointmentService(store, audit).SaveAsync(Guid.Empty,
-            new Appointment { PatientId = patient.Id, StartsAt = start, EndsAt = start.AddMinutes(30) }, default);
+            new AppointmentDetailsDto { PatientId = patient.Id, StartsAt = start, EndsAt = start.AddMinutes(30) }, default);
         Assert.Equal(doctor.Id, availability.DoctorId);
         Assert.Equal(doctor.Id, appointment.DoctorId);
-        await Assert.ThrowsAsync<BusinessException>(() => doctors.SaveAsync(doctor.Id, new Doctor { FirstName = "Clinic", LastName = "Doctor", IsActive = false }, default));
+        await Assert.ThrowsAsync<BusinessException>(() => doctors.SaveAsync(doctor.Id, new DoctorDetailsDto { FirstName = "Clinic", LastName = "Doctor", IsActive = false }, default));
         Assert.True(doctor.IsActive);
     }
     [Fact]

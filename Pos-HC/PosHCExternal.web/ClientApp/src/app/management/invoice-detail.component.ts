@@ -59,7 +59,7 @@ export class InvoiceDetailComponent implements OnInit {
       label: 'Receipt PDF',
       handler: (row) =>
         this.download(
-          'api/billing/payments/' + row.Id + '/receipt',
+          'api/payment/' + row.Id + '/receipt',
           'Receipt-' + row.Id + '.pdf',
         ),
     },
@@ -71,7 +71,7 @@ export class InvoiceDetailComponent implements OnInit {
     this.loading = true;
     this.error = '';
     this.api
-      .get('api/billing/invoices/' + this.data.invoiceId)
+      .get('api/invoice/' + this.data.invoiceId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
@@ -118,7 +118,7 @@ export class InvoiceDetailComponent implements OnInit {
       status === 'Void'
         ? [{ key: 'Reason', label: 'Cancellation reason', required: true }]
         : [],
-      'api/billing/invoices/' + this.detail.Summary.Invoice.Id + '/status',
+      'api/invoice/' + this.detail.Summary.Invoice.Id + '/status',
       { Status: status },
     );
   }
@@ -150,7 +150,9 @@ export class InvoiceDetailComponent implements OnInit {
           required: true,
         },
       ],
-      'api/billing/invoices/' + this.detail.Summary.Invoice.Id + '/' + kind,
+      kind === 'refunds'
+        ? 'api/payment/invoice/' + this.detail.Summary.Invoice.Id + '/refunds'
+        : 'api/invoice/' + this.detail.Summary.Invoice.Id + '/credits',
       {
         Amount: kind === 'refunds' ? -this.detail.Summary.Balance : 0,
         PaymentTypeId: 1,

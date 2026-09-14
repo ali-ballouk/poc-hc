@@ -12,8 +12,8 @@ namespace PosHC.Application.Interfaces
         Task<CatalogItem> GetCatalogItem(Guid catalogItemId, CancellationToken cancellationToken = default);
 
 
-        Task<CatalogItem> SaveAsync(Guid id, CatalogItem input, CancellationToken ct);
-        Task<PagedResult<CatalogItem>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null);
+        Task<CatalogItemDetailsDto> SaveAsync(Guid id, CatalogItemDetailsDto input, CancellationToken ct);
+        Task<PagedResult<CatalogItemDetailsDto>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null);
 
     }
 }

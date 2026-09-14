@@ -1,3 +1,5 @@
+using PosHC.Application.Exceptions;
+using PosHC.Application.Mapping;
 using static PosHC.Application.Validation.BusinessRules;
 using PosHC.Application.DTOs;
 using PosHC.Application.Interfaces;
@@ -42,7 +44,7 @@ namespace PosHC.Application.Services
             var catalogItems = await _poshsRepository.GetAllItemsAsync(cancellationToken);
             return catalogItems;
         }
-        public async Task<CatalogItem> SaveAsync(Guid id, CatalogItem input, CancellationToken ct)
+        public async Task<CatalogItemDetailsDto> SaveAsync(Guid id, CatalogItemDetailsDto input, CancellationToken ct)
         {
             var catalogItem = id == Guid.Empty ? new CatalogItem { Id = Guid.NewGuid() } : await _store.Find<CatalogItem>(x => x.Id == id, ct) ?? throw new BusinessException("Service not found.", 404);
             catalogItem.Name = Required(input.Name, "Name");
@@ -58,10 +60,14 @@ namespace PosHC.Application.Services
 
             _auditService.Record(id == Guid.Empty ? "Create" : "Update", "CatalogItem", catalogItem.Id);
             await _store.Save(ct);
-            return catalogItem;
+            return ClinicDtoMapper.ToDto(catalogItem);
         }
 
-        public Task<PagedResult<CatalogItem>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null) => PagedQuery.ReadAsync<CatalogItem>(_store, item => item.Name.Contains(search), page, cancellationToken, pageSize, sortBy, sortDirection);
+        public async Task<PagedResult<CatalogItemDetailsDto>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
+        {
+            var pageResult = await PagedQuery.ReadAsync<CatalogItem>(_store, item => item.Name.Contains(search), page, cancellationToken, pageSize, sortBy, sortDirection);
+            return ClinicDtoMapper.MapPage(pageResult, ClinicDtoMapper.ToDto);
+        }
 
     }
 }

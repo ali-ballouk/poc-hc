@@ -1,3 +1,4 @@
+using PosHC.Application.Exceptions;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -80,7 +81,10 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         db.AddRange(patient, doctor, item);
         await db.SaveChangesAsync();
         if (!await db.Set<CashShift>().AnyAsync(s => s.UserId == fixture.StaffId && s.Currency == currency && s.ClosedAt == null))
+        {
             await Services(db).Shifts.OpenShift(currency, 0, default);
+        }
+
         return new CreateInvoiceDto { PatientId = patient.Id, DoctorId = doctor.Id, Currency = currency, RequestId = Guid.NewGuid(), Items = [new() { CatalogItemId = item.Id, Quantity = 2 }] };
     }
     private static PaymentRequestDto Cash(Guid id, decimal amount, Guid? request = null) => new() { InvoiceId = id, Amount = amount, PaymentTypeId = 1, RequestId = request ?? Guid.NewGuid(), Settings = new CashPaymentSettings { CashDrawerId = "current" } };
@@ -92,11 +96,16 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         await using var db = fixture.Open();
         var billing = Services(db).Billing;
         var invoice = await billing.Create(await Input(db), default);
-        var input = new PaymentRequestDto { InvoiceId = invoice.Id, Amount = 10, PaymentTypeId = method,
+        var input = new PaymentRequestDto
+        {
+            InvoiceId = invoice.Id,
+            Amount = 10,
+            PaymentTypeId = method,
             Settings = method == 2 ? new CardPaymentSettings { CardNumber = "1234", Token = "terminal", Expiry = "external" }
-                : new TransferPaymentSettings { Banke = "Bank", ReferenceNumber = "transfer" } };
+                : new TransferPaymentSettings { Banke = "Bank", ReferenceNumber = "transfer" }
+        };
         await Assert.ThrowsAsync<BusinessException>(() => billing.Collect(input, default));
-        await Assert.ThrowsAsync<BusinessException>(() => new PaymentService(billing).SavePayment(input));
+        await Assert.ThrowsAsync<BusinessException>(() => new PaymentService(billing, Services(db).Store, Services(db).Settings, new PosHC.Infrastructure.Pdf.ReceiptPdfGenerator()).SavePayment(input));
         Assert.Empty(await db.Payment.Where(p => p.InvoiceId == invoice.Id).ToListAsync());
     }
 
@@ -125,14 +134,14 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         Assert.Equal(8950000, invoice.Total);
         var settings = await services.Settings.GetAsync(default);
         settings.LbpPerUsd = 90000;
-        await store.Save();
+        await services.Settings.SaveAsync(settings, default);
         await using var second = fixture.Open();
         var repeated = await Services(second).Billing.Create(input, default);
         Assert.Equal(invoice.Id, repeated.Id);
         Assert.Equal(invoice.Total, repeated.Total);
         Assert.Equal(89500, repeated.ExchangeRate);
         settings.LbpPerUsd = 89500;
-        await store.Save();
+        await services.Settings.SaveAsync(settings, default);
     }
     [Fact]
     public async Task Invalid_discount_is_rejected_without_saving_invoice()
@@ -195,7 +204,11 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         var billing = services.Billing;
         var clinic = services.Shifts;
         var existing = await db.Set<CashShift>().SingleOrDefaultAsync(s => s.UserId == fixture.StaffId && s.Currency == "USD" && s.ClosedAt == null);
-        if (existing != null) await clinic.CloseShift(existing.Id, await clinic.Expected(existing, default), default);
+        if (existing != null)
+        {
+            await clinic.CloseShift(existing.Id, await clinic.Expected(existing, default), default);
+        }
+
         var shift = await clinic.OpenShift("USD", 50, default);
         var invoice = await billing.Create(await Input(db), default);
         await billing.Collect(new()
@@ -219,7 +232,7 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         var input = await Input(db);
         var services = Services(db);
         var start = DateTime.UtcNow.Date.AddDays(10).AddHours(8);
-        var appointment = new Appointment { DoctorId = input.DoctorId, PatientId = input.PatientId, StartsAt = start, EndsAt = start.AddMinutes(30) };
+        var appointment = new AppointmentDetailsDto { DoctorId = input.DoctorId, PatientId = input.PatientId, StartsAt = start, EndsAt = start.AddMinutes(30) };
         await Assert.ThrowsAsync<BusinessException>(() => services.Appointments.SaveAsync(Guid.Empty, appointment, default));
         await services.Doctors.SaveAvailabilityAsync(new()
         {
@@ -243,9 +256,11 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         var invoice = await billing.Create(await Input(db), default);
         var payment = await billing.Collect(Cash(invoice.Id, 100), default);
         QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
-        var bytes = new PosHC.Infrastructure.Pdf.ReceiptPdfGenerator().Generate(payment, invoice);
+        var bytes = new PosHC.Infrastructure.Pdf.ReceiptPdfGenerator().Generate(new ReceiptGenerateDto(payment.Id,
+            invoice.Number, invoice.PatientName, invoice.ClinicName, payment.PaymentDate, payment.Amount,
+            payment.Currency, payment.Kind, payment.PaymentTypeId, payment.Reference));
         Assert.StartsWith("%PDF", System.Text.Encoding.ASCII.GetString(bytes.Take(8).ToArray()));
-        var report = JsonSerializer.SerializeToElement(await new ClinicReports(db).Summary(DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1), default));
+        var report = JsonSerializer.SerializeToElement(await new ReportsService(new ClinicReportReader(db), new AuditService(Services(db).Store, new Staff(fixture.StaffId))).SummaryAsync(DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1), default));
         Assert.Equal(2, report.GetProperty("Summary").GetArrayLength());
         Assert.Contains(report.GetProperty("Summary").EnumerateArray(), row => row.GetProperty("Currency").GetString() == "USD" && row.GetProperty("Collected").GetDecimal() >= 100);
     }
@@ -284,11 +299,11 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         var uniqueName = Guid.NewGuid().ToString("N");
 
         var doctor = await services.Doctors.SaveAsync(Guid.Empty,
-            new Doctor { FirstName = uniqueName, LastName = "Doctor", Fee = 25 }, default);
+            new DoctorDetailsDto { FirstName = uniqueName, LastName = "Doctor", Fee = 25 }, default);
         var patient = await patients.SaveAsync(Guid.Empty,
-            new Patient { FirstName = uniqueName, LastName = "Patient" }, default);
+            new PatientDetailsDto { FirstName = uniqueName, LastName = "Patient" }, default);
         var item = await catalog.SaveAsync(Guid.Empty,
-            new CatalogItem { Name = uniqueName, UnitPrice = 40, Type = ItemType.Service }, default);
+            new CatalogItemDetailsDto { Name = uniqueName, UnitPrice = 40, Type = ItemType.Service }, default);
 
         Assert.Equal(doctor.Id, Assert.Single((await services.Doctors.GetPageAsync(uniqueName, 1, default)).Items).Id);
         Assert.Equal(patient.Id, Assert.Single((await patients.GetPageAsync(uniqueName, 1, default)).Items).Id);
@@ -321,7 +336,7 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
         {
             AllowAutoRedirect = false
         });
-        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/clinic/patients")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/patient")).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("/api/auth/login", new
         {
             Username = user.Username,
@@ -342,22 +357,22 @@ public class ClinicWorkflowTests(ClinicDatabase fixture) : IClassFixture<ClinicD
             Password = "Test-password-123!"
         })).EnsureSuccessStatusCode();
         await Csrf();
-        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/clinic/patients")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/patient")).StatusCode);
         var visit = await Services(db).Billing.Create(await Input(db), default);
-        var visitPath = $"/api/clinic/patients/{visit.PatientId}/visits";
+        var visitPath = $"/api/patient/{visit.PatientId}/visits";
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(visitPath)).StatusCode);
         var noteResponse = await client.PutAsJsonAsync(visitPath + "/" + visit.Id, new VisitNotesInput("Follow-up", "Optional diagnosis"));
         noteResponse.EnsureSuccessStatusCode();
         Assert.Equal("Optional diagnosis", (await noteResponse.Content.ReadFromJsonAsync<PatientVisitDto>())!.Diagnosis);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PutAsJsonAsync(visitPath + "/" + visit.Id, new VisitNotesInput(null, new string('x', 2001)))).StatusCode);
         (await client.PutAsJsonAsync(visitPath + "/" + visit.Id, new VisitNotesInput())).EnsureSuccessStatusCode();
-        Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/clinic/staff")).StatusCode);
-        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync("/api/billing/payments", new
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/staff")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync("/api/payment", new
         {
         })).StatusCode);
         (await client.PostAsJsonAsync("/api/auth/logout", new
         {
         })).EnsureSuccessStatusCode();
-        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/clinic/patients")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/patient")).StatusCode);
     }
 }

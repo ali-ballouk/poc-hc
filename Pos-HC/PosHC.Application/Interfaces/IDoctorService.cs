@@ -7,12 +7,11 @@ namespace PosHC.Application.Interfaces
     public interface IDoctorService
     {
         Task<List<DoctorLookupDto>> GetAllDoctorInfo(CancellationToken cancellationToken = default);
-        DoctorLookupDto GetDoctor(Guid doctorId);
-        Task<DoctorAvailability> SaveAvailabilityAsync(DoctorAvailability input, CancellationToken cancellationToken);
-        Task<PagedResult<DoctorAvailability>> GetAvailabilityAsync(int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null);
+        Task<DoctorAvailabilityDetailsDto> SaveAvailabilityAsync(DoctorAvailabilityDetailsDto input, CancellationToken cancellationToken);
+        Task<PagedResult<DoctorAvailabilityDetailsDto>> GetAvailabilityAsync(int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null);
 
-        Task<Doctor> SaveAsync(Guid id, Doctor input, CancellationToken ct);
-        Task<PagedResult<Doctor>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null);
+        Task<DoctorDetailsDto> SaveAsync(Guid id, DoctorDetailsDto input, CancellationToken ct);
+        Task<PagedResult<DoctorDetailsDto>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null);
 
     }
 }

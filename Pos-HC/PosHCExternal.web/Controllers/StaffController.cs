@@ -2,30 +2,46 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PosHC.Application.DTOs;
 using PosHC.Application.Interfaces;
-using PosHC.Domain.Entities;
 
-namespace PosHCExternal.web.Controllers;
-
-[ApiController, Route("api/clinic/staff"), Authorize(Roles = "Administrator")]
-public class StaffController(IStaffService staff) : ControllerBase
+namespace PosHCExternal.web.Controllers
 {
-    [HttpGet]
-    public Task<PagedResult<StaffUser>> GetPage(int page = 1, CancellationToken ct = default, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
-        => staff.GetPageAsync(page, ct, pageSize, sortBy, sortDirection);
+    [ApiController]
+    [Route("api/staff")]
+    [Authorize(Roles = "Administrator")]
+    public class StaffController : ControllerBase
+    {
+        private readonly IStaffService _staffService;
 
-    [HttpPost]
-    public Task<StaffUser> Create(StaffInput input, CancellationToken ct)
-        => staff.Save(Guid.Empty, input, ct);
-
-    [HttpPut("{id:guid}")]
-    public Task<StaffUser> Update(Guid id, StaffInput input, CancellationToken ct)
-        => staff.Save(id, input, ct);
-
-    [HttpPost("{id:guid}/reset")]
-    public async Task<object> ResetPassword(Guid id, CancellationToken ct)
-        => new
+        public StaffController(IStaffService staffService)
         {
-            Token = await staff.IssueReset(id, ct),
-            ExpiresInMinutes = 30
-        };
+            _staffService = staffService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPage(int page = 1, CancellationToken cancellationToken = default, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
+        {
+            var result = await _staffService.GetPageAsync(page, cancellationToken, pageSize, sortBy, sortDirection);
+            return Ok(result);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Create(StaffInput input, CancellationToken cancellationToken)
+        {
+            var result = await _staffService.Save(Guid.Empty, input, cancellationToken);
+            return Ok(result);
+        }
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, StaffInput input, CancellationToken cancellationToken)
+        {
+            var result = await _staffService.Save(id, input, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPost("{id:guid}/reset")]
+        public async Task<IActionResult> ResetPassword(Guid id, CancellationToken cancellationToken)
+        {
+            var token = await _staffService.IssueReset(id, cancellationToken);
+            return Ok(new PasswordResetDto(token));
+        }
+
+    }
 }

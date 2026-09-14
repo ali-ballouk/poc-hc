@@ -1,3 +1,5 @@
+using PosHC.Application.Exceptions;
+using PosHC.Application.Mapping;
 using static PosHC.Application.Validation.BusinessRules;
 using PosHC.Application.DTOs;
 using PosHC.Application.Interfaces;
@@ -25,23 +27,6 @@ namespace PosHC.Application.Services
         }
 
 
-        public PatientLookupDto GetPatient(Guid patientId)
-        {
-            var patient = GetPatientAsync(patientId).GetAwaiter().GetResult();
-            return PatientLookupDtoMapper(patient);
-        }
-
-        private async Task<Patient> GetPatientAsync(Guid patientId, CancellationToken cancellationToken = default)
-        {
-            var patients = await GetAllPatients(cancellationToken);
-            var patient = patients.Find(p => p.Id == patientId);
-            if (patient == null)
-            {
-                throw new BusinessException("Patient not found.", 404);
-            }
-
-            return patient;
-        }
 
         public async Task<List<Patient>> GetAllPatients(CancellationToken cancellationToken = default)
         {
@@ -57,7 +42,7 @@ namespace PosHC.Application.Services
             };
         }
 
-        public async Task<Patient> SaveAsync(Guid id, Patient input, CancellationToken ct)
+        public async Task<PatientDetailsDto> SaveAsync(Guid id, PatientDetailsDto input, CancellationToken ct)
         {
             var patient = id == Guid.Empty ? new Patient { Id = Guid.NewGuid() } : await _store.Find<Patient>(x => x.Id == id, ct) ?? throw new BusinessException("Patient not found.", 404);
             patient.FirstName = Required(input.FirstName, "First name");
@@ -76,10 +61,14 @@ namespace PosHC.Application.Services
             }
             _auditService.Record(id == Guid.Empty ? "Create" : "Update", "Patient", patient.Id);
             await _store.Save(ct);
-            return patient;
+            return ClinicDtoMapper.ToDto(patient);
         }
 
-        public Task<PagedResult<Patient>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null) => PagedQuery.ReadAsync<Patient>(_store, item => item.FirstName.Contains(search) || item.LastName.Contains(search) || item.Phone.Contains(search), page, cancellationToken, pageSize, sortBy, sortDirection);
+        public async Task<PagedResult<PatientDetailsDto>> GetPageAsync(string search, int page, CancellationToken cancellationToken, int pageSize = 50, string? sortBy = null, string? sortDirection = null)
+        {
+            var pageResult = await PagedQuery.ReadAsync<Patient>(_store, item => item.FirstName.Contains(search) || item.LastName.Contains(search) || item.Phone.Contains(search), page, cancellationToken, pageSize, sortBy, sortDirection);
+            return ClinicDtoMapper.MapPage(pageResult, ClinicDtoMapper.ToDto);
+        }
 
     }
 }

@@ -69,7 +69,7 @@ export class PatientVisitHistoryComponent implements OnInit, OnDestroy {
     this.request = this.api
       .get<
         GridPageResult<PatientVisit>
-      >(`api/clinic/patients/${this.data.patientId}/visits?page=${this.page}&pageSize=${this.pageSize}${this.sortQuery()}`)
+      >(`api/patient/${this.data.patientId}/visits?page=${this.page}&pageSize=${this.pageSize}${this.sortQuery()}`)
       .subscribe({
         next: (result) => {
           this.rows = result.Items;

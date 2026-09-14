@@ -34,7 +34,7 @@ describe('PosHcInvoices', () => {
     const fixture = TestBed.createComponent(PosHcInvoices);
     fixture.detectChanges();
     const http = TestBed.inject(HttpTestingController);
-    http.expectOne('/api/invoice').flush([
+    http.expectOne('/api/invoice/lookup').flush([
       {
         InvoiceId: 'invoice-1',
         InvoiceDate: '2026-09-06T10:30:00',

@@ -1,3 +1,4 @@
+using PosHC.Application.Exceptions;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
@@ -9,12 +10,12 @@ using PosHC.Application.Interfaces;
 using PosHC.Domain.Entities;
 using PosHC.Infrastructure.Persistence;
 using PosHCExternal.web.Security;
-using QuestPDF.Infrastructure;
+using PosHC.Infrastructure;
+using PosHCExternal.web.DependencyInjection;
 
-QuestPDF.Settings.License = LicenseType.Community;
 var builder = WebApplication.CreateBuilder(args);
 var allowHttp = builder.Configuration.GetValue<bool>("Hosting:AllowHttp");
-builder.AddRepository();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentStaff, CurrentStaff>();
@@ -33,14 +34,13 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.Events.OnRedirectToAccessDenied = context => { context.Response.StatusCode = 403; return Task.CompletedTask; };
     options.Events.OnValidatePrincipal = async context =>
     {
-        var store = context.HttpContext.RequestServices.GetRequiredService<IClinicStore>();
+        var staffService = context.HttpContext.RequestServices.GetRequiredService<IStaffService>();
         if (!Guid.TryParse(context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier), out var id))
         {
             context.RejectPrincipal();
             return;
         }
-        var user = await store.Find<StaffUser>(x => x.Id == id, context.HttpContext.RequestAborted);
-        if (user == null || !user.IsActive || user.SecurityStamp != context.Principal?.FindFirstValue("stamp"))
+        if (!await staffService.ValidateSessionAsync(id, context.Principal?.FindFirstValue("stamp"), context.HttpContext.RequestAborted))
         {
             context.RejectPrincipal();
         }
@@ -77,7 +77,10 @@ if (maintenanceCommand || app.Environment.IsDevelopment())
         await SchemaUpgrade.Apply(db);
         Console.WriteLine("Schema upgrade complete.");
     }
-    if (maintenanceCommand) return;
+    if (maintenanceCommand)
+    {
+        return;
+    }
 }
 if (app.Environment.IsDevelopment() && string.IsNullOrEmpty(builder.Configuration["Setup:Token"]))
 {
@@ -120,6 +123,7 @@ app.UseAuthorization();
 app.MapHealthChecks("/health/live").AllowAnonymous();
 app.MapGet("/health/ready", async (ApplicationDbContext db) => await db.Database.CanConnectAsync() ? Results.Ok() : Results.StatusCode(503)).RequireAuthorization();
 app.MapControllers();
+app.MapFallback("/api/{**path}", () => Results.NotFound(new { detail = "API endpoint not found." }));
 app.MapFallbackToFile("index.html").AllowAnonymous();
 app.Run();
 public partial class Program

@@ -1,3 +1,4 @@
+using PosHC.Application.Exceptions;
 using System.Data;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,10 @@ public class ClinicStore(ApplicationDbContext db) : IClinicStore
             (sortBy == "DoctorName" && typeof(T) == typeof(PosHC.Domain.Entities.DoctorAvailability)))
         {
             if (sortDirection is not null && sortDirection != "asc" && sortDirection != "desc")
+            {
                 throw new BusinessException("Sort direction must be asc or desc.");
+            }
+
             Expression<Func<T, string?>> name = sortBy == "DoctorName"
                 ? row => db.Set<PosHC.Domain.Entities.Doctor>().Where(d => d.Id == EF.Property<Guid>(row, "DoctorId")).Select(d => d.FirstName + " " + d.LastName).FirstOrDefault()
                 : row => db.Set<PosHC.Domain.Entities.Patient>().Where(p => p.Id == EF.Property<Guid>(row, "PatientId")).Select(p => p.FirstName + " " + p.LastName).FirstOrDefault();

@@ -48,7 +48,7 @@ describe('PosHcEditor shared selectors', () => {
     http
       .expectOne('/api/patient/lookup')
       .flush([{ Id: 'patient-1', FullName: 'Test Patient' }]);
-    http.expectOne('/api/catalogtitem').flush([]);
+    http.expectOne('/api/catalogitem/lookup').flush([]);
     fixture.detectChanges();
     for (const selector of fixture.nativeElement.querySelectorAll(
       'pos-hs-patient-selector, pos-hs-doctor-selector',

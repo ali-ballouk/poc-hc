@@ -30,16 +30,22 @@ namespace PosHC.Domain.Entities
         public string ClinicPhone { get; set; } = "";
         // Clinical notes are exposed through the authorized patient-history API,
         // not through financial invoice responses or printed receipts.
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.ComponentModel.DataAnnotations.MaxLength(4000)]
-        public string? VisitDescription { get; set; }
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.ComponentModel.DataAnnotations.MaxLength(2000)]
-        public string? Diagnosis { get; set; }
-        [System.Text.Json.Serialization.JsonIgnore]
-        public DateTime? VisitNotesUpdatedAt { get; set; }
-        [System.Text.Json.Serialization.JsonIgnore]
-        public string? VisitNotesUpdatedBy { get; set; }
+        public string? VisitDescription
+        {
+            get; set;
+        }
+        public string? Diagnosis
+        {
+            get; set;
+        }
+        public DateTime? VisitNotesUpdatedAt
+        {
+            get; set;
+        }
+        public string? VisitNotesUpdatedBy
+        {
+            get; set;
+        }
         public Guid? RequestId
         {
             get; set;

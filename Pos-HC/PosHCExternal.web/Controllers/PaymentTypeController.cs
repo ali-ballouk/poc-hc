@@ -1,6 +1,8 @@
-// Controllers/DoctorsController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PosHC.Application.DTOs;
 using PosHC.Application.Interfaces;
+
 namespace PosHCExternal.web.Controllers
 {
     [ApiController]
@@ -9,16 +11,17 @@ namespace PosHCExternal.web.Controllers
     {
         private readonly IPaymentTypeService _paymentTypeService;
 
-        public PaymentTypeController(IPaymentTypeService service)
+        public PaymentTypeController(IPaymentTypeService paymentTypeService)
         {
-            _paymentTypeService = service;
+            _paymentTypeService = paymentTypeService;
         }
 
         [HttpGet("lookup")]
         public async Task<IActionResult> GetLookup(CancellationToken cancellationToken)
         {
-            var result = await _paymentTypeService.GetPaymentTypeLookupDtos();
+            var result = await _paymentTypeService.GetPaymentTypeLookupDtos(cancellationToken);
             return Ok(result);
         }
+
     }
 }

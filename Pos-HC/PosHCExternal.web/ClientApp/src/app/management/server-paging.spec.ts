@@ -46,9 +46,7 @@ describe('Backend grid paging', () => {
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
     http
-      .expectOne(
-        '/api/billing/invoices?page=1&pageSize=20&search=&patientId=patient-1',
-      )
+      .expectOne('/api/invoice?page=1&pageSize=20&search=&patientId=patient-1')
       .flush({ Items: [{ Id: 'first' }], Total: 105, Page: 1, PageSize: 20 });
     fixture.detectChanges();
     const grid = fixture.debugElement.query(By.directive(GenericGridComponent))
@@ -56,18 +54,21 @@ describe('Backend grid paging', () => {
     grid.toggleSort(grid.columns[0]);
     http
       .expectOne(
-        '/api/billing/invoices?page=1&pageSize=20&search=&sortBy=Number&sortDirection=asc&patientId=patient-1',
+        '/api/invoice?page=1&pageSize=20&search=&sortBy=Number&sortDirection=asc&patientId=patient-1',
       )
       .flush({ Items: [{ Id: 'sorted' }], Total: 105, Page: 1, PageSize: 20 });
     fixture.detectChanges();
     grid.nextPage();
     http
       .expectOne(
-        '/api/billing/invoices?page=2&pageSize=20&search=&sortBy=Number&sortDirection=asc&patientId=patient-1',
+        '/api/invoice?page=2&pageSize=20&search=&sortBy=Number&sortDirection=asc&patientId=patient-1',
       )
       .flush({ Items: [], Total: 105, Page: 2, PageSize: 20 });
     http.verify();
-    expect(fixture.componentInstance.sort).toEqual({ columnKey: 'Number', direction: 'asc' });
+    expect(fixture.componentInstance.sort).toEqual({
+      columnKey: 'Number',
+      direction: 'asc',
+    });
     expect(fixture.componentInstance.page).toBe(2);
   });
 
@@ -76,27 +77,21 @@ describe('Backend grid paging', () => {
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
     http
-      .expectOne(
-        '/api/billing/invoices?page=1&pageSize=20&search=&patientId=patient-1',
-      )
+      .expectOne('/api/invoice?page=1&pageSize=20&search=&patientId=patient-1')
       .flush({ Items: [{ Id: 'first' }], Total: 105, Page: 1, PageSize: 20 });
     fixture.detectChanges();
     const grid = fixture.debugElement.query(By.directive(GenericGridComponent))
       .componentInstance as GenericGridComponent;
     grid.nextPage();
     http
-      .expectOne(
-        '/api/billing/invoices?page=2&pageSize=20&search=&patientId=patient-1',
-      )
+      .expectOne('/api/invoice?page=2&pageSize=20&search=&patientId=patient-1')
       .flush({ Items: [{ Id: 'second' }], Total: 105, Page: 2, PageSize: 20 });
     fixture.detectChanges();
     expect(grid.pageIndex).toBe(1);
     expect(grid.pagedRows).toEqual([{ Id: 'second' }]);
     grid.onPageSizeChanged(50);
     http
-      .expectOne(
-        '/api/billing/invoices?page=1&pageSize=50&search=&patientId=patient-1',
-      )
+      .expectOne('/api/invoice?page=1&pageSize=50&search=&patientId=patient-1')
       .flush({ Items: [], Total: 0, Page: 1, PageSize: 50 });
     fixture.detectChanges();
     expect(grid.pageCount).toBe(1);
@@ -107,14 +102,14 @@ describe('Backend grid paging', () => {
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
     http
-      .expectOne('/api/clinic/patients?page=1&pageSize=20&search=')
+      .expectOne('/api/patient?page=1&pageSize=20&search=')
       .flush({ Items: [], Total: 75, Page: 1, PageSize: 20 });
     fixture.detectChanges();
     const grid = fixture.debugElement.query(By.directive(GenericGridComponent))
       .componentInstance as GenericGridComponent;
     grid.nextPage();
     http
-      .expectOne('/api/clinic/patients?page=2&pageSize=20&search=')
+      .expectOne('/api/patient?page=2&pageSize=20&search=')
       .flush({ Items: [{ Id: 'page2' }], Total: 75, Page: 2, PageSize: 20 });
     fixture.detectChanges();
     fixture.componentInstance.search = 'Alice & Bob';
@@ -122,9 +117,7 @@ describe('Backend grid paging', () => {
       .querySelector('form')
       .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     http
-      .expectOne(
-        '/api/clinic/patients?page=1&pageSize=20&search=Alice%20%26%20Bob',
-      )
+      .expectOne('/api/patient?page=1&pageSize=20&search=Alice%20%26%20Bob')
       .flush({ Items: [], Total: 0, Page: 1, PageSize: 20 });
     fixture.detectChanges();
     expect(grid.pageIndex).toBe(0);
@@ -136,14 +129,12 @@ describe('Backend grid paging', () => {
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
     const oldRequest = http.expectOne(
-      '/api/billing/invoices?page=1&pageSize=20&search=&patientId=patient-1',
+      '/api/invoice?page=1&pageSize=20&search=&patientId=patient-1',
     );
     fixture.componentInstance.onPageChange({ pageIndex: 1, pageSize: 20 });
     expect(oldRequest.cancelled).toBeTrue();
     http
-      .expectOne(
-        '/api/billing/invoices?page=2&pageSize=20&search=&patientId=patient-1',
-      )
+      .expectOne('/api/invoice?page=2&pageSize=20&search=&patientId=patient-1')
       .flush(
         { detail: 'Unable to load invoices.' },
         { status: 500, statusText: 'Error' },

@@ -1,6 +1,9 @@
-using PosHC.Domain.Entities;
-namespace PosHC.Application.Interfaces;
-public interface IReceiptPdfGenerator
+using PosHC.Application.DTOs;
+
+namespace PosHC.Application.Interfaces
 {
-    byte[] Generate(Payment payment, Invoice invoice, string language = "en", string? clinicName = null);
+    public interface IReceiptPdfGenerator
+    {
+        byte[] Generate(ReceiptGenerateDto receipt, string language = "en");
+    }
 }

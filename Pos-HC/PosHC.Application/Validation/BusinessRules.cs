@@ -1,3 +1,4 @@
+using PosHC.Application.Exceptions;
 using PosHC.Application.Interfaces;
 
 namespace PosHC.Application.Validation;

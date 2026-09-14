@@ -7,9 +7,17 @@ public static class SchemaUpgrade
 {
     public static async Task<bool> IsRequired(ApplicationDbContext db, CancellationToken ct = default)
     {
-        if (!await db.Database.CanConnectAsync(ct)) return true;
+        if (!await db.Database.CanConnectAsync(ct))
+        {
+            return true;
+        }
+
         var exists = await db.Database.SqlQueryRaw<int>("SELECT CASE WHEN OBJECT_ID('poshc.SchemaVersion') IS NULL THEN 0 ELSE 1 END AS Value").SingleAsync(ct);
-        if (exists == 0) return true;
+        if (exists == 0)
+        {
+            return true;
+        }
+
         var current = await db.Database.SqlQueryRaw<int>("SELECT COALESCE(MAX(Version), 0) AS Value FROM poshc.SchemaVersion").SingleAsync(ct);
         return current < 2;
     }

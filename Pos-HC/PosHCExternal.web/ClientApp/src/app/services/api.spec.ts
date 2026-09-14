@@ -39,7 +39,7 @@ describe('BaseAPI', () => {
     TestBed.inject(LanguageService).setLanguage('ar');
     for (const endpoint of [
       'api/invoice/test/print',
-      'api/billing/payments/test/receipt',
+      'api/payment/test/receipt',
     ]) {
       service.downloadPdf(endpoint).subscribe();
       const request = http.expectOne('/' + endpoint + '?language=ar');

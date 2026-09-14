@@ -72,7 +72,7 @@ export class BillingComponent implements OnInit, OnDestroy {
     this.request = this.api
       .get<
         GridPageResult<any>
-      >('api/billing/invoices?page=' + this.page + '&pageSize=' + this.pageSize + '&search=' + encodeURIComponent(this.search) + this.sortQuery() + (this.patientId ? '&patientId=' + this.patientId : ''))
+      >('api/invoice?page=' + this.page + '&pageSize=' + this.pageSize + '&search=' + encodeURIComponent(this.search) + this.sortQuery() + (this.patientId ? '&patientId=' + this.patientId : ''))
       .subscribe({
         next: (r) => {
           this.rows = r.Items;

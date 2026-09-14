@@ -13,24 +13,3 @@ public interface IClinicStore
     Task<T> Transaction<T>(Func<Task<T>> operation, CancellationToken ct = default);
     Task<long> NextInvoiceNumber(CancellationToken ct = default);
 }
-
-public interface ICurrentStaff
-{
-    Guid Id
-    {
-        get;
-    }
-    string Name
-    {
-        get;
-    }
-    string Role
-    {
-        get;
-    }
-}
-
-public class BusinessException(string message, int status = 400) : Exception(message)
-{
-    public int Status { get; } = status;
-}

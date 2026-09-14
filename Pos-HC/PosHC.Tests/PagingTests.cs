@@ -1,3 +1,6 @@
+using PosHC.Application.Exceptions;
+using Microsoft.AspNetCore.Mvc;
+using PosHC.Application.DTOs;
 using System.Linq.Expressions;
 using PosHC.Application.Interfaces;
 using PosHC.Application.Services;
@@ -13,7 +16,8 @@ public class PagingTests
     {
         var store = new PagingStore();
         var controller = new AuditController(new AuditService(store, null!));
-        var result = await controller.GetPage("", 1, default, 10, "Actor", "desc");
+        var response = await controller.GetPage("", 1, default, 10, "Actor", "desc");
+        var result = Assert.IsType<PagedResult<AuditEntryDetailsDto>>(Assert.IsType<OkObjectResult>(response).Value);
         Assert.All(result.Items, row => Assert.Equal("other", row.Actor));
         Assert.Equal(126, result.Total);
     }
@@ -30,7 +34,8 @@ public class PagingTests
     {
         var store = new PagingStore();
         var controller = new AuditController(new AuditService(store, null!));
-        var page = await controller.GetPage("match", 2, default, 20);
+        var response = await controller.GetPage("match", 2, default, 20);
+        var page = Assert.IsType<PagedResult<AuditEntryDetailsDto>>(Assert.IsType<OkObjectResult>(response).Value);
         Assert.Equal(63, page.Total);
         Assert.Equal(20, page.PageSize);
         Assert.Equal(2, page.Page);
@@ -70,8 +75,14 @@ public class PagingTests
     {
         private readonly List<AuditEntry> rows = Enumerable.Range(0, 126)
             .Select(i => new AuditEntry { Actor = i % 2 == 0 ? "match" : "other", Entity = "Invoice", Action = "Read" }).ToList();
-        public int LastSkip { get; private set; }
-        public int LastLimit { get; private set; }
+        public int LastSkip
+        {
+            get; private set;
+        }
+        public int LastLimit
+        {
+            get; private set;
+        }
         private IEnumerable<T> Query<T>(Expression<Func<T, bool>>? predicate) where T : class
             => rows.OfType<T>().Where(predicate?.Compile() ?? (_ => true));
         public Task<List<T>> List<T>(Expression<Func<T, bool>>? predicate = null, int limit = 500, int skip = 0, CancellationToken ct = default, string? sortBy = null, string? sortDirection = null) where T : class

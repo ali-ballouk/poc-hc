@@ -113,18 +113,16 @@ export class ManagementComponent implements OnInit, OnDestroy {
       this.actions.push({
         label: 'Password reset',
         handler: (row) =>
-          this.api
-            .post<any>('api/clinic/staff/' + row.Id + '/reset', {})
-            .subscribe({
-              next: (r) =>
-                (this.message =
-                  'Reset token for ' +
-                  row.Username +
-                  ' (valid 30 minutes): ' +
-                  r.Token),
-              error: (e) =>
-                (this.error = e.error?.detail || 'Unable to issue reset.'),
-            }),
+          this.api.post<any>('api/staff/' + row.Id + '/reset', {}).subscribe({
+            next: (r) =>
+              (this.message =
+                'Reset token for ' +
+                row.Username +
+                ' (valid 30 minutes): ' +
+                r.Token),
+            error: (e) =>
+              (this.error = e.error?.detail || 'Unable to issue reset.'),
+          }),
       });
     if (this.key === 'shifts') {
       this.actions.push(
@@ -149,7 +147,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
     this.request = this.api
       .get<
         GridPageResult<any>
-      >('api/clinic/' + key + '?page=' + this.page + '&pageSize=' + this.pageSize + '&search=' + encodeURIComponent(this.search) + this.sortQuery())
+      >(modules[key].endpoint + '?page=' + this.page + '&pageSize=' + this.pageSize + '&search=' + encodeURIComponent(this.search) + this.sortQuery())
       .subscribe({
         next: (result) => {
           this.rows = result.Items;
@@ -220,7 +218,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
         {
           fields: this.definition.fields,
           value: row || this.definition.defaults,
-          endpoint: 'api/clinic/' + this.key + (row ? '/' + row.Id : ''),
+          endpoint: modules[this.key].endpoint + (row ? '/' + row.Id : ''),
           method: row ? 'put' : 'post',
         },
       )
@@ -252,7 +250,7 @@ export class ManagementComponent implements OnInit, OnDestroy {
               : [{ key: 'Reason', label: 'Reason', required: true }]),
           ],
           value: { Amount: 0 },
-          endpoint: 'api/clinic/shifts/' + row.Id + '/' + action,
+          endpoint: 'api/shifts/' + row.Id + '/' + action,
         },
       )
       .afterClosed()

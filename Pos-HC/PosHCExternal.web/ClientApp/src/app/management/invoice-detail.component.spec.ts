@@ -67,21 +67,21 @@ describe('Invoice detail modal', () => {
     const fixture = TestBed.createComponent(InvoiceDetailComponent);
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
-    http.expectOne('/api/billing/invoices/invoice-1').flush(invoice);
+    http.expectOne('/api/invoice/invoice-1').flush(invoice);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('INV-1');
     fixture.componentInstance.collect();
     expect(open.calls.mostRecent().args[0]).toBe(PosHsPayment);
     expect(open.calls.mostRecent().args[2]).toEqual({ invoiceId: 'invoice-1' });
     expect(open.calls.mostRecent().args[3]).toEqual({ nested: true });
-    http.expectOne('/api/billing/invoices/invoice-1').flush(invoice);
+    http.expectOne('/api/invoice/invoice-1').flush(invoice);
     expect(changed).toHaveBeenCalledTimes(1);
   });
   it('keeps a failed load in the modal and offers retry', () => {
     const fixture = TestBed.createComponent(InvoiceDetailComponent);
     fixture.detectChanges();
     TestBed.inject(HttpTestingController)
-      .expectOne('/api/billing/invoices/invoice-1')
+      .expectOne('/api/invoice/invoice-1')
       .flush(
         { detail: 'Invoice unavailable' },
         { status: 500, statusText: 'Error' },
@@ -92,4 +92,22 @@ describe('Invoice detail modal', () => {
     ).toContain('Invoice unavailable');
     expect(fixture.nativeElement.textContent).toContain('Retry');
   });
+
+  for (const [kind, endpoint] of [
+    ['credits', 'api/invoice/invoice-1/credits'],
+    ['refunds', 'api/payment/invoice/invoice-1/refunds'],
+  ]) {
+    it(`sends ${kind} to the controller that owns the operation`, () => {
+      open.and.returnValue({ afterClosed: () => of(undefined) });
+      const fixture = TestBed.createComponent(InvoiceDetailComponent);
+      fixture.detectChanges();
+      TestBed.inject(HttpTestingController)
+        .expectOne('/api/invoice/invoice-1')
+        .flush(invoice);
+
+      fixture.componentInstance.adjust(kind);
+
+      expect(open.calls.mostRecent().args[2].endpoint).toBe(endpoint);
+    });
+  }
 });

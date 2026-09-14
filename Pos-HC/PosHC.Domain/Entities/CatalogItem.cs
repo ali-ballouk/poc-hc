@@ -1,6 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
-
 namespace PosHC.Domain.Entities
 {
 
@@ -34,41 +31,6 @@ namespace PosHC.Domain.Entities
         // raw JSON stored in SQL
         public string Settings { get; set; } = "{}";
 
-        [NotMapped]
-        public object? SettingsValue
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(Settings))
-                {
-                    return null;
-                }
-
-                return Type switch
-                {
-                    ItemType.Product => JsonSerializer.Deserialize<ProductSettings>(Settings),
-                    ItemType.Service => JsonSerializer.Deserialize<ServiceSettings>(Settings),
-                    _ => null
-                };
-            }
-            set
-            {
-                if (value is null)
-                {
-                    Settings = "{}";
-                    return;
-                }
-
-                Settings = Type switch
-                {
-                    ItemType.Product when value is ProductSettings ps =>
-                        JsonSerializer.Serialize(ps),
-                    ItemType.Service when value is ServiceSettings ss =>
-                        JsonSerializer.Serialize(ss),
-                    _ => throw new InvalidOperationException($"Type {Type} and value mismatch")
-                };
-            }
-        }
     }
 
 

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 namespace PosHC.Domain.Entities
 {
     // PosHC.Domain/Entities/Payments/Payment.cs
-    using System.Text.Json.Serialization;
 
 
     public class Payment

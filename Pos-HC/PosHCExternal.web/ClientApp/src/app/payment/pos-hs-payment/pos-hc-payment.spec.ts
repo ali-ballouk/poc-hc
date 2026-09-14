@@ -28,7 +28,7 @@ describe('Shared cash payment', () => {
     const fixture = TestBed.createComponent(PosHsPayment);
     fixture.detectChanges();
     expect(fixture.componentInstance.canSave).toBeFalse();
-    http.expectOne('/api/billing/invoices/invoice-1').flush({
+    http.expectOne('/api/invoice/invoice-1').flush({
       Summary: {
         Invoice: {
           Id: 'invoice-1',
@@ -58,7 +58,7 @@ describe('Shared cash payment', () => {
     const component = setup().componentInstance;
     component.amount = 30;
     component.save();
-    const request = http.expectOne('/api/billing/payments');
+    const request = http.expectOne('/api/payment');
     expect(request.request.body).toEqual({
       RequestId: component.requestId,
       InvoiceId: 'invoice-1',
@@ -67,7 +67,7 @@ describe('Shared cash payment', () => {
       Settings: { paymentType: 'cash', CashDrawerId: 'current' },
     });
     component.save();
-    http.expectNone('/api/billing/payments');
+    http.expectNone('/api/payment');
     expect(close).not.toHaveBeenCalled();
     request.flush({});
     expect(close).toHaveBeenCalledOnceWith({ success: true });
@@ -77,7 +77,7 @@ describe('Shared cash payment', () => {
     const component = fixture.componentInstance;
     component.amount = 20;
     component.save();
-    const first = http.expectOne('/api/billing/payments');
+    const first = http.expectOne('/api/payment');
     first.flush(
       { detail: 'Open a cash shift for this currency first.' },
       { status: 400, statusText: 'Bad Request' },
@@ -89,7 +89,7 @@ describe('Shared cash payment', () => {
       fixture.nativeElement.querySelector('[role="alert"]'),
     ).not.toBeNull();
     component.save();
-    const retry = http.expectOne('/api/billing/payments');
+    const retry = http.expectOne('/api/payment');
     expect(retry.request.body.RequestId).toBe(first.request.body.RequestId);
     retry.flush({});
   });
@@ -100,7 +100,7 @@ describe('Shared cash payment', () => {
       expect(component.canSave).toBeFalse();
       component.save();
     }
-    http.expectNone('/api/billing/payments');
+    http.expectNone('/api/payment');
     component.amount = 10;
     expect(component.canSave).toBeTrue();
   });

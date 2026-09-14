@@ -15,7 +15,7 @@ describe('VisitItemsComponent', () => {
     const fixture = TestBed.createComponent(VisitItemsComponent);
     fixture.detectChanges();
     const http = TestBed.inject(HttpTestingController);
-    http.expectOne('/api/catalogtitem').flush([
+    http.expectOne('/api/catalogitem/lookup').flush([
       {
         Id: 'consultation',
         Name: 'Consultation',

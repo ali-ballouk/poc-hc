@@ -33,6 +33,7 @@ internal static class PdfBrand
             column.Item().ContentFromLeftToRight().AlignCenter().Text("Powered by ClinicSol")
                 .FontSize(9).FontColor(Primary);
             if (pageNumbers)
+            {
                 column.Item().AlignCenter().Text(text =>
                 {
                     text.DefaultTextStyle(style => style.FontSize(8).FontColor(Text));
@@ -41,5 +42,6 @@ internal static class PdfBrand
                     text.Span(" / ");
                     text.TotalPages();
                 });
+            }
         });
 }

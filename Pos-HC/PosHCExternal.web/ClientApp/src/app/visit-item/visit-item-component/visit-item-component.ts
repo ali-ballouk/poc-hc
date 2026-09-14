@@ -46,7 +46,7 @@ export class VisitItemsComponent implements OnInit {
   items = signal<any[]>([]);
 
   ngOnInit(): void {
-    this.api.get<any[]>('api/catalogtitem').subscribe({
+    this.api.get<any[]>('api/catalogitem/lookup').subscribe({
       next: (res) => {
         this.items.set(res);
       },

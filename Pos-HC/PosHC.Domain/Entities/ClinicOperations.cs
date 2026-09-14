@@ -1,33 +1,26 @@
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-
 namespace PosHC.Domain.Entities;
 
 public class StaffUser
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    [MaxLength(100)] public string Username { get; set; } = "";
-    [MaxLength(150)] public string DisplayName { get; set; } = "";
-    [JsonIgnore] public string PasswordHash { get; set; } = "";
-    [MaxLength(30)] public string Role { get; set; } = "Receptionist";
+    public string Username { get; set; } = "";
+    public string DisplayName { get; set; } = "";
+    public string PasswordHash { get; set; } = "";
+    public string Role { get; set; } = "Receptionist";
     public bool IsActive { get; set; } = true;
-    [JsonIgnore] public string SecurityStamp { get; set; } = Guid.NewGuid().ToString();
-    [JsonIgnore]
+    public string SecurityStamp { get; set; } = Guid.NewGuid().ToString();
     public int FailedAttempts
     {
         get; set;
     }
-    [JsonIgnore]
     public DateTime? LockedUntil
     {
         get; set;
     }
-    [JsonIgnore]
     public string? ResetTokenHash
     {
         get; set;
     }
-    [JsonIgnore]
     public DateTime? ResetExpires
     {
         get; set;
@@ -37,9 +30,9 @@ public class StaffUser
 public class ClinicSettings
 {
     public int Id { get; set; } = 1;
-    [MaxLength(150)] public string Name { get; set; } = "POS HC";
-    [MaxLength(500)] public string Address { get; set; } = "";
-    [MaxLength(50)] public string Phone { get; set; } = "";
+    public string Name { get; set; } = "POS HC";
+    public string Address { get; set; } = "";
+    public string Phone { get; set; } = "";
     public string TimeZone { get; set; } = "Asia/Beirut";
     public decimal LbpPerUsd { get; set; } = 1;
     public bool ExchangeRateConfirmed
@@ -51,8 +44,14 @@ public class ClinicSettings
         get; set;
     }
     public string TaxRegistrationNumber { get; set; } = "";
-    public bool SingleDoctorMode { get; set; }
-    public Guid? DefaultDoctorId { get; set; }
+    public bool SingleDoctorMode
+    {
+        get; set;
+    }
+    public Guid? DefaultDoctorId
+    {
+        get; set;
+    }
 }
 
 public class AuditEntry

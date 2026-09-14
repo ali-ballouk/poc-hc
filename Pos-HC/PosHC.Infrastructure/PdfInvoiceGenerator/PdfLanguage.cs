@@ -13,8 +13,14 @@ internal sealed class PdfLanguage
         FontManager.RegisterFont(stream);
         return true;
     });
-    public bool Arabic { get; }
-    public CultureInfo Culture { get; }
+    public bool Arabic
+    {
+        get;
+    }
+    public CultureInfo Culture
+    {
+        get;
+    }
     public PdfLanguage(string language)
     {
         _ = Font.Value;
@@ -25,12 +31,17 @@ internal sealed class PdfLanguage
     public string Number(decimal value) => value.ToString("N2", Culture);
     public string Status(string value) => value switch
     {
-        "Draft" => Text("Draft", "مسودة"), "Issued" => Text("Issued", "صادرة"),
-        "Void" => Text("Void", "ملغاة"), _ => value
+        "Draft" => Text("Draft", "مسودة"),
+        "Issued" => Text("Issued", "صادرة"),
+        "Void" => Text("Void", "ملغاة"),
+        _ => value
     };
     public void Configure(PageDescriptor page)
     {
         page.DefaultTextStyle(x => x.FontFamily("Lato", "Noto Sans Arabic").FontSize(10).FontColor(PdfBrand.Text));
-        if (Arabic) page.ContentFromRightToLeft();
+        if (Arabic)
+        {
+            page.ContentFromRightToLeft();
+        }
     }
 }

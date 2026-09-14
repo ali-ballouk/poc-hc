@@ -58,14 +58,12 @@ describe('Single-doctor mode and patient visit notes', () => {
     http
       .expectOne('/api/doctor/lookup')
       .flush([{ Id: 'doctor-1', FullName: 'Clinic Doctor' }]);
-    http
-      .expectOne('/api/clinic/settings')
-      .flush({
-        Name: 'Clinic',
-        LbpPerUsd: 1,
-        SingleDoctorMode: false,
-        DefaultDoctorId: null,
-      });
+    http.expectOne('/api/clinic/settings').flush({
+      Name: 'Clinic',
+      LbpPerUsd: 1,
+      SingleDoctorMode: false,
+      DefaultDoctorId: null,
+    });
     fixture.componentInstance.settings.SingleDoctorMode = true;
     fixture.componentInstance.save();
     expect(fixture.componentInstance.error).toContain(
@@ -110,7 +108,7 @@ describe('Single-doctor mode and patient visit notes', () => {
       http
         .expectOne('/api/patient/lookup')
         .flush([{ Id: 'patient-1', FullName: 'Patient' }]);
-      http.expectOne('/api/catalogtitem').flush([]);
+      http.expectOne('/api/catalogitem/lookup').flush([]);
       fixture.detectChanges();
       expect(fixture.componentInstance.selectedDoctorId).toBe('doctor-1');
       expect(fixture.componentInstance.total()).toBe(35);
@@ -140,9 +138,7 @@ describe('Single-doctor mode and patient visit notes', () => {
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
     fixture.componentInstance.save();
-    const request = http.expectOne(
-      '/api/clinic/patients/patient-1/visits/visit-1',
-    );
+    const request = http.expectOne('/api/patient/patient-1/visits/visit-1');
     expect(request.request.body).toEqual({
       VisitDescription: null,
       Diagnosis: null,
@@ -154,9 +150,7 @@ describe('Single-doctor mode and patient visit notes', () => {
     expect(close).not.toHaveBeenCalled();
     expect(fixture.componentInstance.error).toBe('Temporary error');
     fixture.componentInstance.save();
-    http
-      .expectOne('/api/clinic/patients/patient-1/visits/visit-1')
-      .flush(visit);
+    http.expectOne('/api/patient/patient-1/visits/visit-1').flush(visit);
     expect(close).toHaveBeenCalledWith(visit);
   });
 
@@ -165,17 +159,17 @@ describe('Single-doctor mode and patient visit notes', () => {
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
     http
-      .expectOne('/api/clinic/patients/patient-1/visits?page=1&pageSize=20')
+      .expectOne('/api/patient/patient-1/visits?page=1&pageSize=20')
       .flush({ Items: [visit], Total: 21, Page: 1, PageSize: 20 });
     fixture.componentInstance.onPageChange({ pageIndex: 1, pageSize: 20 });
     http
-      .expectOne('/api/clinic/patients/patient-1/visits?page=2&pageSize=20')
+      .expectOne('/api/patient/patient-1/visits?page=2&pageSize=20')
       .flush({ Items: [visit], Total: 21, Page: 2, PageSize: 20 });
     fixture.componentInstance.open(visit);
     expect(open.calls.mostRecent().args[0]).toBe(VisitNotesComponent);
     expect(open.calls.mostRecent().args[3]).toEqual({ nested: true });
     http
-      .expectOne('/api/clinic/patients/patient-1/visits?page=2&pageSize=20')
+      .expectOne('/api/patient/patient-1/visits?page=2&pageSize=20')
       .flush({ Items: [visit], Total: 21, Page: 2, PageSize: 20 });
     expect(fixture.componentInstance.page).toBe(2);
   });
@@ -192,7 +186,7 @@ describe('Single-doctor mode and patient visit notes', () => {
             lookup: 'api/doctor/lookup',
           },
         ],
-        endpoint: 'api/clinic/appointments',
+        endpoint: 'api/appointments',
         value: {},
       },
     });

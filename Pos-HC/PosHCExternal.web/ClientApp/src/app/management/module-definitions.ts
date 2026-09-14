@@ -11,6 +11,7 @@ export interface Field {
 }
 export interface ModuleDefinition {
   title: string;
+  endpoint: string;
   fields: Field[];
   columns: GridColumn<any>[];
   roles: string[];
@@ -75,6 +76,7 @@ const times: Field[] = [
 ];
 export const modules: Record<string, ModuleDefinition> = {
   patients: {
+    endpoint: 'api/patient',
     title: 'Patients',
     roles: ['Administrator', 'Receptionist', 'Doctor'],
     writers: ['Administrator', 'Receptionist'],
@@ -97,6 +99,7 @@ export const modules: Record<string, ModuleDefinition> = {
     defaults: { IsActive: true },
   },
   doctors: {
+    endpoint: 'api/doctor',
     title: 'Doctors',
     roles: ['Administrator', 'Receptionist', 'Cashier', 'Doctor'],
     writers: ['Administrator'],
@@ -118,6 +121,7 @@ export const modules: Record<string, ModuleDefinition> = {
     defaults: { IsActive: true, Fee: 0 },
   },
   catalog: {
+    endpoint: 'api/catalogitem',
     title: 'Services and products',
     roles: ['Administrator', 'Receptionist', 'Cashier', 'Doctor'],
     writers: ['Administrator'],
@@ -147,6 +151,7 @@ export const modules: Record<string, ModuleDefinition> = {
     defaults: { IsActive: true, Type: 2, UnitPrice: 0 },
   },
   staff: {
+    endpoint: 'api/staff',
     title: 'Staff accounts',
     roles: ['Administrator'],
     writers: ['Administrator'],
@@ -170,6 +175,7 @@ export const modules: Record<string, ModuleDefinition> = {
     defaults: { IsActive: true, Role: 'Receptionist' },
   },
   appointments: {
+    endpoint: 'api/appointments',
     title: 'Appointments and waiting queue',
     roles: ['Administrator', 'Receptionist', 'Doctor'],
     writers: ['Administrator', 'Receptionist', 'Doctor'],
@@ -195,6 +201,7 @@ export const modules: Record<string, ModuleDefinition> = {
     defaults: { Status: 'Booked' },
   },
   availability: {
+    endpoint: 'api/doctor/availability',
     title: 'Doctor availability',
     roles: ['Administrator', 'Receptionist', 'Doctor'],
     writers: ['Administrator', 'Receptionist'],
@@ -207,6 +214,7 @@ export const modules: Record<string, ModuleDefinition> = {
     createOnly: true,
   },
   shifts: {
+    endpoint: 'api/shifts',
     title: 'Cash shifts',
     roles: ['Administrator', 'Cashier'],
     writers: ['Administrator', 'Cashier'],
@@ -236,6 +244,7 @@ export const modules: Record<string, ModuleDefinition> = {
     createOnly: true,
   },
   audit: {
+    endpoint: 'api/audit',
     title: 'Audit history',
     roles: ['Administrator'],
     writers: [],

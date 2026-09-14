@@ -31,7 +31,8 @@ public class PdfLocalizationTests
         var bytes = new InvoicePdfGenerator().GenerateInvoicePdf(invoice, language);
         Assert.StartsWith("%PDF", System.Text.Encoding.ASCII.GetString(bytes.Take(8).ToArray()));
         var output = Environment.GetEnvironmentVariable("POSHC_PDF_QA_DIR");
-        if (!string.IsNullOrEmpty(output)) {
+        if (!string.IsNullOrEmpty(output))
+        {
             Directory.CreateDirectory(output);
             File.WriteAllBytes(Path.Combine(output, $"invoice-large-{language}.pdf"), bytes);
         }
@@ -51,8 +52,8 @@ public class PdfLocalizationTests
             1042, currency, "Issued", 0, "عيادة الأمل / Amal Clinic", "بيروت - Beirut", "+961 1 234 567");
         var bytes = new InvoicePdfGenerator().GenerateInvoicePdf(invoice, language);
         Assert.StartsWith("%PDF", System.Text.Encoding.ASCII.GetString(bytes.Take(8).ToArray()));
-        var receipt = new ReceiptPdfGenerator().Generate(new Payment { Id = Guid.NewGuid(), Amount = 100, Currency = currency, Kind = "Refund", PaymentTypeId = 3, PaymentDate = new DateTime(2026, 9, 10), Reference = "TX-1042" },
-            new Invoice { Number = 1042, ClinicName = "POS HC", PatientName = invoice.PatientName }, language, invoice.ClinicName);
+        var receipt = new ReceiptPdfGenerator().Generate(new ReceiptGenerateDto(Guid.NewGuid(), 1042,
+            invoice.PatientName, invoice.ClinicName, new DateTime(2026, 9, 10), 100, currency, "Refund", 3, "TX-1042"), language);
         Assert.StartsWith("%PDF", System.Text.Encoding.ASCII.GetString(receipt.Take(8).ToArray()));
         // Optional local visual QA output; tests do not normally write artifacts.
         var output = Environment.GetEnvironmentVariable("POSHC_PDF_QA_DIR");
